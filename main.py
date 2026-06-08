@@ -1,7 +1,7 @@
-"""FastLMS — FastHTML learning management system with gamification and AI tutor.
+"""FastLMS — FastHTML learning management system with interactivity and AI tutor.
 
 3-pane layout (left nav / center content / right canvas), SSE streaming chat,
-PostgreSQL backend, XP + streaks + badges + leaderboard gamification.
+PostgreSQL backend, XP + streaks + badges + leaderboard interactivity.
 
 Usage:
     python main.py                     # http://localhost:5001
@@ -102,7 +102,7 @@ def landing(req):
                 ),
                 H1("Learn. Level up. Lead.", style="text-align:center; font-size:32px; margin-bottom:12px;"),
                 P(
-                    "Open-source learning platform with AI tutoring, gamification, and real-time progress tracking.",
+                    "Open-source learning platform with AI tutoring, interactivity, and real-time progress tracking.",
                     style="text-align:center; color:var(--ink-muted); max-width:500px; margin:0 auto 32px;",
                 ),
                 Div(

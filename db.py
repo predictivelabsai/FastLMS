@@ -1,7 +1,7 @@
 """FastLMS database layer — PostgreSQL via SQLAlchemy.
 
 Schema lives in ``fastlms`` on the database pointed to by ``DB_URL``.
-Tables cover courses, lessons, quizzes, progress, gamification, and chat.
+Tables cover courses, lessons, quizzes, progress, interactivity, and chat.
 """
 
 from __future__ import annotations

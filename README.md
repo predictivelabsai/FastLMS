@@ -1,6 +1,6 @@
 # FastLMS
 
-Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, AI tutor chat with SSE streaming, and Duolingo-style gamification (XP, streaks, badges, leaderboards, levels).
+Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, AI tutor chat with SSE streaming, and Duolingo-style interactive elements (XP, streaks, badges, leaderboards, levels).
 
 ![FastLMS Demo](docs/fastlms-demo.gif)
 
@@ -13,7 +13,7 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **AI Tutor** — SSE streaming chat powered by Grok / OpenAI / Claude, with lesson-aware context
 - **Discussions** — per-lesson threaded comments
 
-### Gamification
+### Interactivity
 - **XP system** — earn points for completing lessons and passing quizzes
 - **Levels** — Novice → Apprentice → Scholar → Expert → Master → Grandmaster (XP thresholds)
 - **Streaks** — consecutive-day activity tracking with badge rewards at 3, 7, and 30 days
@@ -24,7 +24,7 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **3-pane layout** — left navigation (280px), center content (flex), right canvas (400px slide-in)
 - **Dark theme** — navy + amber palette, Inter font, CSS custom properties
 - **Server-side rendering** — all UI generated in Python, HTMX for partial updates
-- **PostgreSQL** — full schema with courses, users, progress, gamification, chat history
+- **PostgreSQL** — full schema with courses, users, progress, interactivity, chat history
 - **Multi-provider AI** — pluggable LLM backend (X.AI Grok, OpenAI, Anthropic Claude)
 
 ## Quick start
@@ -82,7 +82,7 @@ Open [http://localhost:5001](http://localhost:5001).
 ```
 FastLMS/
 ├── main.py                  # FastHTML app — all routes
-├── db.py                    # PostgreSQL schema, queries, gamification logic
+├── db.py                    # PostgreSQL schema, queries, interactivity logic
 ├── seed.py                  # Demo data seeder (courses, badges, users)
 ├── seed_subjects.py         # Academic subjects seeder (7 courses with lessons + quizzes)
 ├── components/
@@ -115,7 +115,7 @@ All tables live in the `fastlms` PostgreSQL schema:
 | `chat_messages` | AI tutor conversation history per user/lesson |
 | `discussions` | Per-lesson threaded comments |
 
-## Gamification details
+## Interactivity details
 
 ### XP and levels
 
@@ -185,9 +185,33 @@ The tutor receives lesson context automatically when accessed from a lesson page
 | `GET /app/configure` | Course configuration wizard (5-step: course → modules → lessons → quizzes → publish) |
 | `GET /healthz` | Health check |
 
+## Supported Courses
+
+FastLMS ships with 10 ready-to-use courses:
+
+### Programming & Technology
+| Course | Category | Difficulty | Modules | Lessons |
+|--------|----------|------------|---------|---------|
+| Python Fundamentals | Programming | Beginner | 2 | 5 |
+| Machine Learning with scikit-learn | Data Science | Intermediate | 1 | 2 |
+| Building Web Apps with FastHTML | Web Development | Intermediate | 1 | 1 |
+
+### Academic Subjects
+| Course | Category | Difficulty | Modules | Lessons |
+|--------|----------|------------|---------|---------|
+| Mathematics Foundations | Mathematics | Beginner | 2 (Algebra, Geometry) | 3 |
+| Physics Essentials | Physics | Intermediate | 1 (Mechanics) | 2 |
+| Biology: Life Sciences | Biology | Beginner | 2 (Cell Biology, Genetics) | 4 |
+| Chemistry Fundamentals | Chemistry | Intermediate | 2 (Atomic Structure, Reactions) | 4 |
+| English Language & Literature | English | Beginner | 2 (Reading, Writing) | 4 |
+| Geography: Physical & Human | Geography | Beginner | 2 (Physical, Human) | 4 |
+| Creative Writing | Creative Writing | Beginner | 2 (Storytelling, Poetry) | 4 |
+
+Run `python seed.py` for the 3 programming courses, then `python seed_subjects.py` for the 7 academic subjects.
+
 ## Design inspiration
 
-The 3-pane layout, dark theme, SSE streaming chat, and gamification engine are inspired by [LiquidRound](https://github.com/plai/liquidround), an M&A research platform built on the same FastHTML + PostgreSQL + HTMX stack. FastLMS adapts that architecture for education.
+The 3-pane layout, dark theme, SSE streaming chat, and interactivity engine are inspired by [LiquidRound](https://github.com/plai/liquidround), an M&A research platform built on the same FastHTML + PostgreSQL + HTMX stack. FastLMS adapts that architecture for education.
 
 ## License
 

@@ -1,7 +1,7 @@
 """3-pane layout components — left nav, center content, right canvas.
 
 Modelled after the liquidround 3-pane architecture:
-  Left (280px)  — navigation, courses, gamification stats
+  Left (280px)  — navigation, courses, interactivity stats
   Center (flex) — main content area (lessons, chat, dashboard)
   Right (400px) — slide-in canvas for resources, quiz, discussions
 """

@@ -20,7 +20,7 @@ Enter your email and password. Demo accounts are available after seeding:
 
 After signing in you land on your dashboard. It shows your XP, level, streak, and lessons completed at a glance. Below the stats you'll see your enrolled courses and any courses available to browse.
 
-![Dashboard](../screenshots/03-dashboard-empty.png)
+![Dashboard](../screenshots/03-dashboard.png)
 
 ---
 
@@ -28,7 +28,22 @@ After signing in you land on your dashboard. It shows your XP, level, streak, an
 
 ### 4. Browse Courses
 
-Click **Courses** in the left nav to see all published courses. Each card shows the category, difficulty level (Beginner / Intermediate / Advanced), and a short description. If you're enrolled, a progress bar appears.
+Click **Courses** in the left nav to see all published courses. FastLMS ships with 10 courses across multiple subjects:
+
+| Category | Courses |
+|----------|---------|
+| Programming | Python Fundamentals |
+| Data Science | Machine Learning with scikit-learn |
+| Web Development | Building Web Apps with FastHTML |
+| Mathematics | Mathematics Foundations |
+| Physics | Physics Essentials |
+| Biology | Biology: Life Sciences |
+| Chemistry | Chemistry Fundamentals |
+| English | English Language & Literature |
+| Geography | Geography: Physical & Human |
+| Creative Writing | Creative Writing |
+
+Each card shows the category, difficulty level (Beginner / Intermediate / Advanced), and a short description. If you're enrolled, a progress bar appears.
 
 ![Courses](../screenshots/04-courses.png)
 
@@ -76,7 +91,7 @@ If you didn't pass, click **Retry** to try again.
 
 ---
 
-## Gamification
+## Interactivity
 
 ### 10. Leaderboard
 
@@ -88,7 +103,7 @@ Click **Leaderboard** in the left nav to see all learners ranked by XP. The top 
 
 Click your name in the bottom-left to view your profile. It shows all your stats, a progress bar to the next level, and any badges you've earned.
 
-**Levels**: Novice (0 XP) → Apprentice (500) → Scholar (2,000) → Expert (5,000) → Master (10,000) → Grandmaster (25,000)
+**Levels**: Novice (0 XP) -> Apprentice (500) -> Scholar (2,000) -> Expert (5,000) -> Master (10,000) -> Grandmaster (25,000)
 
 **Badges** are awarded automatically for milestones like completing your first lesson, maintaining streaks, acing quizzes, and reaching XP thresholds.
 
@@ -131,13 +146,33 @@ Navigate to `/app/configure` or click **Course Config** in the left nav. The 5-s
 
 3. **Add lessons** — write markdown content, set XP rewards, duration, and optional video URL
 
-![Step 3 — Lessons](../screenshots/15-configure-step3.png)
-
 4. **Add quizzes** — create a quiz for any lesson, then add multiple-choice questions with explanations
 
 5. **Publish** — review course stats (modules, lessons, quizzes) and toggle published/draft status
 
-![Step 5 — Publish](../screenshots/16-configure-step5.png)
+![Step 5 — Publish](../screenshots/15-configure-publish.png)
+
+---
+
+## Supported Courses
+
+FastLMS ships with 10 ready-to-use courses covering programming and academic subjects:
+
+### Programming & Technology
+- **Python Fundamentals** — Variables, data types, control flow, functions, classes (Beginner)
+- **Machine Learning with scikit-learn** — Supervised learning, model evaluation, pipelines (Intermediate)
+- **Building Web Apps with FastHTML** — Server-side rendering, HTMX, database integration (Intermediate)
+
+### Academic Subjects
+- **Mathematics Foundations** — Algebra (variables, linear equations) and Geometry (shapes, area, perimeter) (Beginner)
+- **Physics Essentials** — Mechanics: Newton's laws, motion, forces, energy (Intermediate)
+- **Biology: Life Sciences** — Cell biology (organelles, membranes) and Genetics (DNA, inheritance, mutations) (Beginner)
+- **Chemistry Fundamentals** — Atomic structure (elements, periodic table) and Chemical reactions (balancing, types) (Intermediate)
+- **English Language & Literature** — Reading comprehension, essay writing, literary analysis, grammar (Beginner)
+- **Geography: Physical & Human** — Landscapes, climate, urbanisation, globalisation, resource management (Beginner)
+- **Creative Writing** — Narrative techniques, character development, world-building, poetry forms (Beginner)
+
+Each course includes multiple modules with rich markdown lessons and multiple-choice quizzes.
 
 ---
 
