@@ -2,6 +2,8 @@
 
 Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, AI tutor chat with SSE streaming, and Duolingo-style gamification (XP, streaks, badges, leaderboards, levels).
 
+![FastLMS Demo](docs/fastlms-demo.gif)
+
 ## Features
 
 ### Learning
@@ -61,6 +63,12 @@ This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), 11 bad
 - **Instructor**: `instructor@fastlms.dev` / `admin`
 - **Student**: `student@fastlms.dev` / `admin`
 
+To add 7 academic subjects (Mathematics, Physics, Biology, Chemistry, English, Geography, Creative Writing):
+
+```bash
+python seed_subjects.py
+```
+
 ### 4. Run
 
 ```bash
@@ -76,6 +84,7 @@ FastLMS/
 ├── main.py                  # FastHTML app — all routes
 ├── db.py                    # PostgreSQL schema, queries, gamification logic
 ├── seed.py                  # Demo data seeder (courses, badges, users)
+├── seed_subjects.py         # Academic subjects seeder (7 courses with lessons + quizzes)
 ├── components/
 │   └── layout.py            # 3-pane layout, UI fragments (cards, badges, progress bars)
 ├── static/
@@ -173,6 +182,7 @@ The tutor receives lesson context automatically when accessed from a lesson page
 | `GET /app/leaderboard` | XP leaderboard |
 | `GET /app/profile` | User profile, badges, progress to next level |
 | `GET /app/manage` | Instructor course management |
+| `GET /app/configure` | Course configuration wizard (5-step: course → modules → lessons → quizzes → publish) |
 | `GET /healthz` | Health check |
 
 ## Design inspiration

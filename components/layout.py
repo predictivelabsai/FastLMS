@@ -31,6 +31,7 @@ def left_pane(user=None, active=None):
 
     if user and user.get("role") in ("instructor", "admin"):
         nav_items.append(("manage", "Manage Courses", "/app/manage"))
+        nav_items.append(("configure", "Course Config", "/app/configure"))
 
     nav_links = []
     for key, label, href in nav_items:

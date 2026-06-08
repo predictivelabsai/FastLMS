@@ -946,6 +946,493 @@ def manage_page(req):
 
 
 # ---------------------------------------------------------------------------
+# Course Configuration (instructor wizard)
+# ---------------------------------------------------------------------------
+
+@app.get("/app/configure")
+def configure_page(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    if user["role"] not in ("instructor", "admin"):
+        return RedirectResponse("/app", status_code=303)
+
+    step = req.query_params.get("step", "1")
+    course_id = req.query_params.get("course_id", "")
+    module_id = req.query_params.get("module_id", "")
+    lesson_id = req.query_params.get("lesson_id", "")
+    msg = req.query_params.get("msg", "")
+    error = req.query_params.get("error", "")
+
+    import sqlalchemy as sa
+
+    with db.connect() as conn:
+        courses = db.get_courses(conn, published_only=False)
+        selected_course = None
+        modules = []
+        lessons = []
+        selected_module = None
+        selected_lesson = None
+
+        if course_id:
+            selected_course = conn.execute(
+                sa.text(f"SELECT * FROM {db.S}.courses WHERE id = :c"), {"c": int(course_id)}
+            ).mappings().first()
+            if selected_course:
+                selected_course = dict(selected_course)
+                modules = db.get_modules(conn, int(course_id))
+
+        if module_id:
+            selected_module = conn.execute(
+                sa.text(f"SELECT * FROM {db.S}.modules WHERE id = :m"), {"m": int(module_id)}
+            ).mappings().first()
+            if selected_module:
+                selected_module = dict(selected_module)
+                lessons = db.get_lessons(conn, int(module_id))
+
+        if lesson_id:
+            selected_lesson = db.get_lesson(conn, int(lesson_id))
+
+    steps_bar = Div(
+        *[Div(
+            Span(str(i), cls="step-num" + (" active" if step == str(i) else "")),
+            Span(label, cls="step-label"),
+            cls="step-item",
+        ) for i, label in [(1, "Course"), (2, "Modules"), (3, "Lessons"), (4, "Quizzes"), (5, "Publish")]],
+        cls="steps-bar",
+    )
+
+    alert = ""
+    if msg:
+        alert = Div(msg, cls="alert alert-success")
+    if error:
+        alert = Div(error, cls="alert alert-error")
+
+    body = Div("Select a step above.")
+
+    if step == "1":
+        body = Div(
+            H2("Create or select a course", style="font-size:18px; margin-bottom:16px;"),
+            (Div(
+                H3("Existing courses", style="font-size:14px; color:var(--ink-muted); margin-bottom:8px;"),
+                *[Div(
+                    A(c["title"], href=f"/app/configure?step=2&course_id={c['id']}",
+                      style="color:var(--accent-text); font-weight:500;"),
+                    Span(f" — {c.get('category', '')} / {c.get('difficulty', '').title()}", style="color:var(--ink-muted); font-size:13px;"),
+                    Span(" (Draft)" if not c["is_published"] else " (Published)", style="font-size:12px; color:var(--ink-dim);"),
+                    style="padding:6px 0;",
+                ) for c in courses],
+                style="margin-bottom:24px; border-bottom:1px solid var(--border); padding-bottom:16px;",
+            ) if courses else ""),
+            H3("New course", style="font-size:14px; color:var(--ink-muted); margin-bottom:12px;"),
+            Form(
+                Div(Label("Title", cls="form-label"), Input(name="title", cls="form-input", required=True, placeholder="e.g. Introduction to Data Science"), cls="form-group"),
+                Div(Label("Category", cls="form-label"), Input(name="category", cls="form-input", placeholder="e.g. Computer Science"), cls="form-group"),
+                Div(
+                    Label("Difficulty", cls="form-label"),
+                    Select(
+                        Option("Beginner", value="beginner"),
+                        Option("Intermediate", value="intermediate"),
+                        Option("Advanced", value="advanced"),
+                        name="difficulty", cls="form-input",
+                    ),
+                    cls="form-group",
+                ),
+                Div(Label("Description", cls="form-label"), Textarea(name="description", cls="form-input", rows=3, placeholder="A short description of what students will learn..."), cls="form-group"),
+                Button("Create Course", cls="btn btn-primary", type="submit"),
+                method="post",
+                action="/app/configure/create-course",
+            ),
+        )
+
+    elif step == "2" and selected_course:
+        module_list = ""
+        if modules:
+            module_list = Div(
+                H3("Existing modules", style="font-size:14px; color:var(--ink-muted); margin-bottom:8px;"),
+                *[Div(
+                    A(m["title"], href=f"/app/configure?step=3&course_id={course_id}&module_id={m['id']}",
+                      style="color:var(--accent-text); font-weight:500;"),
+                    Span(f" (order: {m['order_idx']})", style="color:var(--ink-dim); font-size:12px;"),
+                    style="padding:6px 0;",
+                ) for m in modules],
+                style="margin-bottom:24px; border-bottom:1px solid var(--border); padding-bottom:16px;",
+            )
+
+        body = Div(
+            A("← Back to courses", href="/app/configure?step=1", style="font-size:13px; color:var(--ink-muted);"),
+            H2(f"Modules for: {selected_course['title']}", style="font-size:18px; margin:12px 0 16px;"),
+            module_list,
+            H3("Add module", style="font-size:14px; color:var(--ink-muted); margin-bottom:12px;"),
+            Form(
+                Input(type="hidden", name="course_id", value=course_id),
+                Div(Label("Title", cls="form-label"), Input(name="title", cls="form-input", required=True, placeholder="e.g. Module 1: Foundations"), cls="form-group"),
+                Div(Label("Description", cls="form-label"), Textarea(name="description", cls="form-input", rows=2, placeholder="Module overview..."), cls="form-group"),
+                Div(Label("Order", cls="form-label"), Input(name="order_idx", type="number", cls="form-input", value=str(len(modules))), cls="form-group"),
+                Button("Add Module", cls="btn btn-primary", type="submit"),
+                method="post",
+                action="/app/configure/create-module",
+            ),
+            Div(
+                A("Skip to Publish →", href=f"/app/configure?step=5&course_id={course_id}", cls="btn btn-secondary", style="margin-top:16px;"),
+            ),
+        )
+
+    elif step == "3" and selected_module:
+        lesson_list = ""
+        if lessons:
+            lesson_list = Div(
+                H3("Existing lessons", style="font-size:14px; color:var(--ink-muted); margin-bottom:8px;"),
+                *[Div(
+                    A(l["title"], href=f"/app/configure?step=4&course_id={course_id}&module_id={module_id}&lesson_id={l['id']}",
+                      style="color:var(--accent-text); font-weight:500;"),
+                    Span(f" (+{l['xp_reward']} XP, {l.get('duration_min', 0)}min)", style="color:var(--ink-dim); font-size:12px;"),
+                    style="padding:6px 0;",
+                ) for l in lessons],
+                style="margin-bottom:24px; border-bottom:1px solid var(--border); padding-bottom:16px;",
+            )
+
+        body = Div(
+            A(f"← Back to modules", href=f"/app/configure?step=2&course_id={course_id}", style="font-size:13px; color:var(--ink-muted);"),
+            H2(f"Lessons for: {selected_module['title']}", style="font-size:18px; margin:12px 0 16px;"),
+            lesson_list,
+            H3("Add lesson", style="font-size:14px; color:var(--ink-muted); margin-bottom:12px;"),
+            Form(
+                Input(type="hidden", name="course_id", value=course_id),
+                Input(type="hidden", name="module_id", value=module_id),
+                Div(Label("Title", cls="form-label"), Input(name="title", cls="form-input", required=True, placeholder="e.g. Variables and Data Types"), cls="form-group"),
+                Div(
+                    Label("Content (Markdown)", cls="form-label"),
+                    Textarea(name="content_md", cls="form-input", rows=12, placeholder="# Lesson Title\n\nWrite your lesson content in **Markdown**...\n\n```python\nprint('Hello')\n```"),
+                    cls="form-group",
+                ),
+                Div(
+                    Div(Label("XP Reward", cls="form-label"), Input(name="xp_reward", type="number", cls="form-input", value="25"), cls="form-group"),
+                    Div(Label("Duration (min)", cls="form-label"), Input(name="duration_min", type="number", cls="form-input", value="15"), cls="form-group"),
+                    Div(Label("Order", cls="form-label"), Input(name="order_idx", type="number", cls="form-input", value=str(len(lessons))), cls="form-group"),
+                    style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;",
+                ),
+                Div(Label("Video URL (optional)", cls="form-label"), Input(name="video_url", cls="form-input", placeholder="https://youtube.com/embed/..."), cls="form-group"),
+                Button("Add Lesson", cls="btn btn-primary", type="submit"),
+                method="post",
+                action="/app/configure/create-lesson",
+            ),
+        )
+
+    elif step == "4" and selected_lesson:
+        with db.connect() as conn:
+            quiz = db.get_quiz_for_lesson(conn, int(lesson_id))
+            questions = db.get_quiz_questions(conn, quiz["id"]) if quiz else []
+
+        existing_q = ""
+        if questions:
+            existing_q = Div(
+                H3("Existing questions", style="font-size:14px; color:var(--ink-muted); margin-bottom:8px;"),
+                *[Div(
+                    Span(f"Q{i+1}: ", style="font-weight:600;"),
+                    Span(q["question_text"]),
+                    Span(f" (Answer: {q['correct_answer']})", style="color:var(--ink-dim); font-size:12px;"),
+                    style="padding:6px 0; font-size:13px;",
+                ) for i, q in enumerate(questions)],
+                style="margin-bottom:24px; border-bottom:1px solid var(--border); padding-bottom:16px;",
+            )
+
+        quiz_form = ""
+        if not quiz:
+            quiz_form = Div(
+                H3("Create quiz for this lesson", style="font-size:14px; color:var(--ink-muted); margin-bottom:12px;"),
+                Form(
+                    Input(type="hidden", name="course_id", value=course_id),
+                    Input(type="hidden", name="module_id", value=module_id),
+                    Input(type="hidden", name="lesson_id", value=lesson_id),
+                    Div(Label("Quiz Title", cls="form-label"), Input(name="title", cls="form-input", required=True, value=f"Quiz: {selected_lesson['title']}"), cls="form-group"),
+                    Div(
+                        Div(Label("Pass Threshold (%)", cls="form-label"), Input(name="pass_threshold", type="number", cls="form-input", value="70"), cls="form-group"),
+                        Div(Label("XP Reward", cls="form-label"), Input(name="xp_reward", type="number", cls="form-input", value="50"), cls="form-group"),
+                        style="display:grid; grid-template-columns:1fr 1fr; gap:12px;",
+                    ),
+                    Button("Create Quiz", cls="btn btn-primary", type="submit"),
+                    method="post",
+                    action="/app/configure/create-quiz",
+                ),
+            )
+        else:
+            quiz_form = Div(
+                existing_q,
+                H3("Add question", style="font-size:14px; color:var(--ink-muted); margin-bottom:12px;"),
+                Form(
+                    Input(type="hidden", name="course_id", value=course_id),
+                    Input(type="hidden", name="module_id", value=module_id),
+                    Input(type="hidden", name="lesson_id", value=lesson_id),
+                    Input(type="hidden", name="quiz_id", value=str(quiz["id"])),
+                    Div(Label("Question", cls="form-label"), Textarea(name="question_text", cls="form-input", rows=2, required=True, placeholder="What is the capital of France?"), cls="form-group"),
+                    Div(Label("Option A", cls="form-label"), Input(name="option_a", cls="form-input", required=True), cls="form-group"),
+                    Div(Label("Option B", cls="form-label"), Input(name="option_b", cls="form-input", required=True), cls="form-group"),
+                    Div(Label("Option C", cls="form-label"), Input(name="option_c", cls="form-input"), cls="form-group"),
+                    Div(Label("Option D", cls="form-label"), Input(name="option_d", cls="form-input"), cls="form-group"),
+                    Div(Label("Correct Answer (exact text of correct option)", cls="form-label"), Input(name="correct_answer", cls="form-input", required=True), cls="form-group"),
+                    Div(Label("Explanation", cls="form-label"), Textarea(name="explanation", cls="form-input", rows=2, placeholder="Why this is the correct answer..."), cls="form-group"),
+                    Button("Add Question", cls="btn btn-primary", type="submit"),
+                    method="post",
+                    action="/app/configure/create-question",
+                ),
+            )
+
+        body = Div(
+            A(f"← Back to lessons", href=f"/app/configure?step=3&course_id={course_id}&module_id={module_id}", style="font-size:13px; color:var(--ink-muted);"),
+            H2(f"Quiz for: {selected_lesson['title']}", style="font-size:18px; margin:12px 0 16px;"),
+            quiz_form,
+        )
+
+    elif step == "5" and selected_course:
+        with db.connect() as conn:
+            modules = db.get_modules(conn, int(course_id))
+            total_lessons = 0
+            total_quizzes = 0
+            for m in modules:
+                ls = db.get_lessons(conn, m["id"])
+                total_lessons += len(ls)
+                for l in ls:
+                    q = db.get_quiz_for_lesson(conn, l["id"])
+                    if q:
+                        total_quizzes += 1
+
+        body = Div(
+            A("← Back to course", href=f"/app/configure?step=2&course_id={course_id}", style="font-size:13px; color:var(--ink-muted);"),
+            H2(f"Publish: {selected_course['title']}", style="font-size:18px; margin:12px 0 16px;"),
+            Div(
+                Div(Div(str(len(modules)), cls="dashboard-card-value"), Div("Modules", cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(str(total_lessons), cls="dashboard-card-value"), Div("Lessons", cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(str(total_quizzes), cls="dashboard-card-value"), Div("Quizzes", cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(
+                    Div("Published" if selected_course["is_published"] else "Draft", cls="dashboard-card-value"),
+                    Div("Status", cls="dashboard-card-label"),
+                    cls="dashboard-card",
+                ),
+                cls="dashboard-grid",
+                style="margin-bottom:24px;",
+            ),
+            (Form(
+                Input(type="hidden", name="course_id", value=course_id),
+                Button("Publish Course" if not selected_course["is_published"] else "Unpublish Course",
+                       cls="btn btn-primary" if not selected_course["is_published"] else "btn btn-secondary",
+                       type="submit"),
+                method="post",
+                action="/app/configure/toggle-publish",
+            )),
+        )
+
+    content = Div(
+        H1("Course Configuration", cls="page-title"),
+        P("Create and configure courses step by step", cls="page-subtitle"),
+        steps_bar,
+        alert,
+        body,
+        cls="page-content configure-page",
+    )
+    return app_shell(content, user=user, active="configure")
+
+
+@app.post("/app/configure/create-course")
+async def create_course(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+
+    form = await req.form()
+    title = form.get("title", "").strip()
+    category = form.get("category", "").strip()
+    difficulty = form.get("difficulty", "beginner")
+    description = form.get("description", "").strip()
+
+    if not title:
+        return RedirectResponse("/app/configure?step=1&error=Title+is+required", status_code=303)
+
+    import re
+    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        existing = db.get_course(conn, slug)
+        if existing:
+            return RedirectResponse(f"/app/configure?step=1&error=Course+slug+'{slug}'+already+exists", status_code=303)
+        conn.execute(
+            sa.text(f"""
+                INSERT INTO {db.S}.courses (title, slug, description, category, difficulty, instructor_id, is_published)
+                VALUES (:t, :s, :d, :cat, :diff, :i, false)
+            """),
+            {"t": title, "s": slug, "d": description, "cat": category, "diff": difficulty, "i": user["id"]},
+        )
+        course = db.get_course(conn, slug)
+
+    return RedirectResponse(f"/app/configure?step=2&course_id={course['id']}&msg=Course+created!", status_code=303)
+
+
+@app.post("/app/configure/create-module")
+async def create_module(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+
+    form = await req.form()
+    course_id = form.get("course_id", "")
+    title = form.get("title", "").strip()
+    description = form.get("description", "").strip()
+    order_idx = int(form.get("order_idx", "0"))
+
+    if not title or not course_id:
+        return RedirectResponse(f"/app/configure?step=2&course_id={course_id}&error=Title+is+required", status_code=303)
+
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        result = conn.execute(
+            sa.text(f"""
+                INSERT INTO {db.S}.modules (course_id, title, description, order_idx)
+                VALUES (:c, :t, :d, :o) RETURNING id
+            """),
+            {"c": int(course_id), "t": title, "d": description, "o": order_idx},
+        )
+        module_id = result.scalar()
+
+    return RedirectResponse(
+        f"/app/configure?step=3&course_id={course_id}&module_id={module_id}&msg=Module+added!", status_code=303
+    )
+
+
+@app.post("/app/configure/create-lesson")
+async def create_lesson(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+
+    form = await req.form()
+    course_id = form.get("course_id", "")
+    module_id = form.get("module_id", "")
+    title = form.get("title", "").strip()
+    content_md = form.get("content_md", "").strip()
+    xp_reward = int(form.get("xp_reward", "25"))
+    duration_min = int(form.get("duration_min", "15"))
+    order_idx = int(form.get("order_idx", "0"))
+    video_url = form.get("video_url", "").strip() or None
+
+    if not title or not module_id:
+        return RedirectResponse(
+            f"/app/configure?step=3&course_id={course_id}&module_id={module_id}&error=Title+is+required",
+            status_code=303,
+        )
+
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        result = conn.execute(
+            sa.text(f"""
+                INSERT INTO {db.S}.lessons (module_id, title, content_md, xp_reward, duration_min, order_idx, video_url)
+                VALUES (:m, :t, :c, :xp, :dur, :o, :v) RETURNING id
+            """),
+            {"m": int(module_id), "t": title, "c": content_md, "xp": xp_reward, "dur": duration_min, "o": order_idx, "v": video_url},
+        )
+        lesson_id = result.scalar()
+
+    return RedirectResponse(
+        f"/app/configure?step=3&course_id={course_id}&module_id={module_id}&msg=Lesson+added!",
+        status_code=303,
+    )
+
+
+@app.post("/app/configure/create-quiz")
+async def create_quiz(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+
+    form = await req.form()
+    course_id = form.get("course_id", "")
+    module_id = form.get("module_id", "")
+    lesson_id = form.get("lesson_id", "")
+    title = form.get("title", "").strip()
+    pass_threshold = int(form.get("pass_threshold", "70"))
+    xp_reward = int(form.get("xp_reward", "50"))
+
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        conn.execute(
+            sa.text(f"""
+                INSERT INTO {db.S}.quizzes (lesson_id, title, pass_threshold, xp_reward)
+                VALUES (:l, :t, :p, :xp)
+            """),
+            {"l": int(lesson_id), "t": title, "p": pass_threshold, "xp": xp_reward},
+        )
+
+    return RedirectResponse(
+        f"/app/configure?step=4&course_id={course_id}&module_id={module_id}&lesson_id={lesson_id}&msg=Quiz+created!+Now+add+questions.",
+        status_code=303,
+    )
+
+
+@app.post("/app/configure/create-question")
+async def create_question(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+
+    form = await req.form()
+    course_id = form.get("course_id", "")
+    module_id = form.get("module_id", "")
+    lesson_id = form.get("lesson_id", "")
+    quiz_id = form.get("quiz_id", "")
+    question_text = form.get("question_text", "").strip()
+    option_a = form.get("option_a", "").strip()
+    option_b = form.get("option_b", "").strip()
+    option_c = form.get("option_c", "").strip()
+    option_d = form.get("option_d", "").strip()
+    correct_answer = form.get("correct_answer", "").strip()
+    explanation = form.get("explanation", "").strip()
+
+    options = [o for o in [option_a, option_b, option_c, option_d] if o]
+
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        count = conn.execute(
+            sa.text(f"SELECT count(*) FROM {db.S}.quiz_questions WHERE quiz_id = :q"), {"q": int(quiz_id)}
+        ).scalar()
+        conn.execute(
+            sa.text(f"""
+                INSERT INTO {db.S}.quiz_questions (quiz_id, question_text, options, correct_answer, explanation, order_idx)
+                VALUES (:q, :qt, :opts, :ca, :ex, :o)
+            """),
+            {"q": int(quiz_id), "qt": question_text, "opts": json.dumps(options), "ca": correct_answer, "ex": explanation, "o": count},
+        )
+
+    return RedirectResponse(
+        f"/app/configure?step=4&course_id={course_id}&module_id={module_id}&lesson_id={lesson_id}&msg=Question+added!",
+        status_code=303,
+    )
+
+
+@app.post("/app/configure/toggle-publish")
+async def toggle_publish(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+
+    form = await req.form()
+    course_id = form.get("course_id", "")
+
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        course = conn.execute(
+            sa.text(f"SELECT * FROM {db.S}.courses WHERE id = :c"), {"c": int(course_id)}
+        ).mappings().first()
+        new_state = not course["is_published"]
+        conn.execute(
+            sa.text(f"UPDATE {db.S}.courses SET is_published = :p WHERE id = :c"),
+            {"p": new_state, "c": int(course_id)},
+        )
+
+    action = "Published" if new_state else "Unpublished"
+    return RedirectResponse(f"/app/configure?step=5&course_id={course_id}&msg=Course+{action}!", status_code=303)
+
+
+# ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
 
