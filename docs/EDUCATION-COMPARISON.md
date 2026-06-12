@@ -1,5 +1,15 @@
 # FastLMS vs Frappe — comparison & suggested additions
 
+> **Update (2026-06-12): the school-administration layer below is now
+> implemented.** `school.py` adds the 17-table `frappe/education` model
+> (academic calendar, students & guardians, programmes & enrolment, a gradebook
+> with grading scale, attendance, and fees) on top of the course-delivery core,
+> with admin/instructor pages under **/app/school** (Overview · Students ·
+> Programmes · Gradebook · Attendance · Fees). Seeded by `school.seed_school()`.
+> Run `python seed.py` against your Postgres to populate it.
+
+
+
 Part of the [`fasthtml-oss-migrations`](https://github.com/predictivelabsai/fasthtml-oss-migrations)
 analysis. Two upstream Frappe apps are relevant; they cover **different** halves
 of "education", and FastLMS sits mostly in the first:

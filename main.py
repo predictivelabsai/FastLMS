@@ -21,6 +21,7 @@ from fasthtml.common import *
 from starlette.responses import StreamingResponse
 
 import db
+import school
 from components.layout import (
     app_shell,
     auth_page,
@@ -1434,6 +1435,236 @@ async def toggle_publish(req):
 
 # ---------------------------------------------------------------------------
 # Health check
+# ---------------------------------------------------------------------------
+# School administration (frappe/education layer): students, programmes,
+# gradebook, attendance and fees — on top of FastLMS's course-delivery core.
+# ---------------------------------------------------------------------------
+
+_SCHOOL_CSS = Style("""
+.sch-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:16px 0 24px;}
+.sch-kpi{background:var(--surface,#fff);border:1px solid var(--line,#e2e8f0);border-radius:12px;padding:16px;}
+.sch-kpi-value{font-size:26px;font-weight:700;}
+.sch-kpi-label{font-size:12px;color:var(--ink-muted,#64748b);text-transform:uppercase;letter-spacing:.4px;margin-top:4px;}
+.sch-bar{height:8px;background:var(--line,#e2e8f0);border-radius:4px;overflow:hidden;min-width:90px;}
+.sch-bar>span{display:block;height:100%;background:var(--accent,#f59e0b);}
+.status-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;}
+.status-paid{background:#dcfce7;color:#166534;} .status-overdue{background:#fee2e2;color:#991b1b;}
+.status-unpaid{background:#f1f5f9;color:#475569;} .status-partly{background:#fef3c7;color:#92400e;}
+.sch-seg{display:inline-flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.sch-seg a{padding:6px 12px;border:1px solid var(--line,#e2e8f0);border-radius:8px;font-size:13px;text-decoration:none;color:inherit;}
+.sch-seg a.active{background:var(--accent,#f59e0b);color:#fff;}
+""")
+
+
+def _school_guard(req):
+    user, redir = _require_login(req)
+    if redir:
+        return None, redir
+    if user["role"] not in ("instructor", "admin"):
+        return None, RedirectResponse("/app", status_code=303)
+    return user, None
+
+
+def _kpi(label, value):
+    return Div(Div(str(value), cls="sch-kpi-value"), Div(label, cls="sch-kpi-label"), cls="sch-kpi")
+
+
+def _fee_pill(status):
+    cls = {"Paid": "status-paid", "Overdue": "status-overdue", "Unpaid": "status-unpaid",
+           "Partly Paid": "status-partly"}.get(status, "status-unpaid")
+    return Span(status, cls=f"status-pill {cls}")
+
+
+@app.get("/app/school")
+def school_overview(req):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    with db.connect() as conn:
+        k = school.school_kpis(conn)
+        progs = school.list_programs(conn)
+        fees = school.fees_summary(conn)
+    prog_rows = [Tr(Td(p["name"]), Td(str(p["students"])), Td(str(p["courses"]))) for p in progs]
+    fee_rows = [Tr(Td(_fee_pill(f["status"])), Td(str(f["n"])), Td(f"£{float(f['outstanding']):,.0f}")) for f in fees]
+    content = Div(
+        _SCHOOL_CSS,
+        H1("School Overview", cls="page-title"),
+        Div(_kpi("Students", k["students"]), _kpi("Programmes", k["programs"]),
+            _kpi("Attendance (30d)", f"{k['attendance_rate']}%"),
+            _kpi("Fees outstanding", f"£{k['fees_outstanding']:,.0f}"), cls="sch-kpi-grid"),
+        H2("Programmes", style="margin-top:8px;"),
+        Table(Thead(Tr(Th("Programme"), Th("Students"), Th("Courses"))), Tbody(*prog_rows), cls="manage-table"),
+        H2("Fees by status", style="margin-top:24px;"),
+        Table(Thead(Tr(Th("Status"), Th("Invoices"), Th("Outstanding"))), Tbody(*fee_rows), cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="school")
+
+
+@app.get("/app/school/students")
+def school_students(req):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    q = req.query_params.get("q", "").strip()
+    with db.connect() as conn:
+        studs = school.list_students(conn, q=q or None)
+    rows = [Tr(Td(A(f"{s['first_name']} {s['last_name']}", href=f"/app/school/student/{s['id']}")),
+               Td(s["code"]), Td(s.get("group_name") or "—"), Td(s.get("email") or "—"))
+            for s in studs]
+    content = Div(
+        _SCHOOL_CSS,
+        H1("Students", cls="page-title"),
+        Form(Input(type="search", name="q", value=q, placeholder="Search students…",
+                   cls="search-input", style="max-width:320px;"),
+             method="get", action="/app/school/students", style="margin-bottom:14px;"),
+        Table(Thead(Tr(Th("Name"), Th("Code"), Th("Group"), Th("Email"))),
+              Tbody(*rows) if rows else Tbody(Tr(Td("No students.", colspan="4"))), cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="students")
+
+
+@app.get("/app/school/student/{sid:int}")
+def school_student_detail(req, sid: int):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    with db.connect() as conn:
+        s = school.student_detail(conn, sid)
+        if not s:
+            return app_shell(Div(H1("Student not found", cls="page-title"), cls="page-content"), user=user, active="students")
+        guardians = school.student_guardians(conn, sid)
+        grades = school.student_grades(conn, sid)
+        att = school.student_attendance(conn, sid)
+        fees = school.student_fees(conn, sid)
+    present = sum(1 for a in att if a["status"] == "Present")
+    att_pct = round(100 * present / len(att)) if att else 0
+    grade_rows = [Tr(Td(g["name"]), Td(g.get("course") or "—"),
+                     Td(f"{g['score']:.0f}/{g['max_score']:.0f}"), Td(Span(g["grade"] or "—"))) for g in grades]
+    fee_rows = [Tr(Td(f.get("category") or "Fee"), Td(f"£{float(f['amount']):,.0f}"),
+                   Td(f"£{float(f['paid']):,.0f}"), Td(_fee_pill(f["status"]))) for f in fees]
+    content = Div(
+        _SCHOOL_CSS,
+        A("← Students", href="/app/school/students", cls="btn btn-sm"),
+        H1(f"{s['first_name']} {s['last_name']}", cls="page-title"),
+        P(f"{s['code']} · {s.get('group_name') or '—'} · {s.get('program_name') or '—'}", style="color:var(--ink-muted,#64748b);"),
+        Div(_kpi("Attendance", f"{att_pct}%"), _kpi("Assessments", len(grades)),
+            _kpi("Guardians", len(guardians)), cls="sch-kpi-grid", style="grid-template-columns:repeat(3,1fr);"),
+        H2("Grades"),
+        Table(Thead(Tr(Th("Assessment"), Th("Course"), Th("Score"), Th("Grade"))),
+              Tbody(*grade_rows) if grade_rows else Tbody(Tr(Td("No grades.", colspan="4"))), cls="manage-table"),
+        H2("Fees", style="margin-top:20px;"),
+        Table(Thead(Tr(Th("Category"), Th("Amount"), Th("Paid"), Th("Status"))),
+              Tbody(*fee_rows) if fee_rows else Tbody(Tr(Td("No fees.", colspan="4"))), cls="manage-table"),
+        H2("Guardians", style="margin-top:20px;"),
+        Table(Thead(Tr(Th("Name"), Th("Relation"), Th("Email"), Th("Phone"))),
+              Tbody(*[Tr(Td(g["name"]), Td(g.get("relation") or "—"), Td(g.get("email") or "—"), Td(g.get("phone") or "—")) for g in guardians]),
+              cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="students")
+
+
+@app.get("/app/school/programs")
+def school_programs(req):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    with db.connect() as conn:
+        progs = school.list_programs(conn)
+        groups = school.list_groups(conn)
+    prog_rows = [Tr(Td(p["name"]), Td(p.get("description") or "—"), Td(str(p["students"])), Td(str(p["courses"]))) for p in progs]
+    grp_rows = [Tr(Td(g["name"]), Td(g.get("program_name") or "—"), Td(g.get("term_name") or "—"), Td(str(g["students"]))) for g in groups]
+    content = Div(
+        _SCHOOL_CSS,
+        H1("Programmes", cls="page-title"),
+        Table(Thead(Tr(Th("Programme"), Th("Description"), Th("Students"), Th("Courses"))), Tbody(*prog_rows), cls="manage-table"),
+        H2("Student groups", style="margin-top:24px;"),
+        Table(Thead(Tr(Th("Group"), Th("Programme"), Th("Term"), Th("Students"))), Tbody(*grp_rows), cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="programs")
+
+
+@app.get("/app/school/gradebook")
+def school_gradebook(req):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    with db.connect() as conn:
+        groups = school.list_groups(conn)
+        gid = int(req.query_params.get("group", groups[0]["id"] if groups else 0) or 0)
+        gb = school.gradebook(conn, gid) if gid else []
+    seg = Div(*[A(g["name"], href=f"/app/school/gradebook?group={g['id']}",
+                  cls="active" if g["id"] == gid else "") for g in groups], cls="sch-seg")
+    rows = []
+    for r in gb:
+        pct = r["avg_pct"] or 0
+        rows.append(Tr(Td(f"{r['first_name']} {r['last_name']}"),
+                       Td(Div(Div(Span(style=f"width:{pct}%;"), cls="sch-bar"), f"{pct:.0f}%",
+                              style="display:flex;align-items:center;gap:8px;")),
+                       Td(str(r["n"]))))
+    content = Div(
+        _SCHOOL_CSS,
+        H1("Gradebook", cls="page-title"),
+        seg,
+        Table(Thead(Tr(Th("Student"), Th("Average"), Th("Assessments"))),
+              Tbody(*rows) if rows else Tbody(Tr(Td("No data.", colspan="3"))), cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="gradebook")
+
+
+@app.get("/app/school/attendance")
+def school_attendance(req):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    with db.connect() as conn:
+        groups = school.list_groups(conn)
+        gid = int(req.query_params.get("group", groups[0]["id"] if groups else 0) or 0)
+        reg = school.attendance_register(conn, gid) if gid else []
+    seg = Div(*[A(g["name"], href=f"/app/school/attendance?group={g['id']}",
+                  cls="active" if g["id"] == gid else "") for g in groups], cls="sch-seg")
+    rows = []
+    for r in reg:
+        total = r["total"] or 0
+        pct = round(100 * (r["present"] or 0) / total) if total else 0
+        rows.append(Tr(Td(f"{r['first_name']} {r['last_name']}"), Td(str(r["present"] or 0)),
+                       Td(str(r["absent"] or 0)), Td(f"{pct}%")))
+    content = Div(
+        _SCHOOL_CSS,
+        H1("Attendance", cls="page-title"),
+        seg,
+        Table(Thead(Tr(Th("Student"), Th("Present"), Th("Absent"), Th("Rate"))),
+              Tbody(*rows) if rows else Tbody(Tr(Td("No data.", colspan="4"))), cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="attendance")
+
+
+@app.get("/app/school/fees")
+def school_fees(req):
+    user, redir = _school_guard(req)
+    if redir:
+        return redir
+    with db.connect() as conn:
+        summary = school.fees_summary(conn)
+        fees = school._all(conn, f"""
+            SELECT f.*, s.first_name, s.last_name, fs.category FROM {school.S}.fees f
+            JOIN {school.S}.students s ON s.id = f.student_id
+            LEFT JOIN {school.S}.fee_structures fs ON fs.id = f.fee_structure_id
+            ORDER BY (f.status='Paid'), f.due_date LIMIT 200""")
+    sum_rows = [Tr(Td(_fee_pill(x["status"])), Td(str(x["n"])), Td(f"£{float(x['outstanding']):,.0f}")) for x in summary]
+    fee_rows = [Tr(Td(f"{f['first_name']} {f['last_name']}"), Td(f.get("category") or "Fee"),
+                   Td(f"£{float(f['amount']):,.0f}"), Td(f"£{float(f['paid']):,.0f}"),
+                   Td(f"£{float(f['amount'])-float(f['paid']):,.0f}"), Td(_fee_pill(f["status"]))) for f in fees]
+    content = Div(
+        _SCHOOL_CSS,
+        H1("Fees", cls="page-title"),
+        Table(Thead(Tr(Th("Status"), Th("Invoices"), Th("Outstanding"))), Tbody(*sum_rows), cls="manage-table"),
+        H2("All fees", style="margin-top:24px;"),
+        Table(Thead(Tr(Th("Student"), Th("Category"), Th("Amount"), Th("Paid"), Th("Outstanding"), Th("Status"))),
+              Tbody(*fee_rows), cls="manage-table"),
+        cls="page-content")
+    return app_shell(content, user=user, active="fees")
+
+
 # ---------------------------------------------------------------------------
 
 @app.get("/healthz")

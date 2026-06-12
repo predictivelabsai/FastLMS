@@ -633,6 +633,12 @@ def seed_all():
 
             print(f"  Course: {course_data['title']} ({len(modules)} modules)")
 
+    # school-administration layer (students/programs/gradebook/attendance/fees)
+    import school
+    with db.begin() as conn:
+        s = school.seed_school(conn)
+    print(f"  School: {s['students']} students · {s['programs']} programmes · {s['groups']} groups")
+
     print("Done! Demo accounts:")
     print("  Instructor: instructor@fastlms.dev / admin")
     print("  Student:    student@fastlms.dev / admin")

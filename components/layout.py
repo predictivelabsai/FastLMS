@@ -33,10 +33,27 @@ def left_pane(user=None, active=None):
         nav_items.append(("manage", "Manage Courses", "/app/manage"))
         nav_items.append(("configure", "Course Config", "/app/configure"))
 
+    school_items = []
+    if user and user.get("role") in ("instructor", "admin"):
+        school_items = [
+            ("school", "Overview", "/app/school"),
+            ("students", "Students", "/app/school/students"),
+            ("programs", "Programmes", "/app/school/programs"),
+            ("gradebook", "Gradebook", "/app/school/gradebook"),
+            ("attendance", "Attendance", "/app/school/attendance"),
+            ("fees", "Fees", "/app/school/fees"),
+        ]
+
     nav_links = []
     for key, label, href in nav_items:
         cls = "nav-item active" if active == key else "nav-item"
         nav_links.append(A(label, href=href, cls=cls))
+
+    school_nav = ""
+    if school_items:
+        links = [A(label, href=href, cls="nav-item active" if active == key else "nav-item")
+                 for key, label, href in school_items]
+        school_nav = Div(Div("SCHOOL", cls="nav-section-label"), *links, cls="nav-section")
 
     stats = []
     if user:
@@ -66,6 +83,7 @@ def left_pane(user=None, active=None):
         ),
         stats,
         Nav(*nav_links, cls="nav-list"),
+        school_nav,
         Div(
             A("AI Tutor", href="/app/chat", cls="nav-item tutor-link" + (" active" if active == "chat" else "")),
             cls="nav-section",

@@ -20,6 +20,19 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **Badges** — 11 achievement types (first lesson, quiz ace, XP milestones, course completion)
 - **Leaderboard** — ranked by XP with level badges and streak display
 
+### School administration (the `frappe/education` layer — `school.py`)
+For schools/colleges, not just self-serve courses. Admin/instructor pages under **/app/school**:
+- **Students & guardians** — a first-class Student (distinct from a learner account) with guardian contacts and class/section groups
+- **Programmes & enrolment** — course bundles per academic term, with student groups
+- **Gradebook** — assessments (mid-term / coursework / exam) with a grading scale (A–U) and per-student averages
+- **Attendance** — per-student register with present/absent rates
+- **Fees** — tuition fee structures per programme/term, per-student fees with payments and AR-style status (Unpaid / Partly Paid / Paid / Overdue)
+- **Academic calendar** — years and terms
+
+17 tables in `school.py`, seeded by `school.seed_school()`. See
+[docs/EDUCATION-COMPARISON.md](docs/EDUCATION-COMPARISON.md) for how this maps to
+`frappe/education`.
+
 ### Architecture
 - **3-pane layout** — left navigation (280px), center content (flex), right canvas (400px slide-in)
 - **Dark theme** — navy + amber palette, Inter font, CSS custom properties

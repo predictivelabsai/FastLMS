@@ -210,6 +210,9 @@ def bootstrap_schema():
             stmt = stmt.strip()
             if stmt:
                 conn.execute(sa.text(stmt))
+        # school-administration layer (students/programs/gradebook/attendance/fees)
+        import school
+        school.bootstrap(conn)
 
 
 # ---------------------------------------------------------------------------
