@@ -33,13 +33,26 @@ from components.layout import (
     xp_popup,
 )
 from components.landing import landing_page
+from components.developer import developer_page
 from components import account_auth, google_auth
+from components.api import api
 
 app = FastHTML(
     hdrs=[],
     static_path="static",
     secret_key=os.environ.get("SESSION_SECRET", "fastlms-dev-secret-change-me"),
 )
+app.mount("/api", api)
+
+
+@app.get("/swagger.json")
+def swagger_schema():
+    return JSONResponse(api.openapi())
+
+
+@app.get("/developers")
+def developers():
+    return developer_page()
 
 
 def establish_local_account(session, account):

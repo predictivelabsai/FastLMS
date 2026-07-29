@@ -86,6 +86,7 @@ def left_pane(user=None, active=None):
         school_nav,
         Div(
             A("AI Tutor", href="/app/chat", cls="nav-item tutor-link" + (" active" if active == "chat" else "")),
+            A("Developers", href="/developers", cls="nav-item" + (" active" if active == "developers" else "")),
             cls="nav-section",
         ),
         Div(
