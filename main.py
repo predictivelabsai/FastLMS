@@ -30,6 +30,8 @@ from components.layout import (
     progress_bar,
     xp_popup,
 )
+from components.landing import landing_page
+from components import google_auth
 
 load_dotenv()
 
@@ -85,36 +87,7 @@ def landing(req):
     user = _get_session_user(req)
     if user:
         return RedirectResponse("/app", status_code=303)
-
-    return Html(
-        Head(
-            Title("FastLMS"),
-            Meta(charset="utf-8"),
-            Meta(name="viewport", content="width=device-width, initial-scale=1"),
-            Link(rel="stylesheet", href="/static/app.css"),
-        ),
-        Body(
-            Div(
-                Div(
-                    Span("F", cls="brand-icon"),
-                    Span("FastLMS", cls="brand-text"),
-                    cls="brand",
-                    style="justify-content: center; margin-bottom: 24px;",
-                ),
-                H1("Learn. Level up. Lead.", style="text-align:center; font-size:32px; margin-bottom:12px;"),
-                P(
-                    "Open-source learning platform with AI tutoring, interactivity, and real-time progress tracking.",
-                    style="text-align:center; color:var(--ink-muted); max-width:500px; margin:0 auto 32px;",
-                ),
-                Div(
-                    A("Get Started", href="/auth/register", cls="btn btn-primary", style="font-size:16px; padding:14px 32px;"),
-                    A("Sign In", href="/auth/login", cls="btn btn-secondary", style="font-size:16px; padding:14px 32px;"),
-                    style="display:flex; gap:16px; justify-content:center;",
-                ),
-                style="padding: 120px 24px;",
-            ),
-        ),
-    )
+    return landing_page()
 
 
 # ---------------------------------------------------------------------------
@@ -139,6 +112,35 @@ def login_page(req):
             cls="auth-box",
         ),
     )
+
+
+@app.get("/auth/google")
+def google_start(req):
+    if not google_auth.enabled():
+        return RedirectResponse("/auth/login?error=Google+sign-in+is+not+configured", status_code=303)
+    state = google_auth.new_state()
+    req.session["google_oauth_state"] = state
+    return RedirectResponse(google_auth.authorize_url(req, state), status_code=303)
+
+
+@app.get("/auth/google/callback")
+def google_callback(req, code: str = "", state: str = "", error: str = ""):
+    if error or not code or state != req.session.pop("google_oauth_state", None):
+        return RedirectResponse("/auth/login?error=Google+sign-in+failed", status_code=303)
+    identity = google_auth.exchange(req, code)
+    if not identity:
+        return RedirectResponse("/auth/login?error=Google+account+is+not+authorised", status_code=303)
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        user = db.get_user_by_email(conn, identity["email"])
+        if not user:
+            conn.execute(
+                sa.text(f"INSERT INTO {db.S}.users (email, password_hash, display_name) VALUES (:e, :p, :n)"),
+                {"e": identity["email"], "p": _hash_pw(os.urandom(32).hex()), "n": identity["name"]},
+            )
+            user = db.get_user_by_email(conn, identity["email"])
+    req.session["user_id"] = user["id"]
+    return RedirectResponse("/app", status_code=303)
 
 
 @app.post("/auth/login")
