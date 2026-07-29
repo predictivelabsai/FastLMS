@@ -20,6 +20,8 @@ from dotenv import load_dotenv
 from fasthtml.common import *
 from starlette.responses import StreamingResponse
 
+load_dotenv()
+
 import db
 import school
 from components.layout import (
@@ -31,14 +33,30 @@ from components.layout import (
     xp_popup,
 )
 from components.landing import landing_page
-from components import google_auth
-
-load_dotenv()
+from components import account_auth, google_auth
 
 app = FastHTML(
     hdrs=[],
     static_path="static",
     secret_key=os.environ.get("SESSION_SECRET", "fastlms-dev-secret-change-me"),
+)
+
+
+def establish_local_account(session, account):
+    import sqlalchemy as sa
+    with db.begin() as conn:
+        user = db.get_user_by_email(conn, account["email"])
+        if not user:
+            conn.execute(
+                sa.text(f"INSERT INTO {db.S}.users (email, password_hash, display_name) VALUES (:e, :p, :n)"),
+                {"e": account["email"], "p": _hash_pw(os.urandom(32).hex()), "n": account["name"]},
+            )
+            user = db.get_user_by_email(conn, account["email"])
+    session["user_id"] = user["id"]
+
+
+account_auth.register_fastapi_routes(
+    app, app_name="FastLMS", success_path="/app", on_login=establish_local_account
 )
 
 
@@ -130,6 +148,7 @@ def google_callback(req, code: str = "", state: str = "", error: str = ""):
     identity = google_auth.exchange(req, code)
     if not identity:
         return RedirectResponse("/auth/login?error=Google+account+is+not+authorised", status_code=303)
+    account_auth.accounts.link_google(identity["email"], identity["name"])
     import sqlalchemy as sa
     with db.begin() as conn:
         user = db.get_user_by_email(conn, identity["email"])
