@@ -6,10 +6,11 @@ Tables cover courses, lessons, quizzes, progress, interactivity, and chat.
 
 from __future__ import annotations
 
+import atexit
 import os
+import threading
 from contextlib import contextmanager
 from datetime import date, datetime, timezone
-from functools import lru_cache
 
 import sqlalchemy as sa
 from dotenv import load_dotenv
@@ -18,14 +19,47 @@ from sqlalchemy.engine import Engine
 load_dotenv()
 
 SCHEMA = "fastlms"
+_engines: dict[str, Engine] = {}
+_engine_lock = threading.Lock()
 
 
-@lru_cache(maxsize=1)
 def get_engine() -> Engine:
     url = os.environ.get("DB_URL")
     if not url:
         raise RuntimeError("DB_URL not set in .env")
-    return sa.create_engine(url, pool_pre_ping=True, pool_recycle=300)
+    engine = _engines.get(url)
+    if engine is not None:
+        return engine
+    with _engine_lock:
+        engine = _engines.get(url)
+        if engine is None:
+            engine = sa.create_engine(
+                url,
+                pool_pre_ping=True,
+                pool_size=int(os.getenv("DB_POOL_SIZE", "3")),
+                max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "2")),
+                pool_timeout=int(os.getenv("DB_POOL_TIMEOUT", "10")),
+                pool_recycle=int(os.getenv("DB_POOL_RECYCLE", "1800")),
+                connect_args={
+                    "application_name": os.getenv(
+                        "DB_APPLICATION_NAME", "fastlms"
+                    )
+                },
+            )
+            _engines[url] = engine
+    return engine
+
+
+def dispose_database_pools() -> None:
+    """Dispose every process-wide engine during shutdown or tests."""
+    with _engine_lock:
+        engines = list(_engines.values())
+        _engines.clear()
+    for engine in engines:
+        engine.dispose()
+
+
+atexit.register(dispose_database_pools)
 
 
 @contextmanager
