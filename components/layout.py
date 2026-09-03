@@ -6,12 +6,16 @@ Modelled after the liquidround 3-pane architecture:
   Right (400px) — slide-in canvas for resources, quiz, discussions
 """
 
+from urllib.parse import urlencode
+
 from fasthtml.common import *
 
+from .i18n import LANG_META, SUPPORTED_LANGS, t
 
-def page_head(title="FastLMS"):
+
+def page_head(title="FastLearn", lang="en"):
     return Head(
-        Title(title),
+        Title(title if "FastLearn" in title else f"{title} · FastLearn"),
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
         Link(rel="stylesheet", href="/static/app.css"),
@@ -22,16 +26,28 @@ def page_head(title="FastLMS"):
     )
 
 
-def left_pane(user=None, active=None):
+def _language_picker(lang: str, current_path: str):
+    return Details(
+        Summary(LANG_META.get(lang, LANG_META["en"])["flag"], aria_label=t("language", lang), cls="app-lang-button"),
+        Div(*[
+            A(f"{LANG_META[code]['flag']} {LANG_META[code]['name']}",
+              href=f"/set-lang?{urlencode({'lang': code, 'next': current_path})}",
+              cls="app-lang-option active" if code == lang else "app-lang-option")
+            for code in SUPPORTED_LANGS
+        ], cls="app-lang-menu"), cls="app-lang",
+    )
+
+
+def left_pane(user=None, active=None, lang="en", current_path="/app"):
     nav_items = [
-        ("dashboard", "Dashboard", "/app"),
-        ("courses", "Courses", "/app/courses"),
-        ("leaderboard", "Leaderboard", "/app/leaderboard"),
+        ("dashboard", t("dashboard", lang), "/app"),
+        ("courses", t("courses", lang), "/app/courses"),
+        ("leaderboard", t("leaderboard", lang), "/app/leaderboard"),
     ]
 
     if user and user.get("role") in ("instructor", "admin"):
-        nav_items.append(("manage", "Manage Courses", "/app/manage"))
-        nav_items.append(("configure", "Course Config", "/app/configure"))
+        nav_items.append(("manage", t("manage_courses", lang), "/app/manage"))
+        nav_items.append(("configure", t("course_config", lang), "/app/configure"))
 
     school_items = []
     if user and user.get("role") in ("instructor", "admin"):
@@ -60,12 +76,12 @@ def left_pane(user=None, active=None):
         stats = Div(
             Div(
                 Span(f"{user.get('xp', 0)} XP", cls="stat-value"),
-                Span(user.get("level", "Novice"), cls="stat-label"),
+                Span(t("level", lang), cls="stat-label"),
                 cls="stat-box",
             ),
             Div(
                 Span(f"{user.get('streak_days', 0)}d", cls="stat-value"),
-                Span("Streak", cls="stat-label"),
+                Span(t("streak", lang), cls="stat-label"),
                 cls="stat-box",
             ),
             cls="stats-grid",
@@ -75,7 +91,7 @@ def left_pane(user=None, active=None):
         Div(
             A(
                 Span("F", cls="brand-icon"),
-                Span("FastLMS", cls="brand-text"),
+                Span("FastLearn", cls="brand-text"),
                 href="/",
                 cls="brand",
             ),
@@ -85,13 +101,14 @@ def left_pane(user=None, active=None):
         Nav(*nav_links, cls="nav-list"),
         school_nav,
         Div(
-            A("AI Tutor", href="/app/chat", cls="nav-item tutor-link" + (" active" if active == "chat" else "")),
-            A("Developers", href="/developers", cls="nav-item" + (" active" if active == "developers" else "")),
+            A(t("ai_tutor", lang), href="/app/chat", cls="nav-item tutor-link" + (" active" if active == "chat" else "")),
+            A(t("developers", lang), href="/developers", cls="nav-item" + (" active" if active == "developers" else "")),
             cls="nav-section",
         ),
         Div(
             (A(user["display_name"], href="/app/profile", cls="user-name") if user else ""),
-            (A("Sign out", href="/auth/logout", cls="sign-out") if user else A("Sign in", href="/auth/login", cls="sign-in")),
+            _language_picker(lang, current_path),
+            (A(t("sign_out", lang), href="/auth/logout", cls="sign-out") if user else A(t("sign_in", lang), href="/auth/login", cls="sign-in")),
             cls="pane-footer",
         ),
         cls="left-pane",
@@ -99,10 +116,10 @@ def left_pane(user=None, active=None):
     )
 
 
-def right_pane():
+def right_pane(lang="en"):
     return Div(
         Div(
-            Span("Canvas", cls="canvas-title"),
+            Span(t("canvas", lang), cls="canvas-title"),
             Button("x", cls="canvas-close", onclick="toggleCanvas(false)"),
             cls="canvas-header",
         ),
@@ -112,24 +129,25 @@ def right_pane():
     )
 
 
-def app_shell(center_content, user=None, active=None, title="FastLMS"):
+def app_shell(center_content, user=None, active=None, title="FastLearn", lang="en", current_path="/app"):
     return Html(
-        page_head(title),
+        page_head(title, lang),
         Body(
             Div(
-                left_pane(user, active),
+                left_pane(user, active, lang, current_path),
                 Div(center_content, cls="center-pane", id="center-pane"),
-                right_pane(),
+                right_pane(lang),
                 cls="app-grid",
             ),
-        ),
+        ), lang=lang,
     )
 
 
-def auth_page(content, title="FastLMS"):
+def auth_page(content, title="FastLearn", lang="en"):
     return Html(
-        page_head(title),
+        page_head(title, lang),
         Body(Div(content, cls="auth-container")),
+        lang=lang,
     )
 
 
@@ -166,14 +184,14 @@ def xp_popup(xp, message="XP earned!"):
     )
 
 
-def course_card(course, progress=None):
+def course_card(course, progress=None, lang="en"):
     prog = progress_bar(progress["percent"], f"{progress['completed']}/{progress['total']}") if progress else ""
     difficulty_cls = f"difficulty-{course.get('difficulty', 'beginner')}"
     return A(
         Div(
             Div(
                 Span(course.get("category", "General"), cls="course-category"),
-                Span(course.get("difficulty", "beginner").title(), cls=f"course-difficulty {difficulty_cls}"),
+                Span(t(course.get("difficulty", "beginner"), lang), cls=f"course-difficulty {difficulty_cls}"),
                 cls="course-meta",
             ),
             H3(course["title"], cls="course-title"),

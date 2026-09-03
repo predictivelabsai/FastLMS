@@ -11,6 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = document.getElementById('chat-messages');
     if (!form || !input || !messages) return;
 
+    document.querySelectorAll('.prompt-chip').forEach((button) => {
+        button.addEventListener('click', () => {
+            input.value = button.dataset.prompt || button.textContent;
+            input.focus();
+        });
+    });
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const text = input.value.trim();
@@ -27,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add thinking indicator
         const thinking = document.createElement('div');
         thinking.className = 'thinking-indicator';
-        thinking.textContent = 'Thinking...';
+        thinking.textContent = form.dataset.thinking || 'Thinking…';
         messages.appendChild(thinking);
 
         // Start SSE
@@ -46,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const header = document.createElement('div');
             header.className = 'msg-header';
-            header.textContent = 'AI Tutor';
+            header.textContent = form.dataset.tutor || 'AI Tutor';
             assistantDiv.appendChild(header);
 
             const content = document.createElement('div');
@@ -92,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             thinking.remove();
             const errDiv = document.createElement('div');
             errDiv.className = 'msg msg-assistant';
-            errDiv.textContent = 'Connection error. Please try again.';
+            errDiv.textContent = form.dataset.connectionError || 'Connection error. Please try again.';
             messages.appendChild(errDiv);
         }
 

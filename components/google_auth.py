@@ -13,6 +13,10 @@ def enabled(): return bool(CLIENT_ID and CLIENT_SECRET)
 def new_state(): return secrets.token_urlsafe(32)
 
 def callback_uri(request):
+    host = (request.headers.get("x-forwarded-host") or request.headers.get("host") or request.url.netloc)
+    host = host.split(",", 1)[0].split(":", 1)[0].lower()
+    if host in {"fastlearn.fun", "www.fastlearn.fun"}:
+        return "https://fastlearn.fun/auth/google/callback"
     if REDIRECT_URI: return REDIRECT_URI
     proto = request.headers.get("x-forwarded-proto") or request.url.scheme
     host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.url.netloc

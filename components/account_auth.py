@@ -53,24 +53,26 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')authClose()});
 """
 
 
-def auth_modal(app_name: str):
+def auth_modal(app_name: str, lang: str = "en"):
+    from .i18n import t
+
     return Div(
         Div(
             Button("×", type="button", aria_label="Close sign in", cls="auth-close", onclick="authClose()"),
             Div(
-                Button("Sign In", type="button", data_tab="login", cls="auth-tab active", onclick="authTab('login')"),
-                Button("Register", type="button", data_tab="register", cls="auth-tab", onclick="authTab('register')"),
+                Button(t("sign_in", lang).title(), type="button", data_tab="login", cls="auth-tab active", onclick="authTab('login')"),
+                Button(t("register", lang), type="button", data_tab="register", cls="auth-tab", onclick="authTab('register')"),
                 cls="auth-tabs",
             ),
             Div(
-                P(f"Sign in to your {app_name} account", cls="auth-title"),
-                A(NotStr(_GOOGLE_ICON), Span("Continue with Google"), href="/auth/google", cls="auth-google"),
+                P(f"{t('sign_in', lang)} · {app_name}", cls="auth-title"),
+                A(NotStr(_GOOGLE_ICON), Span(t("continue_google", lang)), href="/auth/google", cls="auth-google"),
                 Div("or", cls="auth-divider"),
                 Form(
-                    Input(name="email", type="email", placeholder="Email", autocomplete="email", required=True, cls="auth-field"),
-                    Input(name="password", type="password", placeholder="Password", autocomplete="current-password", required=True, cls="auth-field"),
-                    Button("Forgot password?", type="button", cls="auth-link auth-forgot", onclick="authTab('forgot')"),
-                    Button("Sign In", type="submit", cls="auth-submit"),
+                    Input(name="email", type="email", placeholder=t("email", lang), autocomplete="email", required=True, cls="auth-field"),
+                    Input(name="password", type="password", placeholder=t("password", lang), autocomplete="current-password", required=True, cls="auth-field"),
+                    Button(t("forgot_password", lang), type="button", cls="auth-link auth-forgot", onclick="authTab('forgot')"),
+                    Button(t("sign_in", lang), type="submit", cls="auth-submit"),
                     onsubmit="event.preventDefault();authPost('/auth/local/login',this.id,'auth-login-msg')",
                     id="auth-login-form",
                 ),
@@ -78,12 +80,12 @@ def auth_modal(app_name: str):
                 id="auth-login",
             ),
             Div(
-                P(f"Create your {app_name} account", cls="auth-title"),
+                P(f"{t('create_account', lang)} · {app_name}", cls="auth-title"),
                 Form(
                     Input(name="name", placeholder="Name", autocomplete="name", required=True, cls="auth-field"),
-                    Input(name="email", type="email", placeholder="Email", autocomplete="email", required=True, cls="auth-field"),
-                    Input(name="password", type="password", placeholder="Password (minimum 10 characters)", autocomplete="new-password", minlength="10", required=True, cls="auth-field"),
-                    Button("Register", type="submit", cls="auth-submit"),
+                    Input(name="email", type="email", placeholder=t("email", lang), autocomplete="email", required=True, cls="auth-field"),
+                    Input(name="password", type="password", placeholder=f"{t('password', lang)} (10+)", autocomplete="new-password", minlength="10", required=True, cls="auth-field"),
+                    Button(t("register", lang), type="submit", cls="auth-submit"),
                     onsubmit="event.preventDefault();authPost('/auth/local/register',this.id,'auth-register-msg')",
                     id="auth-register-form",
                 ),
@@ -92,9 +94,9 @@ def auth_modal(app_name: str):
                 id="auth-register", hidden=True,
             ),
             Div(
-                P("Reset your password", cls="auth-title"),
+                P(t("reset_password", lang), cls="auth-title"),
                 Form(
-                    Input(name="email", type="email", placeholder="Email", autocomplete="email", required=True, cls="auth-field"),
+                    Input(name="email", type="email", placeholder=t("email", lang), autocomplete="email", required=True, cls="auth-field"),
                     Button("Send reset link", type="submit", cls="auth-submit"),
                     onsubmit="event.preventDefault();authPost('/auth/local/forgot',this.id,'auth-forgot-msg')",
                     id="auth-forgot-form",

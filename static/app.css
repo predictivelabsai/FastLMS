@@ -1,26 +1,25 @@
-/* FastLMS — 3-pane dark theme inspired by LiquidRound
-   Navy + Amber palette, Inter font, HTMX-driven */
+/* FastLearn — calm, light learning workspace */
 
 :root {
-    --bg:          #0B1220;
-    --bg-elev:     #111A2E;
-    --bg-raise:    #162038;
-    --bg-card:     #1A2540;
-    --ink:         #E5E7EB;
-    --ink-muted:   #94A3B8;
-    --ink-dim:     #64748B;
-    --line:        #1E293B;
-    --line-br:     #334155;
-    --accent:      #F59E0B;
-    --accent-dim:  rgba(245, 158, 11, 0.18);
-    --accent-text: #FCD34D;
-    --green:       #10B981;
-    --green-dim:   rgba(16, 185, 129, 0.15);
-    --blue:        #3B82F6;
-    --blue-dim:    rgba(59, 130, 246, 0.15);
-    --red:         #EF4444;
-    --red-dim:     rgba(239, 68, 68, 0.15);
-    --purple:      #8B5CF6;
+    --bg:          #F8FBFA;
+    --bg-elev:     #FFFFFF;
+    --bg-raise:    #F0F6F4;
+    --bg-card:     #FFFFFF;
+    --ink:         #172321;
+    --ink-muted:   #5F706C;
+    --ink-dim:     #7A8A86;
+    --line:        #DFE9E6;
+    --line-br:     #CBDAD6;
+    --accent:      #256B62;
+    --accent-dim:  rgba(37, 107, 98, 0.12);
+    --accent-text: #1E625A;
+    --green:       #147D64;
+    --green-dim:   rgba(20, 125, 100, 0.11);
+    --blue:        #376FA6;
+    --blue-dim:    rgba(55, 111, 166, 0.11);
+    --red:         #B54747;
+    --red-dim:     rgba(181, 71, 71, 0.10);
+    --purple:      #7057A8;
     --radius:      8px;
     --radius-lg:   12px;
     --pane-left:   280px;
@@ -37,7 +36,7 @@ html, body {
     letter-spacing: -0.01em;
     background: var(--bg);
     color: var(--ink);
-    color-scheme: dark;
+    color-scheme: light;
 }
 
 a { color: var(--accent-text); text-decoration: none; }
@@ -66,6 +65,14 @@ a:hover { text-decoration: underline; }
     padding: 20px 16px 12px;
     border-bottom: 1px solid var(--line);
 }
+
+.app-lang { position: relative; }
+.app-lang summary { list-style: none; cursor: pointer; }
+.app-lang summary::-webkit-details-marker { display: none; }
+.app-lang-button { padding: 4px 6px; border-radius: 6px; }
+.app-lang-menu { position: absolute; right: 0; bottom: 30px; z-index: 260; min-width: 145px; padding: 5px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 34px rgba(23,35,33,.13); }
+.app-lang-option { display: block; padding: 7px 9px; border-radius: 7px; color: var(--ink-muted); white-space: nowrap; }
+.app-lang-option:hover, .app-lang-option.active { background: var(--bg-raise); color: var(--ink); text-decoration: none; }
 
 .brand {
     display: flex;
@@ -210,7 +217,7 @@ a:hover { text-decoration: underline; }
     z-index: 220;
     display: flex;
     flex-direction: column;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+    box-shadow: -4px 0 24px rgba(23,35,33,0.12);
 }
 
 .right-pane.open { transform: translateX(0); }
@@ -438,7 +445,7 @@ a:hover { text-decoration: underline; }
 
 .btn:hover { text-decoration: none; opacity: 0.9; }
 
-.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary { background: var(--accent); color: white; }
 .btn-secondary { background: var(--bg-raise); color: var(--ink); border: 1px solid var(--line); }
 .btn-green { background: var(--green); color: white; }
 .btn-blue { background: var(--blue); color: white; }
@@ -592,7 +599,7 @@ a:hover { text-decoration: underline; }
 
 .chat-send {
     background: var(--accent);
-    color: var(--bg);
+    color: white;
     border: none;
     border-radius: var(--radius);
     padding: 12px 20px;
@@ -609,6 +616,10 @@ a:hover { text-decoration: underline; }
     font-style: italic;
     padding: 8px 0;
 }
+
+.prompt-suggestions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 24px 12px; }
+.prompt-chip { border: 1px solid var(--line); background: #fff; color: var(--accent); border-radius: 999px; padding: 8px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+.prompt-chip:hover { background: var(--accent-dim); }
 
 /* ---- Leaderboard ---- */
 
@@ -682,7 +693,7 @@ a:hover { text-decoration: underline; }
     top: 24px;
     right: 24px;
     background: var(--accent);
-    color: var(--bg);
+    color: white;
     padding: 12px 24px;
     border-radius: var(--radius-lg);
     font-weight: 700;

@@ -266,51 +266,59 @@ def get_user_by_email(conn, email: str) -> dict | None:
     return dict(row) if row else None
 
 
-def get_courses(conn, published_only=True) -> list[dict]:
+def _localized(rows, entity: str, lang: str):
+    from components.i18n import localize_record
+    return [localize_record(dict(row), entity, lang) for row in rows]
+
+
+def get_courses(conn, published_only=True, lang="en") -> list[dict]:
     where = f"WHERE is_published = true" if published_only else ""
     rows = conn.execute(sa.text(f"SELECT * FROM {S}.courses {where} ORDER BY created_at DESC")).mappings().all()
-    return [dict(r) for r in rows]
+    return _localized(rows, "courses", lang)
 
 
-def get_course(conn, slug: str) -> dict | None:
+def get_course(conn, slug: str, lang="en") -> dict | None:
     row = conn.execute(sa.text(f"SELECT * FROM {S}.courses WHERE slug = :s"), {"s": slug}).mappings().first()
-    return dict(row) if row else None
+    from components.i18n import localize_record
+    return localize_record(dict(row), "courses", lang) if row else None
 
 
-def get_modules(conn, course_id: int) -> list[dict]:
+def get_modules(conn, course_id: int, lang="en") -> list[dict]:
     rows = conn.execute(
         sa.text(f"SELECT * FROM {S}.modules WHERE course_id = :c ORDER BY order_idx"),
         {"c": course_id},
     ).mappings().all()
-    return [dict(r) for r in rows]
+    return _localized(rows, "modules", lang)
 
 
-def get_lessons(conn, module_id: int) -> list[dict]:
+def get_lessons(conn, module_id: int, lang="en") -> list[dict]:
     rows = conn.execute(
         sa.text(f"SELECT * FROM {S}.lessons WHERE module_id = :m ORDER BY order_idx"),
         {"m": module_id},
     ).mappings().all()
-    return [dict(r) for r in rows]
+    return _localized(rows, "lessons", lang)
 
 
-def get_lesson(conn, lesson_id: int) -> dict | None:
+def get_lesson(conn, lesson_id: int, lang="en") -> dict | None:
     row = conn.execute(sa.text(f"SELECT * FROM {S}.lessons WHERE id = :id"), {"id": lesson_id}).mappings().first()
-    return dict(row) if row else None
+    from components.i18n import localize_record
+    return localize_record(dict(row), "lessons", lang) if row else None
 
 
-def get_quiz_for_lesson(conn, lesson_id: int) -> dict | None:
+def get_quiz_for_lesson(conn, lesson_id: int, lang="en") -> dict | None:
     row = conn.execute(
         sa.text(f"SELECT * FROM {S}.quizzes WHERE lesson_id = :l"), {"l": lesson_id}
     ).mappings().first()
-    return dict(row) if row else None
+    from components.i18n import localize_record
+    return localize_record(dict(row), "quizzes", lang) if row else None
 
 
-def get_quiz_questions(conn, quiz_id: int) -> list[dict]:
+def get_quiz_questions(conn, quiz_id: int, lang="en") -> list[dict]:
     rows = conn.execute(
         sa.text(f"SELECT * FROM {S}.quiz_questions WHERE quiz_id = :q ORDER BY order_idx"),
         {"q": quiz_id},
     ).mappings().all()
-    return [dict(r) for r in rows]
+    return _localized(rows, "quiz_questions", lang)
 
 
 def get_lesson_progress(conn, user_id: int, lesson_id: int) -> dict | None:
@@ -410,7 +418,7 @@ def get_leaderboard(conn, limit: int = 20) -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def get_user_badges(conn, user_id: int) -> list[dict]:
+def get_user_badges(conn, user_id: int, lang="en") -> list[dict]:
     rows = conn.execute(
         sa.text(f"""
             SELECT b.*, ub.earned_at FROM {S}.user_badges ub
@@ -419,7 +427,7 @@ def get_user_badges(conn, user_id: int) -> list[dict]:
         """),
         {"u": user_id},
     ).mappings().all()
-    return [dict(r) for r in rows]
+    return _localized(rows, "badges", lang)
 
 
 def check_and_award_badges(conn, user_id: int) -> list[dict]:

@@ -1,0 +1,1199 @@
+{
+  "courses": {
+    "1": {
+      "et": {
+        "category": "Programmeerimine",
+        "description": "Omanda Pythoni programmeerimise põhialused — muutujad, juhtimisvoog, funktsioonid, andmestruktuurid ja faili I/O. Ideaalne absoluutsetele algajatele.",
+        "title": "Pythoni põhialused"
+      },
+      "lt": {
+        "category": "Programavimas",
+        "description": "Įvaldykite Python programavimo pagrindus — kintamuosius, valdymo srautą, funkcijas, duomenų struktūras ir failų įvestį/išvestį. Puikiai tinka absoliučiams pradedantiesiems.",
+        "title": "Python pagrindai"
+      },
+      "source": "Python Fundamentals"
+    },
+    "10": {
+      "et": {
+        "category": "Loovkirjutamine",
+        "description": "Arenda oma kirjaniku häält — narratiivitehnikad, tegelaskujude arendus, maailmaehitus, luulevormid ja revisjoni kunst.",
+        "title": "Loovkirjutamine"
+      },
+      "lt": {
+        "category": "Kūrybinis rašymas",
+        "description": "Išsiugdykite savo balsą kaip rašytojas — pasakojimo technikos, personažų kūrimas, pasaulio kūrimas, poezijos formos ir peržiūros amatas.",
+        "title": "Kūrybinis rašymas"
+      },
+      "source": "Creative Writing"
+    },
+    "2": {
+      "et": {
+        "category": "Andmeteadus",
+        "description": "Praktiline masinõpe — andmete ettevalmistamisest mudeli hindamiseni. Õppige klassifitseerimist, regressiooni ja klastrite moodustamist scikit-learniga.",
+        "title": "Masinõpe scikit-learniga"
+      },
+      "lt": {
+        "category": "Duomenų mokslas",
+        "description": "Praktinis mašininis mokymasis — nuo duomenų paruošimo iki modelio vertinimo. Mokykitės klasifikavimo, regresijos ir klasterizavimo su scikit-learn.",
+        "title": "Mašininis mokymasis su scikit-learn"
+      },
+      "source": "Machine Learning with scikit-learn"
+    },
+    "3": {
+      "et": {
+        "category": "Veebiarendus",
+        "description": "Looge kaasaegseid veebirakendusi FastHTML-i abil — Python-esimene, HTMX-toega, JavaScripti raamistikku pole vaja.",
+        "title": "Veebirakenduste loomine FastHTML-iga"
+      },
+      "lt": {
+        "category": "Web kūrimas",
+        "description": "Kurkite modernias žiniatinklio programas naudodami FastHTML — pirmiausia Python, varomas HTMX, nereikia JavaScript karkaso.",
+        "title": "Web aplikacijų kūrimas su FastHTML"
+      },
+      "source": "Building Web Apps with FastHTML"
+    },
+    "4": {
+      "et": {
+        "category": "Matemaatika",
+        "description": "Looge kindel matemaatika alus — algebra, geomeetria, tõenäosus ja arvutuse põhialused. Võrranditest tõestusteni, saavutage kindlustunne numbritega.",
+        "title": "Matemaatika alused"
+      },
+      "lt": {
+        "category": "Matematika",
+        "description": "Sukurkite tvirtus matematikos pagrindus — algebra, geometrija, tikimybė ir skaičiavimo pagrindai. Nuo lygčių iki įrodymų, įgykite pasitikėjimą skaičiais.",
+        "title": "Matematikos pagrindai"
+      },
+      "source": "Mathematics Foundations"
+    },
+    "5": {
+      "et": {
+        "category": "Füüsika",
+        "description": "Mõista universumit reguleerivaid seadusi — mehaanika, energia, lained ja elekter. Praktilised näited ja probleemide lahendamine läbivalt.",
+        "title": "Füüsika põhialused"
+      },
+      "lt": {
+        "category": "Fizika",
+        "description": "Supraskite dėsnius, valdančius visatą — mechaniką, energiją, bangas ir elektrą. Praktiniai pavyzdžiai ir problemų sprendimas visame kurse.",
+        "title": "Fizikos pagrindai"
+      },
+      "source": "Physics Essentials"
+    },
+    "6": {
+      "et": {
+        "category": "Bioloogia",
+        "description": "Uurige elussüsteeme — rakubioloogia, geneetika, ökoloogia ja inimese füsioloogia. Mõistke, kuidas organismid kasvavad, paljunevad ja suhtlevad oma keskkonnaga.",
+        "title": "Bioloogia: Eluteadused"
+      },
+      "lt": {
+        "category": "Biologija",
+        "description": "Tyrinėkite gyvas sistemas — ląstelių biologiją, genetiką, ekologiją ir žmogaus fiziologiją. Supraskite, kaip organizmai auga, dauginasi ir sąveikauja su aplinka.",
+        "title": "Biologija: Gyvybės mokslai"
+      },
+      "source": "Biology: Life Sciences"
+    },
+    "7": {
+      "et": {
+        "category": "Keemia",
+        "description": "Mõista ainet aatomitasandil — aatomistruktuur, sidemed, reaktsioonid ja perioodilisustabel. Molekulidest stöhhiomeetriani.",
+        "title": "Keemia alused"
+      },
+      "lt": {
+        "category": "Chemija",
+        "description": "Supraskite medžiagą atominiu lygmeniu — atomo sandara, ryšiai, reakcijos ir periodinė lentelė. Nuo molekulių iki stechiometrijos.",
+        "title": "Chemijos pagrindai"
+      },
+      "source": "Chemistry Fundamentals"
+    },
+    "8": {
+      "et": {
+        "category": "Inglise keel",
+        "description": "Tugevdada lugemise mõistmist, esseekirjutamist, kirjandusanalüüsi ja grammatikat. Hõlmab ilukirjandust, aimekirjandust, luulet ja veenvat kirjutamist.",
+        "title": "Inglise keel ja kirjandus"
+      },
+      "lt": {
+        "category": "Anglų kalba",
+        "description": "Stiprinti skaitymo supratimą, esė rašymą, literatūrinę analizę ir gramatiką. Apima grožinę, negrožinę literatūrą, poeziją ir įtikinamąjį rašymą.",
+        "title": "Anglų kalba ir literatūra"
+      },
+      "source": "English Language & Literature"
+    },
+    "9": {
+      "et": {
+        "category": "Geograafia",
+        "description": "Uurige Maa maastikke, kliimasüsteeme ja inimgeograafiat — linnastumine, globaliseerumine, ressursside haldamine ja jätkusuutlikkus.",
+        "title": "Geograafia: Füüsiline ja inimgeograafia"
+      },
+      "lt": {
+        "category": "Geografija",
+        "description": "Studijuokite Žemės kraštovaizdžius, klimato sistemas ir žmogaus geografiją — urbanizaciją, globalizaciją, išteklių valdymą ir tvarumą.",
+        "title": "Geografija: Fizinis ir žmogus"
+      },
+      "source": "Geography: Physical & Human"
+    }
+  },
+  "lessons": {
+    "1": {
+      "et": {
+        "content_md": "# Mis on Python?\n\nPython on kõrgetasemeline, interpreteeritud programmeerimiskeel, mille lõi Guido van Rossum 1991. aastal. See on tuntud oma puhta süntaksi ja loetavuse poolest.\n\n## Miks õppida Pythonit?\n\n- **Algajasõbralik**: Puhas süntaks, mis loetakse nagu inglise keel\n- **Mitmekülgne**: Veebiarendus, andmeteadus, AI/ML, automatiseerimine, skriptimine\n- **Suur ökosüsteem**: Üle 400 000 paketi PyPI-s\n- **Nõutud**: Üks enim nõutud oskusi tehnikavaldkonnas\n\n## Sinu esimene programm\n\n```python\nprint(\"Hello, World!\")\n```\n\nSee ongi kõik! Pole boilerplate'i, pole tseremooniat. See teeb Pythoni eriliseks.\n\n## Kuidas Python töötab\n\nPython on **interpreteeritud** keel. Sinu koodi täidetakse rida realt Pythoni interpretaator, erinevalt kompileeritud keeltest (C, Java), mis teisendavad kõik esmalt masinkoodiks.\n\n> **Põhiline järeldus**: Python seab arendaja tootlikkuse esikohale toore täitmise kiiruse asemel. Enamiku rakenduste jaoks on see õige kompromiss.\n",
+        "title": "Mis on Python?"
+      },
+      "lt": {
+        "content_md": "# Kas yra Python?\n\nPython yra aukšto lygio, interpretuojama programavimo kalba, kurią 1991 m. sukūrė Guido van Rossum. Ji žinoma dėl švarios sintaksės ir skaitomumo.\n\n## Kodėl verta mokytis Python?\n\n- **Draugiška pradedantiesiems**: Švari sintaksė, kuri skaitoma kaip anglų kalba\n- **Universalus**: Žiniatinklio kūrimas, duomenų mokslas, AI/ML, automatizavimas, skriptai\n- **Didžiulė ekosistema**: Daugiau nei 400 000 paketų PyPI\n- **Paklausa**: Viena iš labiausiai pageidaujamų įgūdžių technologijų srityje\n\n## Jūsų pirmoji programa\n\n```python\nprint(\"Hello, World!\")\n```\n\nŠtai ir viskas! Jokio boilerplate, jokios ceremonijos. Tai ir daro Python ypatingą.\n\n## Kaip veikia Python\n\nPython yra **interpretavimo** kalba. Jūsų kodas vykdomas eilutė po eilutės Python interpretatoriaus, skirtingai nei kompiliuojamos kalbos (C, Java), kurios viską pirmiausia konvertuoja į mašininį kodą.\n\n> **Pagrindinė išvada**: Python teikia pirmenybę kūrėjo produktyvumui, o ne žaliaviniam vykdymo greičiui. Daugumai programų tai yra tinkamas kompromisas.\n",
+        "title": "Kas yra Python?"
+      },
+      "source": "What is Python?"
+    },
+    "10": {
+      "et": {
+        "content_md": "# Lineaarvõrrandite lahendamine\n\n## Kuldreegel\n\nMida iganes teed võrrandi ühele poolele, pead tegema ka teisele poolele.\n\n## Üheastmelised võrrandid\n\n```\nx + 5 = 12     →  x = 12 - 5  →  x = 7\n3x = 21         →  x = 21 / 3  →  x = 7\n```\n\n## Kaheastmelised võrrandid\n\n```\n2x + 3 = 11\n2x = 11 - 3    (lahuta 3 mõlemalt poolt)\n2x = 8\nx = 4           (jaga mõlemad pooled 2-ga)\n```\n\n## Võrrandid muutujatega mõlemal pool\n\n```\n5x - 3 = 2x + 9\n3x = 12          (lahuta 2x, liida 3)\nx = 4\n```\n\n## Vastus kontrollimine\n\nAsenda alati tagasi: `5(4) - 3 = 17` ja `2(4) + 9 = 17` ✓\n",
+        "title": "Lineaarvõrrandite lahendamine"
+      },
+      "lt": {
+        "content_md": "# Tiesinių lygčių sprendimas\n\n## Auksinė taisyklė\n\nKą darote vienai lygties pusei, turite daryti ir kitai.\n\n## Vienos pakopos lygtys\n\n```\nx + 5 = 12     →  x = 12 - 5  →  x = 7\n3x = 21         →  x = 21 / 3  →  x = 7\n```\n\n## Dviejų pakopų lygtys\n\n```\n2x + 3 = 11\n2x = 11 - 3    (atimkite 3 iš abiejų pusių)\n2x = 8\nx = 4           (padalinkite abi puses iš 2)\n```\n\n## Lygtys su kintamaisiais abiejose pusėse\n\n```\n5x - 3 = 2x + 9\n3x = 12          (atimkite 2x, pridėkite 3)\nx = 4\n```\n\n## Atsakymo tikrinimas\n\nVisada pakeiskite atgal: `5(4) - 3 = 17` ir `2(4) + 9 = 17` ✓\n",
+        "title": "Tiesinių lygčių sprendimas"
+      },
+      "source": "Solving Linear Equations"
+    },
+    "11": {
+      "et": {
+        "content_md": "# Kujundid, pindala ja ümbermõõt\n\n## Põhivalemid\n\n| Kujund | Pindala | Ümbermõõt |\n|-------|------|-----------|\n| Ristkülik | `l x w` | `2(l + w)` |\n| Kolmnurk | `½ x b x h` | `a + b + c` |\n| Ring | `π r²` | `2πr` |\n| Trapets | `½(a + b) x h` | `a + b + c + d` |\n\n## Lahendatud näide\n\nRistkülikul on pikkus 8 cm ja laius 5 cm.\n\n- **Pindala** = 8 x 5 = 40 cm²\n- **Ümbermõõt** = 2(8 + 5) = 2(13) = 26 cm\n\n## Pythagorase teoreem\n\nTäisnurksete kolmnurkade jaoks: **a² + b² = c²**\n\nKui kaks külge on 3 ja 4:\n```\nc² = 3² + 4² = 9 + 16 = 25\nc = √25 = 5\n```\n\n> 3-4-5 kolmnurk on kõige kuulsam Pythagorase kolmik. Teised hõlmavad 5-12-13 ja 8-15-17.\n",
+        "title": "Kujundid, pindala ja ümbermõõt"
+      },
+      "lt": {
+        "content_md": "# Figūros, plotas ir perimetras\n\n## Pagrindinės formulės\n\n| Figūra | Plotas | Perimetras |\n|-------|------|-----------|\n| Stačiakampis | `l x w` | `2(l + w)` |\n| Trikampis | `½ x b x h` | `a + b + c` |\n| Apskritimas | `π r²` | `2πr` |\n| Trapecija | `½(a + b) x h` | `a + b + c + d` |\n\n## Spręstas pavyzdys\n\nStačiakampis turi ilgį 8 cm ir plotį 5 cm.\n\n- **Plotas** = 8 x 5 = 40 cm²\n- **Perimetras** = 2(8 + 5) = 2(13) = 26 cm\n\n## Pitagoro teorema\n\nStačiakampiams trikampiams: **a² + b² = c²**\n\nJei dvi kraštinės yra 3 ir 4:\n```\nc² = 3² + 4² = 9 + 16 = 25\nc = √25 = 5\n```\n\n> 3-4-5 trikampis yra garsiausias Pitagoro trejetas. Kiti apima 5-12-13 ir 8-15-17.\n",
+        "title": "Figūros, plotas ir perimetras"
+      },
+      "source": "Shapes, Area, and Perimeter"
+    },
+    "12": {
+      "et": {
+        "content_md": "# Kiirus, kiirusvektor ja kiirendus\n\n## Kiirus vs kiirusvektor\n\n- **Kiirus** = vahemaa / aeg (skalaar — ainult suurus)\n- **Kiirusvektor** = nihe / aeg (vektor — suurus + suund)\n\nAuto, mis sõidab 100 km ringrajal 1 tunniga, omab **kiirus = 100 km/h**, kuid **kiirusvektor = 0** (see on tagasi alguskohas).\n\n## Kiirendus\n\nKiirusvektori muutumise kiirus:\n\n```\na = (v - u) / t\n```\n\nKus:\n- `u` = algkiirus\n- `v` = lõppkiirus\n- `t` = aeg\n\n## SUVAT võrrandid\n\n**Ühtlase kiirenduse** (püsiv `a`) korral:\n\n| Võrrand | Puudub |\n|----------|---------|\n| `v = u + at` | `s` |\n| `s = ut + ½at²` | `v` |\n| `v² = u² + 2as` | `t` |\n| `s = ½(u + v)t` | `a` |\n\n## Lahendatud näide\n\nAuto kiirendab 0-st 30 m/s-ni 6 sekundiga.\n\n```\na = (30 - 0) / 6 = 5 m/s²\ns = ½(0 + 30)(6) = 90 m\n```\n\n> **Vaba langemine**: Maal `g ≈ 9.81 m/s²`. Õhutakistust arvestamata langev objekt saab iga sekundi jooksul ~10 m/s kiirust juurde.\n",
+        "title": "Kiirus, kiirusvektor ja kiirendus"
+      },
+      "lt": {
+        "content_md": "# Greitis, greitis ir pagreitis\n\n## Greitis vs greitis\n\n- **Greitis** = atstumas / laikas (skaliarinis — tik didumas)\n- **Greitis** = poslinkis / laikas (vektorinis — didumas + kryptis)\n\nAutomobilis, važiuojantis 100 km aplink apskritą trasą per 1 valandą, turi **greitis = 100 km/h**, bet **greitis = 0** (jis grįžta į pradžios tašką).\n\n## Pagreitis\n\nGreičio kitimo greitis:\n\n```\na = (v - u) / t\n```\n\nKur:\n- `u` = pradinis greitis\n- `v` = galutinis greitis\n- `t` = laikas\n\n## SUVAT lygtys\n\n**Vienodam pagreičiui** (pastovus `a`):\n\n| Lygtis | Trūksta |\n|----------|---------|\n| `v = u + at` | `s` |\n| `s = ut + ½at²` | `v` |\n| `v² = u² + 2as` | `t` |\n| `s = ½(u + v)t` | `a` |\n\n## Spręstas pavyzdys\n\nAutomobilis pagreitėja nuo 0 iki 30 m/s per 6 sekundes.\n\n```\na = (30 - 0) / 6 = 5 m/s²\ns = ½(0 + 30)(6) = 90 m\n```\n\n> **Laisvasis kritimas**: Žemėje `g ≈ 9.81 m/s²`. Numestas objektas (neatsižvelgiant į oro pasipriešinimą) kas sekundę įgauna ~10 m/s greičio.\n",
+        "title": "Greitis, greitis ir pagreitis"
+      },
+      "source": "Speed, Velocity, and Acceleration"
+    },
+    "13": {
+      "et": {
+        "content_md": "# Newtoni liikumisseadused\n\n## Esimene seadus (inerts)\n\nObjekt püsib paigal või ühtlases liikumises, kui sellele ei mõju väline jõud.\n\n- Raamat laual püsib paigal, kuni sa seda lükkad\n- Kosmoselaev tühjas ruumis liigub igavesti edasi (hõõrdumist pole)\n\n## Teine seadus (F = ma)\n\nJõud võrdub mass korda kiirendus.\n\n```\nF = ma\n```\n\n10 kg kasti lükates 50 N jõuga:\n```\na = F/m = 50/10 = 5 m/s²\n```\n\n## Kolmas seadus (toime-vastutoime)\n\nIga toime kohta on võrdne ja vastupidine vastutoime.\n\n- Kui sa lükkad seina, lükkab sein sind tagasi\n- Rakett lükkab heitgaase alla, heitgaasid lükkavad raketi üles\n- Kui kõnnid, lükkad maad tahapoole, maa lükkab sind edasi\n\n## Kaal vs mass\n\n- **Mass** = aine hulk (kg) — muutumatu kõikjal\n- **Kaal** = gravitatsioonijõud (N) — `W = mg`\n\nMaal: `W = 70 x 9.81 = 687 N`\nKuul: `W = 70 x 1.62 = 113 N`\n",
+        "title": "Newtoni liikumisseadused"
+      },
+      "lt": {
+        "content_md": "# Niutono judėjimo dėsniai\n\n## Pirmasis dėsnis (inertiškumas)\n\nObjektas lieka ramybės būsenoje arba tolyginiame judėjime, nebent jį veikia išorinė jėga.\n\n- Knyga ant stalo lieka nejudanti, kol ją pastumi\n- Erdvėlaivis tuščioje erdvėje juda amžinai (nėra trinties)\n\n## Antrasis dėsnis (F = ma)\n\nJėga lygi masei, padaugintai iš pagreičio.\n\n```\nF = ma\n```\n\n10 kg dėžė, stumiama 50 N jėga:\n```\na = F/m = 50/10 = 5 m/s²\n```\n\n## Trečiasis dėsnis (veiksmas-reakcija)\n\nKiekvienam veiksmui yra lygi ir priešinga reakcija.\n\n- Kai stumi sieną, siena stumia tave atgal\n- Raketa stumia išmetamąsias dujas žemyn, išmetamosios dujos stumia raketą aukštyn\n- Eidamas stumi žemę atgal, žemė stumia tave į priekį\n\n## Svoris vs masė\n\n- **Masė** = materijos kiekis (kg) — pastovi visur\n- **Svoris** = gravitacinė jėga (N) — `W = mg`\n\nŽemėje: `W = 70 x 9.81 = 687 N`\nMėnulyje: `W = 70 x 1.62 = 113 N`\n",
+        "title": "Niutono judėjimo dėsniai"
+      },
+      "source": "Newton's Laws of Motion"
+    },
+    "14": {
+      "et": {
+        "content_md": "# Raku struktuur\n\nRakud on kõigi elusorganismide põhilised ehitusplokid.\n\n## Loomarakk vs taimerakk\n\n| Feature | Animal Cell | Plant Cell |\n|---------|-------------|------------|\n| Cell wall | No | Yes (cellulose) |\n| Chloroplasts | No | Yes |\n| Vacuole | Small, multiple | Large, central |\n| Shape | Irregular | Regular / rectangular |\n| Both have | Nucleus, mitochondria, ribosomes, cell membrane, cytoplasm |\n\n## Key Organelles\n\n- **Nucleus** — sisaldab DNA-d, kontrollib raku tegevusi\n- **Mitochondria** — \"raku jõujaam\", toodab ATP-d aeroobse hingamise kaudu\n- **Ribosomes** — sünteesivad valke aminohapetest\n- **Cell membrane** — selektiivselt läbilaskev barjäär, kontrollib, mis siseneb ja väljub\n- **Endoplasmic reticulum (ER)** — kare ER-l on ribosoomid (valkude transport), sile ER toodab lipiide\n- **Golgi apparatus** — pakib ja muudab valke sekretsiooniks\n\n## Prokaryotes vs Eukaryotes\n\n| Feature | Prokaryote | Eukaryote |\n|---------|------------|-----------|\n| Nucleus | No (nucleoid) | Yes |\n| Size | 1-10 μm | 10-100 μm |\n| Examples | Bacteria | Animals, plants, fungi |\n| DNA | Circular | Linear chromosomes |\n\n> **Scale**: Kui rakk oleks jalgpalliväljaku suurune, oleks mitokondrium inimese suurune ja ribosoom jalgpalli suurune.\n",
+        "title": "Raku struktuur"
+      },
+      "lt": {
+        "content_md": "# Ląstelės sandara\n\nLąstelės yra pagrindiniai visų gyvų organizmų statybiniai blokai.\n\n## Gyvūnų ir augalų ląstelės\n\n| Požymis | Gyvūno ląstelė | Augalo ląstelė |\n|---------|-------------|------------|\n| Ląstelės sienelė | Ne | Taip (celiuliozė) |\n| Chloroplastai | Ne | Taip |\n| Vakuolė | Maža, daug | Didelė, centrinė |\n| Forma | Netaisyklinga | Taisyklinga / stačiakampė |\n| Abi turi | Branduolį, mitochondrijas, ribosomas, ląstelės membraną, citoplazmą |\n\n## Pagrindiniai organoidai\n\n- **Branduolys** — turi DNR, valdo ląstelės veiklą\n- **Mitochondrijos** — „ląstelės jėgainė“, gamina ATP aerobinio kvėpavimo metu\n- **Ribosomos** — sintetina baltymus iš aminorūgščių\n- **Ląstelės membrana** — selektyviai pralaidi barjeras, kontroliuoja, kas patenka ir išeina\n- **Endoplazminis tinklas (ET)** — šiurkštusis ET turi ribosomas (baltymų transportas), lygusis ET gamina lipidus\n- **Golgi aparatas** — pakuoją ir modifikuoja baltymus sekrecijai\n\n## Prokariotai ir eukariotai\n\n| Požymis | Prokariotas | Eukariotas |\n|---------|------------|-----------|\n| Branduolys | Ne (nukleoidas) | Taip |\n| Dydis | 1-10 μm | 10-100 μm |\n| Pavyzdžiai | Bakterijos | Gyvūnai, augalai, grybai |\n| DNR | Žiedinė | Linijinės chromosomos |\n\n> **Mastelis**: Jei ląstelė būtų futbolo aikštės dydžio, mitochondrija būtų žmogaus dydžio, o ribosoma — futbolo kamuolio dydžio.\n",
+        "title": "Ląstelės sandara"
+      },
+      "source": "Cell Structure"
+    },
+    "15": {
+      "et": {
+        "content_md": "# DNA ja pärilikkus\n\n## DNA struktuur\n\nDNA (desoksüribonukleiinhape) on nukleotiididest koosnev topeltheeliks. Igal nukleotiidil on:\n- Fosfaatrühm\n- Desoksüriboosi suhkur\n- Lämmastikku sisaldav alus (A, T, C või G)\n\n**Aluste paaritumise reeglid**: A-T (2 vesiniksidet), C-G (3 vesiniksidet)\n\n## Geenid ja kromosoomid\n\n- **Geen** — DNA lõik, mis kodeerib kindlat valku\n- **Kromosoom** — pikk DNA molekul, mis on ümbritsetud valkudega (histoonid)\n- Inimestel on **46 kromosoomi** (23 paari)\n- Paar 23 = sugukromosoomid: XX (naine), XY (mees)\n\n## Pärilikkus\n\n- **Alleel** — geeni versioon (nt pruunide silmade alleel, siniste silmade alleel)\n- **Dominantne** (B) — avaldub ühe või kahe koopia olemasolul\n- **Retessiivne** (b) — avaldub ainult kahe koopia olemasolul\n- **Genotüüp** — alleelid, mida kannate (BB, Bb, bb)\n- **Fenotüüp** — vaadeldav tunnus (pruunid silmad, sinised silmad)\n\n## Punneti ruut\n\nRistamine Bb x Bb:\n\n```\n        B       b\n  B    BB      Bb\n  b    Bb      bb\n```\n\nSuhe: 3 dominantne : 1 retsessiivne (75% : 25%)\n",
+        "title": "DNA ja pärilikkus"
+      },
+      "lt": {
+        "content_md": "# DNR ir paveldėjimas\n\n## DNR sandara\n\nDNR (dezoksiribonukleorūgštis) yra dviguba spiralė, sudaryta iš nukleotidų. Kiekvienas nukleotidas turi:\n- Fosfato grupę\n- Dezoksiribozės cukrų\n- Azotinę bazę (A, T, C arba G)\n\n**Bazių poravimosi taisyklės**: A-T (2 vandeniliniai ryšiai), C-G (3 vandeniliniai ryšiai)\n\n## Genai ir chromosomos\n\n- **Genas** — DNR atkarpa, koduojanti specifinį baltymą\n- **Chromosoma** — ilga DNR molekulė, apvyniota aplink baltymus (histonus)\n- Žmonės turi **46 chromosomas** (23 poras)\n- 23 pora = lytinės chromosomos: XX (moteris), XY (vyras)\n\n## Paveldėjimas\n\n- **Alelis** — geno versija (pvz., rudų akių alelis, mėlynų akių alelis)\n- **Dominuojantis** (B) — išreiškiamas esant vienai ar dviem kopijoms\n- **Recesyvinis** (b) — išreiškiamas tik esant dviem kopijoms\n- **Genotipas** — aleliai, kuriuos nešiojate (BB, Bb, bb)\n- **Fenotipas** — stebimas požymis (rudos akys, mėlynos akys)\n\n## Punneto kvadratas\n\nKryžminant Bb x Bb:\n\n```\n        B       b\n  B    BB      Bb\n  b    Bb      bb\n```\n\nSantykis: 3 dominuojantys : 1 recesyvinis (75% : 25%)\n",
+        "title": "DNR ir paveldėjimas"
+      },
+      "source": "DNA and Inheritance"
+    },
+    "16": {
+      "et": {
+        "content_md": "# Aatomid ja perioodilisustabel\n\n## Aatomi struktuur\n\n| Osake | Laeng | Mass | Asukoht |\n|----------|--------|------|----------|\n| Prooton | +1 | 1 amu | Tuum |\n| Neutron | 0 | 1 amu | Tuum |\n| Elektron | -1 | ~0 | Elektronkestad |\n\n- **Aatomnumber** = prootonite arv (määrab elemendi)\n- **Massiarv** = prootonid + neutronid\n- **Isotoobid** = sama element, erinev arv neutroneid (nt süsinik-12 vs süsinik-14)\n\n## Elektronkonfiguratsioon\n\nElektronid täidavad kestad seestpoolt väljapoole:\n- Kest 1: max 2 elektroni\n- Kest 2: max 8 elektroni\n- Kest 3: max 8 elektroni (lihtsustatud)\n\nNäide — Naatrium (Na, aatomnumber 11): `2, 8, 1`\n\n## Perioodilisustabel\n\n- **Rühmad** (veerud) = sama arv väliselektrone → sarnased keemilised omadused\n- **Perioodid** (read) = sama arv elektronkestasid\n- **Metallid** vasakul, **mittemetallid** paremal\n- **Rühm 1** (leelismetallid): reaktsioonivõimelised, 1 väline elektron\n- **Rühm 7** (halogeenid): reaktsioonivõimelised, 7 välist elektroni\n- **Rühm 0** (väärisgaasid): passiivsed, täis väline kest\n\n> **Mendelejevi geenius**: Ta järjestas elemendid aatommassi järgi JA jättis tühikud avastamata elementidele — ning ennustas nende omadusi õigesti.\n",
+        "title": "Aatomid ja perioodilisustabel"
+      },
+      "lt": {
+        "content_md": "# Atomai ir periodinė lentelė\n\n## Atomo sandara\n\n| Particle | Charge | Mass | Location |\n|----------|--------|------|----------|\n| Proton | +1 | 1 amu | Nucleus |\n| Neutron | 0 | 1 amu | Nucleus |\n| Electron | -1 | ~0 | Electron shells |\n\n- **Atominis numeris** = protonų skaičius (apibrėžia elementą)\n- **Masės numeris** = protonai + neutronai\n- **Izotopai** = tas pats elementas, skirtingas neutronų skaičius (pvz., Carbon-12 vs Carbon-14)\n\n## Elektronų konfigūracija\n\nElektronai užpildo apvalkalus iš vidaus į išorę:\n- Apvalkalas 1: maks. 2 elektronai\n- Apvalkalas 2: maks. 8 elektronai\n- Apvalkalas 3: maks. 8 elektronai (supaprastinta)\n\nPavyzdys — Natris (Na, atominis numeris 11): `2, 8, 1`\n\n## Periodinė lentelė\n\n- **Grupės** (stulpeliai) = vienodas išorinių elektronų skaičius → panašios cheminės savybės\n- **Periodai** (eilutės) = vienodas elektronų apvalkalų skaičius\n- **Metalai** kairėje, **nemetalai** dešinėje\n- **1 grupė** (šarminiai metalai): reaktyvūs, 1 išorinis elektronas\n- **7 grupė** (halogenai): reaktyvūs, 7 išoriniai elektronai\n- **0 grupė** (inertinės dujos): nereaktyvios, pilnas išorinis apvalkalas\n\n> **Mendelejevo genialumas**: Jis išdėstė elementus pagal atominę masę IR paliko tarpus neatrastiems elementams — ir teisingai numatė jų savybes.\n",
+        "title": "Atomai ir periodinė lentelė"
+      },
+      "source": "Atoms and the Periodic Table"
+    },
+    "17": {
+      "et": {
+        "content_md": "# Reaktsioonitüübid ja võrrandite tasakaalustamine\n\n## Keemiliste reaktsioonide tüübid\n\n1. **Põlemine**: Kütus + O₂ → CO₂ + H₂O (+ energia)\n2. **Neutraliseerimine**: Hape + Alus → Sool + Vesi\n3. **Lagunemine**: AB → A + B (üks ühend laguneb)\n4. **Asendus**: Reaktiivsem element asendab vähem reaktiivse\n5. **Süntees**: A + B → AB (kaks elementi ühinevad)\n\n## Võrrandite tasakaalustamine\n\nAatomid sisse = aatomid välja (massi jäävus).\n\n**Tasakaalustamata**: `H₂ + O₂ → H₂O`\n\nLoendus: Vasakul 2H, 2O. Paremal 2H, 1O. Pole tasakaalus!\n\n**Tasakaalustatud**: `2H₂ + O₂ → 2H₂O`\n\nLoendus: Vasakul 4H, 2O. Paremal 4H, 2O. ✓\n\n## Eksotermiline vs endotermiline\n\n- **Eksotermiline**: vabastab energiat (põlemine, neutraliseerimine). Temperatuur tõuseb.\n- **Endotermiline**: neelab energiat (fotosüntees, termiline lagunemine). Temperatuur langeb.\n\n## Reaktsiooni kiirus\n\nReaktsioonid kulgevad kiiremini, kui:\n- Kõrgem **temperatuur** (osakesed liiguvad kiiremini)\n- Kõrgem **kontsentratsioon** (rohkem osakesi ruumala kohta)\n- Väiksem **pindala** (rohkem avatud osakesi)\n- **Katalüsaator** (alandab aktiveerimisenergiat, ei kulu)\n",
+        "title": "Reaktsioonitüübid ja võrrandite tasakaalustamine"
+      },
+      "lt": {
+        "content_md": "# Reakcijų tipai ir lygčių balansavimas\n\n## Cheminių reakcijų tipai\n\n1. **Degimas**: Kuras + O₂ → CO₂ + H₂O (+ energija)\n2. **Neutralizacija**: Rūgštis + Bazė → Druska + Vanduo\n3. **Skilimas**: AB → A + B (viena jungtis skyla)\n4. **Išstūmimas**: Reaktyvesnis elementas išstumia mažiau reaktyvų\n5. **Sintezė**: A + B → AB (du elementai susijungia)\n\n## Lygčių balansavimas\n\nAtomai įeina = atomai išeina (masės tvermė).\n\n**Nesubalansuota**: `H₂ + O₂ → H₂O`\n\nSkaičiuok: Kairėje 2H, 2O. Dešinėje 2H, 1O. Nesubalansuota!\n\n**Subalansuota**: `2H₂ + O₂ → 2H₂O`\n\nSkaičiuok: Kairėje 4H, 2O. Dešinėje 4H, 2O. ✓\n\n## Egzoterminės vs endoterminės\n\n- **Egzoterminės**: išskiria energiją (degimas, neutralizacija). Temperatūra kyla.\n- **Endoterminės**: sugeria energiją (fotosintezė, terminis skilimas). Temperatūra krenta.\n\n## Reakcijos greitis\n\nReakcijos vyksta greičiau su:\n- Aukštesne **temperatūra** (dalelės juda greičiau)\n- Aukštesne **koncentracija** (daugiau dalelių tūrio vienete)\n- Mažesniu **paviršiaus plotu** (daugiau veikiamų dalelių)\n- **Katalizatoriumi** (mažina aktyvacijos energiją, nesunaudojamas)\n",
+        "title": "Reakcijų tipai ir lygčių balansavimas"
+      },
+      "source": "Types of Reactions and Balancing Equations"
+    },
+    "18": {
+      "et": {
+        "content_md": "# Tekstide analüüsimine\n\n## PEE raamistik\n\nKasuta **P**unkt, **T**õend, **S**elgitus iga analüütilise lõigu jaoks:\n\n1. **Punkt** — esita oma argument selgelt\n2. **Tõend** — tsiteeri otse tekstist\n3. **Selgitus** — analüüsi, KUIDAS tõend toetab sinu punkti\n\n### Näide\n\n> **Punkt**: Shakespeare esitleb leedi Macbethi ambitsioonikana.\n> **Tõend**: Ta kutsub vaime appi „unsex me here“ ja täitma teda „direst cruelty-ga.“\n> **Selgitus**: Imperatiivne verb „unsex“ viitab sellele, et ta soovib tagasi lükata naiselikkust, mida jakobiiinide ajastul seostati leebusega, et taotleda võimu vägivalla kaudu.\n\n## Keeletehnikad, mida märgata\n\n| Tehnika | Definitsioon | Mõju |\n|-----------|-----------|--------|\n| Metafoor | Võrdlemine ilma „nagu/nagu“ | Loob elava pildi |\n| Sarnasus | Võrdlemine „nagu/nagu“ abil | Muudab abstraktsed ideed konkreetseks |\n| Isikustamine | Inimlike omaduste andmine elututele asjadele | Loob empaatiat või ähvardust |\n| Alliteratsioon | Korduvad konsonandid | Rõhutab, loob rütmi |\n| Pateetiline eksitus | Ilm peegeldab meeleolu | Loob atmosfääri |\n| Vastandamine | Vastandite kõrvutamine | Tõstab esile erinevusi |\n\n## Struktuur, mida analüüsida\n\n- **Avamine** — kuidas kirjanik lugejat haakib?\n- **Nihe** — kus toon või perspektiiv muutub?\n- **Lõpp** — ringikujuline? Avatud? Lahendatud? Mis on mõju?\n\n> **Nõuanne**: Ära lihtsalt tuvasta tehnikaid — selgita alati nende **mõju** lugejale.\n",
+        "title": "Tekstide analüüsimine"
+      },
+      "lt": {
+        "content_md": "# Tekstų analizė\n\n## PEE sistema\n\nNaudokite **T**eiginys, **Į**rodymas, **P**aaiškinimas kiekvienai analitinei pastraipai:\n\n1. **Teiginys** — aiškiai išsakykite savo argumentą\n2. **Įrodymas** — cituokite tiesiai iš teksto\n3. **Paaiškinimas** — analizuokite, KAIP įrodymas palaiko jūsų teiginį\n\n### Pavyzdys\n\n> **Teiginys**: Shakespeare'as vaizduoja ledi Makbet kaip ambicingą.\n> **Įrodymas**: Ji šaukiasi dvasių „išlyginti mane čia“ ir pripildyti ją „baisiausio žiaurumo“.\n> **Paaiškinimas**: Liepiamoji veiksmažodžio forma „išlyginti“ rodo, kad ji nori atmesti moteriškumą, kuris jakobų epochoje buvo siejamas su švelnumu, siekdama valdžios per smurtą.\n\n## Kalbos priemonės, kurias reikia pastebėti\n\n| Priemonė | Apibrėžimas | Poveikis |\n|-----------|-----------|--------|\n| Metafora | Palyginimas be „kaip/kaip“ | Sukuria ryškų vaizdą |\n| Palyginimas | Palyginimas su „kaip/kaip“ | Padaro abstrakčias idėjas konkrečias |\n| Personifikacija | Žmogiškųjų savybių suteikimas negyviems daiktams | Sukuria empatiją arba grėsmę |\n| Aliteracija | Pasikartojantys priebalsių garsai | Pabrėžia, sukuria ritmą |\n| Patetinė klaida | Oras atspindintis nuotaiką | Sukuria atmosferą |\n| Sugretinimas | Kontrastų išdėstymas greta | Pabrėžia skirtumus |\n\n## Struktūra analizei\n\n- **Pradžia** — kaip rašytojas užkabina skaitytoją?\n- **Poslinkis** — kur keičiasi tonas ar perspektyva?\n- **Pabaiga** — cikliška? Atvira? Išspręsta? Koks poveikis?\n\n> **Patarimas**: Ne tik identifikuokite priemones — visada paaiškinkite jų **poveikį** skaitytojui.\n",
+        "title": "Tekstų analizė"
+      },
+      "source": "Analysing Texts"
+    },
+    "19": {
+      "et": {
+        "content_md": "# Essee struktuur ja lõikude jaotus\n\n## Hamburgeri mudel\n\nIgal esseel on kolm osa:\n\n1. **Sissejuhatus** (ülemine sai) — haak, kontekst, tees\n2. **Põhilõigud** (täidis) — 3-5 PEE lõiku, igaüks esitab ühe punkti\n3. **Kokkuvõte** (alumine sai) — kokkuvõte, refleksioon, lõppmõte\n\n## Tugeva sissejuhatuse kirjutamine\n\n```\nHaak → Kontekst → Tees\n\n\"Juba esimesest reast loob Orwell maailma, kus tõde\non paindlik. 1949. aastal kirjutatud hoiatusena totalitarismi vastu,\non 1984 endiselt hirmutavalt aktuaalne. See essee väidab, et Orwell kasutab\nkeelt kui peamist rõhumisrelva.\"\n```\n\n## Lõikude sidumine\n\nKasuta **diskursuse markereid** ideede ühendamiseks:\n- **Lisamine**: Lisaks, Pealegi, Lisaks sellele\n- **Vastandamine**: Siiski, Teisest küljest, Vastupidi\n- **Kokkuvõte**: Seetõttu, Lõppkokkuvõttes, Kokkuvõtteks\n- **Järjestamine**: Esiteks, Seejärel, Lõpuks\n\n## Levinud grammatikavead\n\n- **Their / They're / There** — omamine / lühend / koht\n- **Its / It's** — omamine / lühend (\"it is\")\n- **Affect / Effect** — tegusõna / nimisõna (tavaliselt)\n- **Komaga liitlaused** — ära ühenda kahte lauset ainult komaga\n",
+        "title": "Essee struktuur ja lõikude jaotus"
+      },
+      "lt": {
+        "content_md": "# Esė struktūra ir pastraipų formavimas\n\n## Mėsainio modelis\n\nKiekviena esė turi tris dalis:\n\n1. **Įvadas** (viršutinis bandelės sluoksnis) — kabliukas, kontekstas, tezės teiginys\n2. **Pagrindinės pastraipos** (įdaras) — 3–5 PEE pastraipos, kiekviena išsakanti vieną mintį\n3. **Išvada** (apatinis bandelės sluoksnis) — apibendrinti, apmąstyti, galutinė mintis\n\n## Stipraus įvado rašymas\n\n```\nKabliukas → Kontekstas → Tezė\n\n„Jau nuo pirmosios eilutės Orwellas sukuria pasaulį, kuriame tiesa\nyra lanksti. Parašytas 1949 m. kaip perspėjimas prieš totalitarizmą,\n1984 m. išlieka šiurpiai aktualus. Šioje esė teigiama, kad Orwellas naudoja\nkalbą kaip pagrindinį priespaudos ginklą.“\n```\n\n## Pastraipų susiejimas\n\nNaudokite **diskurso žymeklius** idėjoms susieti:\n- **Pridėjimas**: Be to, Be to, Papildomai\n- **Prieštaravimas**: Tačiau, Kita vertus, Priešingai\n- **Išvada**: Todėl, Galiausiai, Apibendrinant\n- **Sekos nustatymas**: Pirma, Vėliau, Galiausiai\n\n## Dažnos gramatikos klaidos\n\n- **Their / They're / There** — priklausomybė / sutrumpinimas / vieta\n- **Its / It's** — priklausomybė / sutrumpinimas („it is“)\n- **Affect / Effect** — veiksmažodis / daiktavardis (dažniausiai)\n- **Kablelio klaidos** — nesujunkite dviejų sakinių tik kableliu\n",
+        "title": "Esė struktūra ir pastraipų formavimas"
+      },
+      "source": "Essay Structure and Paragraphing"
+    },
+    "2": {
+      "et": {
+        "content_md": "# Pythoni installimine\n\n## Kontrolli, kas Python on juba installitud\n\n```bash\npython3 --version\n```\n\n## Installimine platvormi järgi\n\n### macOS\n```bash\nbrew install python\n```\n\n### Ubuntu / Debian\n```bash\nsudo apt update && sudo apt install python3 python3-pip python3-venv\n```\n\n### Windows\nLaadi alla saidilt [python.org](https://python.org) ja käivita installer. **Märgi \"Add Python to PATH\"**.\n\n## Virtuaalsed keskkonnad\n\nKasuta alati projektide jaoks virtuaalset keskkonda:\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate   # macOS/Linux\n.venv\\Scripts\\activate     # Windows\n```\n\n## Kontrolli oma seadistust\n\n```bash\npython3 -c \"import sys; print(f'Python {sys.version}')\"\n```\n\n> **Nõuanne**: Kasuta macOS/Linuxis `python3` selgesõnaliselt, et vältida Python 2 juhuslikku kasutamist.\n",
+        "title": "Pythoni installimine"
+      },
+      "lt": {
+        "content_md": "# Python diegimas\n\n## Patikrinkite, ar Python jau įdiegtas\n\n```bash\npython3 --version\n```\n\n## Diegimas pagal platformą\n\n### macOS\n```bash\nbrew install python\n```\n\n### Ubuntu / Debian\n```bash\nsudo apt update && sudo apt install python3 python3-pip python3-venv\n```\n\n### Windows\nAtsisiųskite iš [python.org](https://python.org) ir paleiskite diegimo programą. **Pažymėkite „Add Python to PATH“**.\n\n## Virtualiosios aplinkos\nVisada naudokite virtualiąją aplinką projektams:\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate   # macOS/Linux\n.venv\\Scripts\\activate     # Windows\n```\n\n## Patikrinkite savo nustatymus\n\n```bash\npython3 -c \"import sys; print(f'Python {sys.version}')\"\n```\n\n> **Patarimas**: Naudokite `python3` aiškiai macOS/Linux, kad netyčia nenaudotumėte Python 2.\n",
+        "title": "Python diegimas"
+      },
+      "source": "Installing Python"
+    },
+    "20": {
+      "et": {
+        "content_md": "# Laamtektoonika ja maavärinad\n\n## Maa struktuur\n\n- **Koorik** — õhuke välimine kiht (5-70 km). Ookeaniline koorik on õhem ja tihedam kui mandriline.\n- **Mantel** — kuum, poolvedel kivim. Konvektsioonivoolud juhivad laamade liikumist.\n- **Välimine tuum** — vedel raud ja nikkel (~5 000 °C)\n- **Sisemine tuum** — tahke raud ja nikkel (~6 000 °C)\n\n## Laamapiirid\n\n| Tüüp | Liikumine | Tunnusjooned | Näide |\n|------|----------|--------------|-------|\n| **Konstruktiivne** | Laamad liiguvad lahku | Keskookeani seljandikud, vulkaanid | Kesk-Atlandi seljandik |\n| **Destruktiivne** | Laamad põrkuvad | Süvikud, kurdmäestikud, vulkaanid | Andid, Jaapan |\n| **Konservatiivne** | Laamad libisevad mööda | Maavärinad (vulkaane ei ole) | San Andrease murrang |\n\n## Maavärinad\n\nPõhjustatud äkilisest energia vabanemisest laamapiiridel.\n\n- **Fookus** — punkt maa all, kus maavärin algab\n- **Epitsenter** — punkt pinnal otse fookuse kohal\n- **Seismilised lained** — P-lained (kiireimad, pikilained), S-lained (põikilained), L-lained (pinnalained, kõige hävitavamad)\n- **Richteri skaala** — mõõdab magnituudi (logaritmiline: iga samm = 10× rohkem energiat)\n\n## Miks inimesed elavad vulkaanide lähedal?\n\n- Viljakas vulkaaniline muld\n- Geotermiline energia\n- Turism\n- Mineraalide leiukohad\n- Kultuurilised/ajaloolised juured\n\n> **Põhistatistika**: 80% maavärinaid toimub Vaikse ookeani laama ümber \"Tulerõngas\".\n",
+        "title": "Laamtektoonika ja maavärinad"
+      },
+      "lt": {
+        "content_md": "# Plokščių tektonika ir žemės drebėjimai\n\n## Žemės sandara\n\n- **Pluta** — plonas išorinis sluoksnis (5-70 km). Vandenynų pluta yra plonesnė ir tankesnė nei žemyninė.\n- **Mantija** — karšta, pusiau išlydyta uoliena. Konvekcinės srovės varo plokščių judėjimą.\n- **Išorinis branduolys** — skystas geležis ir nikelis (~5 000 °C)\n- **Vidinis branduolys** — kietas geležis ir nikelis (~6 000 °C)\n\n## Plokščių ribos\n\n| Tipas | Judėjimas | Bruožai | Pavyzdys |\n|------|----------|----------|---------|\n| **Konstruktyvi** | Plokštės tolsta | Vidurio vandenyno kalnagūbriai, ugnikalniai | Vidurio Atlanto kalnagūbris |\n| **Destruktyvi** | Plokštės susiduria | Tranšėjos, klostiniai kalnai, ugnikalniai | Andai, Japonija |\n| **Konservatyvi** | Plokštės slysta pro šalį | Žemės drebėjimai (be ugnikalnių) | San Andreaso lūžis |\n\n## Žemės drebėjimai\n\nSukelti staigaus energijos išsiskyrimo plokščių ribose.\n\n- **Židinys** — taškas po žeme, kur prasideda žemės drebėjimas\n- **Epocentras** — taškas paviršiuje tiesiai virš židinio\n- **Seisminės bangos** — P-bangos (greičiausios, išilginės), S-bangos (skersinės), L-bangos (paviršinės, labiausiai destruktyvios)\n- **Richterio skalė** — matuoja magnitudę (logaritminė: kiekvienas žingsnis = 10 kartų daugiau energijos)\n\n## Kodėl žmonės gyvena prie ugnikalnių?\n\n- Derlinga vulkaninė dirva\n- Geoterminė energija\n- Turizmas\n- Mineralų telkiniai\n- Kultūrinės/istorinės šaknys\n\n> **Pagrindinė statistika**: 80 % žemės drebėjimų įvyksta palei „Ugnies žiedą“ aplink Ramiojo vandenyno plokštę.\n",
+        "title": "Plokščių tektonika ir žemės drebėjimai"
+      },
+      "source": "Plate Tectonics and Earthquakes"
+    },
+    "21": {
+      "et": {
+        "content_md": "# Linnastumine ja megalinna\n\n## Mis on linnastumine?\n\nLinnastumine on linnaelanike osakaalu kasv kogu elanikkonnas. 2025. aastal elab linnades ~56% maailma elanikkonnast. 2050. aastaks jõuab see ~68%-ni.\n\n## Tõukavad ja tõmbavad tegurid\n\n| Tõukav (maa → linn) | Tõmbav (linn meelitab) |\n|---------------------|------------------------|\n| Tööpuudus | Töövõimalused |\n| Halvad teenused | Parem tervishoid, haridus |\n| Loodusõnnetused | Kõrgemad palgad |\n| Konfliktid | Meelelahutus, kultuur |\n\n## Megalinna\n\nMegalinnal on **10 miljonit+** elanikku. 2025. aastal on 33 megalinna.\n\nViis suurimat: Tokyo (37M), Delhi (32M), Shanghai (29M), São Paulo (22M), Mexico City (22M)\n\n## Linna väljakutsed\n\n- **Eluase** — slummid, mitteametlikud asulad, kodutus\n- **Transport** — ummikud, saaste, infrastruktuuri koormus\n- **Teenused** — vesi, kanalisatsioon, elekter kasvavale elanikkonnale\n- **Keskkond** — linna soojussaar, jäätmekäitlus, õhukvaliteet\n\n## Jätkusuutlik linnaelu\n\n- Rohealad ja linnametsad\n- Ühistransport ja jalgrattainfrastruktuur\n- Taastuvenergia hoonetes\n- Jäätmete ringlussevõtt ja ringmajandus\n- Segafunktsiooniga arendus (vähendab pendelrände)\n",
+        "title": "Linnastumine ja megalinna"
+      },
+      "lt": {
+        "content_md": "# Urbanizacija ir megamiestai\n\n## Kas yra urbanizacija?\n\nDidėjantis gyventojų procentas, gyvenantis urbanizuotose vietovėse. 2025 m. ~56 % pasaulio gyventojų gyvena miestuose. Iki 2050 m. šis skaičius pasieks ~68 %.\n\n## Stūmimo ir traukos veiksniai\n\n| Stūmimas (kaimas → miestas) | Trauka (miestas vilioja) |\n|---------------------|---------------------|\n| Darbo trūkumas | Užimtumo galimybės |\n| Prastos paslaugos | Geresnė sveikatos priežiūra, švietimas |\n| Gamtos nelaimės | Didesni atlyginimai |\n| Konfliktai | Pramogos, kultūra |\n\n## Megamiestai\n\nMegamiestis turi **10 milijonų+** gyventojų. 2025 m. yra 33 megamiestai.\n\nTop 5: Tokijas (37 mln.), Delis (32 mln.), Šanchajus (29 mln.), San Paulas (22 mln.), Meksikas (22 mln.)\n\n## Miestų iššūkiai\n\n- **Būstas** — lūšnos, neformalios gyvenvietės, benamystė\n- **Transportas** — spūstys, tarša, infrastruktūros apkrova\n- **Paslaugos** — vanduo, sanitarija, elektra augančioms populiacijoms\n- **Aplinka** — miesto šilumos sala, atliekų tvarkymas, oro kokybė\n\n## Tvarus miesto gyvenimas\n\n- Žaliosios erdvės ir miesto miškai\n- Viešasis transportas ir dviračių infrastruktūra\n- Atsinaujinanti energija pastatuose\n- Atliekų perdirbimas ir žiedinė ekonomika\n- Mišrios paskirties plėtra (mažina keliones į darbą)\n",
+        "title": "Urbanizacija ir megamiestai"
+      },
+      "source": "Urbanisation and Megacities"
+    },
+    "22": {
+      "et": {
+        "content_md": "# Näita, ära ütle\n\nKõige olulisem reegel loovkirjutamises. Selle asemel, et lugejale öelda, mida tunda, näita seda konkreetsete detailide kaudu.\n\n## Ütle vs Näita\n\n**Ütle**: \"Ta oli vihane.\"\n\n**Näita**: \"Ta sõrmenukid valgenesid laua serva ümber. Ta rääkis läbi kokkusurutud hammaste, iga sõna eraldi lausena.\"\n\n## Kuidas näidata\n\n1. **Kasuta meelelisi detaile** — nägemine, kuulmine, lõhn, puudutus, maitse\n2. **Näita tegevuse kaudu** — mida tegelane teeb?\n3. **Näita dialoogi kaudu** — mida nad ütlevad (ja kuidas)?\n4. **Näita füüsilise reaktsiooni kaudu** — kehakeel, tahtmatud reaktsioonid\n\n## Harjutus: Kirjuta need ümber\n\nProovi kirjutada need \"ütlevad\" laused ümber \"näitavateks\":\n\n- \"Maja oli vana ja õudne.\"\n- \"Ta oli väga väsinud.\"\n- \"Nad olid armunud.\"\n\n## Millal on ütlemine OK\n\n- **Üleminekud**: \"Kolm nädalat hiljem jõudsid nad Pariisi.\"\n- **Väiksemad detailid**: \"Ta tellis kohvi\" (pole vaja näidata tellimisprotsessi)\n- **Tempo**: Mõnikord on vaja kiiremini mööda vähem olulistest hetkedest\n\n> **Tšehhovi nõuanne**: \"Ära ütle mulle, et kuu paistab; näita mulle valguse sära purunenud klaasil.\"\n",
+        "title": "Näita, ära ütle"
+      },
+      "lt": {
+        "content_md": "# Rodyk, nepasakok\n\nSvarbiausia taisyklė kūrybiniame rašyme. Užuot pasakojęs skaitytojui, ką jausti, parodyk tai per konkrečias detales.\n\n## Pasakojimas vs rodymas\n\n**Pasakojimas**: „Ji buvo pikta.“\n\n**Rodymas**: „Jos pirštų sąnariai pabalo, tvirtai suspaudę stalo kraštą. Ji kalbėjo sukandusi dantis, kiekvienas žodis – atskiras sakinys.“\n\n## Kaip rodyti\n\n1. **Naudokite juslines detales** — regėjimas, garsas, kvapas, lytėjimas, skonis\n2. **Rodykite per veiksmą** — ką personažas DARO?\n3. **Rodykite per dialogą** — ką jie SAKO (ir kaip)?\n4. **Rodykite per fizinę reakciją** — kūno kalba, nevalingi atsakai\n\n## Praktika: perrašykite šiuos\n\nPabandykite perrašyti šiuos „pasakojimo“ sakinius kaip „rodymo“:\n\n- „Namas buvo senas ir šiurpus.“\n- „Jis buvo labai pavargęs.“\n- „Jie buvo įsimylėję.“\n\n## Kada pasakojimas yra tinkamas\n\n- **Perėjimai**: „Po trijų savaičių jie atvyko į Paryžių.“\n- **Mažiau svarbios detalės**: „Ji užsisakė kavos“ (nereikia rodyti užsakymo proceso)\n- **Tempas**: Kartais reikia greitai praleisti mažiau svarbias akimirkas\n\n> **Čechovo patarimas**: „Nesakykite man, kad mėnulis šviečia; parodykite man šviesos žvilgesį ant sudužusio stiklo.“\n",
+        "title": "Rodyk, nepasakok"
+      },
+      "source": "Show, Don't Tell"
+    },
+    "23": {
+      "et": {
+        "content_md": "# Tegelaste loomine\n\n## Tegelase jäämägi\n\nMida lugeja näeb (vee kohal):\n- Nimi, välimus, kõnemaneerid\n- Teod ja otsused\n- Suhted teistega\n\nMis tegelast juhib (vee all):\n- Taustalugu, kujundavad kogemused\n- Hirmud, soovid, vastuolud\n- Maailmavaade ja väärtused\n\n## Tegelane vs karikatuur\n\n**Tegelasel** on:\n- Vastuolud (\"helde ihnuskoi\")\n- Sisemine konflikt\n- Võime lugejat üllatada\n- Kasv või muutus (kaare)\n\n**Karikatuuril** on:\n- Üks määrav omadus\n- Ennustatav käitumine\n- Sisemise elu puudumine\n\n## Dialoog, mis paljastab tegelast\n\nHea dialoog täidab topeltülesannet — see edendab süžeed JA paljastab tegelast.\n\n```\n\"Ma ei vaja kellegi abi,\" ütles ta, juba ulatades käe tema poole.\n```\n\nSee üks rida ütleb meile rohkem kui lõik kirjeldust: ta on uhke, kuid üksildane.\n\n## Harjutus: Tegelase kaart\n\nJärgmise tegelase jaoks vasta:\n1. Mida nad tahavad rohkem kui midagi muud?\n2. Mida nad kardavad?\n3. Mis on lõhe nende enesetaju ja teiste tajumise vahel?\n4. Mida nad kunagi ei teeks? (Siis pane nad seda tegema haripunktis.)\n\n> **Fitzgerald**: \"Alusta indiviidist, ja enne kui arugi saad, oled loonud tüübi; alusta tüübist, ja oled loonud — mitte midagi.\"\n",
+        "title": "Tegelaste loomine"
+      },
+      "lt": {
+        "content_md": "# Personažų kūrimas\n\n## Personažo ledkalnis\n\nKą mato skaitytojas (virš vandens):\n- Vardas, išvaizda, kalbos ypatumai\n- Veiksmai ir sprendimai\n- Santykiai su kitais\n\nKas varo personažą (po vandeniu):\n- Praeitis, formuojančios patirtys\n- Baimės, troškimai, prieštaravimai\n- Pasaulėžiūra ir vertybės\n\n## Personažas vs karikatūra\n\n**Personažas** turi:\n- Prieštaravimus („dosnus šykštuolis“)\n- Vidinius konfliktus\n- Gebėjimą nustebinti skaitytoją\n- Augimą ar pokyčius (lanką)\n\n**Karikatūra** turi:\n- Vieną apibrėžiančią savybę\n- Nuspėjamą elgesį\n- Jokio vidinio gyvenimo\n\n## Dialogas, atskleidžiantis personažą\n\nGeras dialogas atlieka dvigubą darbą — jis juda siužetą IR atskleidžia personažą.\n\n```\n„Man nereikia niekieno pagalbos“, – pasakė ji, jau tiesdama ranką į jo ranką.\n```\n\nŠi viena eilutė mums pasako daugiau nei pastraipa aprašymo: ji išdidžią, bet vieniša.\n\n## Pratimas: personažo lapas\n\nKitam savo personažui atsakykite:\n1. Ko jie nori labiau už viską?\n2. Ko jie bijo?\n3. Koks yra atotrūkis tarp to, kaip jie save mato, ir kaip juos mato kiti?\n4. Ko jie niekada nedarytų? (Tada priverskite juos tai padaryti kulminacijoje.)\n\n> **Fitzgeraldas**: „Pradėkite nuo individo, ir kol suprasite, sukūrėte tipą; pradėkite nuo tipo, ir sukūrėte — nieko.“\n",
+        "title": "Personažų kūrimas"
+      },
+      "source": "Creating Characters"
+    },
+    "24": {
+      "et": {
+        "content_md": "# Vormid ja vaba värss\n\n## Miks vormid on olulised\n\nLuulevormid on piirangud — ja piirangud soodustavad loovust. Soneti kirjutamine sunnib kokku suruma, valima ja üllatama 14 reaga.\n\n## Levinud vormid\n\n### Haiku (3 rida: 5-7-5 silpi)\n```\nVana vaikne tiik\nKonn hüppab tiiki—\nPlärts! Jälle vaikus.\n    — Basho (tõlgitud)\n```\n\n### Sonett (14 rida, jambiline pentameeter)\n- **Shakespeare'i**: ABAB CDCD EFEF GG (pööre real 13)\n- **Petrarca**: ABBAABBA CDECDE (pööre real 9)\n\n### Villanell (19 rida, 2 korduvat refrääni)\n```\nÄra mine õrnalt sellesse head öösse,\nVana iga peaks põlema ja raevutsema päeva lõpul;\nRaevu, raevu sureva valguse vastu.\n    — Dylan Thomas\n```\n\n## Vaba värss\n\nPuudub kindel riim, meeter või vorm — kuid mitte \"kõik on lubatud.\" Vaba värss kasutab siiski:\n- **Reavahetusi** rõhutamiseks ja tempo jaoks\n- **Kujundeid** ja konkreetseid detaile\n- **Heli** (assonants, konsonants, sisemine riim)\n- **Rütmi** (isegi ilma meetrita on kadents)\n\n## Reavahetus\n\nKõige võimsam tööriist luules. Kus sa reavahetuse teed, muudab tähendust:\n\n```\nMa armastan sind rohkem kui\nmidagi\n```\n\nvs\n\n```\nMa armastan sind rohkem\nkui midagi\n```\n\n> **Mary Oliver**: \"Luule on elu hellitav jõud. Ja see nõuab visiooni — usku, kasutades vanamoelist terminit. Jah, tõepoolest.\"\n",
+        "title": "Vormid ja vaba värss"
+      },
+      "lt": {
+        "content_md": "# Formos ir laisvasis eiliavimas\n\n## Kodėl formos svarbios\n\nPoetinės formos yra apribojimai — o apribojimai skatina kūrybiškumą. Soneto rašymas verčia suspausti, rinktis ir nustebinti per 14 eilučių.\n\n## Įprastos formos\n\n### Haiku (3 eilutės: 5-7-5 skiemenys)\n```\nSenasis tylus tvenkinys\nVarlė šoka į tvenkinį—\nTašk! Vėl tyla.\n    — Basho (vertimas)\n```\n\n### Sonetas (14 eilučių, jambinis pentametras)\n- **Šekspyriškasis**: ABAB CDCD EFEF GG (posūkis 13-oje eilutėje)\n- **Petrarkinis**: ABBAABBA CDECDE (posūkis 9-oje eilutėje)\n\n### Vilanelė (19 eilučių, 2 kartojami refrenai)\n```\nNeik švelniai į tą gerą naktį,\nSenatvė turėtų degti ir siautėti dienos pabaigoje;\nRėk, rėk prieš šviesos mirimą.\n    — Dylan Thomas\n```\n\n## Laisvasis eiliavimas\n\nNėra fiksuoto rimo, metro ar formos — bet ne „viskas leidžiama“. Laisvasis eiliavimas vis tiek naudoja:\n- **Eilučių lūžius** akcentui ir tempui\n- **Vaizdinius** ir konkrečias detales\n- **Garsą** (asonansą, konsonansą, vidinį rimą)\n- **Ritmą** (net be metro yra kadencija)\n\n## Eilutės lūžis\n\nGalingiausias įrankis poezijoje. Kur nutraukiate eilutę, keičia prasmę:\n\n```\nMyliu tave labiau nei\nnieką\n```\n\nvs\n\n```\nMyliu tave labiau\nnei nieką\n```\n\n> **Mary Oliver**: „Poezija yra gyvybę puoselėjanti jėga. Ir jai reikia vizijos — tikėjimo, vartojant senamadišką terminą. Taip, tikrai.“\n",
+        "title": "Formos ir laisvasis eiliavimas"
+      },
+      "source": "Forms and Free Verse"
+    },
+    "3": {
+      "et": {
+        "content_md": "# Muutujad ja andmetüübid\n\n## Muutujad\n\nPythoni muutujad ei vaja tüübideklaratsioone:\n\n```python\nname = \"Alice\"       # str\nage = 30             # int\nheight = 1.75        # float\nis_student = True    # bool\n```\n\n## Levinud andmetüübid\n\n| Tüüp | Näide | Kirjeldus |\n|------|---------|-------------|\n| `str` | `\"hello\"` | Tekst |\n| `int` | `42` | Täisarvud |\n| `float` | `3.14` | Kümnendarvud |\n| `bool` | `True` / `False` | Boole'i väärtus |\n| `list` | `[1, 2, 3]` | Järjestatud, muudetav jada |\n| `dict` | `{\"key\": \"value\"}` | Võti-väärtus vastendus |\n| `tuple` | `(1, 2, 3)` | Järjestatud, muutmatu jada |\n| `set` | `{1, 2, 3}` | Järjestamata unikaalsed elemendid |\n\n## Tüübi kontrollimine\n\n```python\nx = 42\nprint(type(x))        # <class 'int'>\nprint(isinstance(x, int))  # True\n```\n\n## Tüübi teisendamine\n\n```python\nint(\"42\")      # 42\nstr(42)        # \"42\"\nfloat(\"3.14\")  # 3.14\nlist(\"abc\")    # ['a', 'b', 'c']\n```\n",
+        "title": "Muutujad ja andmetüübid"
+      },
+      "lt": {
+        "content_md": "# Kintamieji ir duomenų tipai\n\n## Kintamieji\n\nPython kintamiesiems nereikia tipų deklaracijų:\n\n```python\nname = \"Alice\"       # str\nage = 30             # int\nheight = 1.75        # float\nis_student = True    # bool\n```\n\n## Dažni duomenų tipai\n\n| Tipas | Pavyzdys | Aprašymas |\n|------|---------|-------------|\n| `str` | `\"hello\"` | Tekstas |\n| `int` | `42` | Sveikieji skaičiai |\n| `float` | `3.14` | Dešimtainiai skaičiai |\n| `bool` | `True` / `False` | Loginis |\n| `list` | `[1, 2, 3]` | Tvarkinga, keičiama seka |\n| `dict` | `{\"key\": \"value\"}` | Rakto-reikšmės atvaizdavimas |\n| `tuple` | `(1, 2, 3)` | Tvarkinga, nekintama seka |\n| `set` | `{1, 2, 3}` | Netvarkinga unikalių elementų aibė |\n\n## Tipo tikrinimas\n\n```python\nx = 42\nprint(type(x))        # <class 'int'>\nprint(isinstance(x, int))  # True\n```\n\n## Tipo konvertavimas\n\n```python\nint(\"42\")      # 42\nstr(42)        # \"42\"\nfloat(\"3.14\")  # 3.14\nlist(\"abc\")    # ['a', 'b', 'c']\n```\n",
+        "title": "Kintamieji ir duomenų tipai"
+      },
+      "source": "Variables and Data Types"
+    },
+    "4": {
+      "et": {
+        "content_md": "# Juhtimisvoog\n\n## If / Elif / Else\n\n```python\ntemperature = 22\n\nif temperature > 30:\n    print(\"Hot!\")\nelif temperature > 20:\n    print(\"Nice weather\")\nelse:\n    print(\"A bit chilly\")\n```\n\n## For-tsüklid\n\n```python\n# Iterate üle listi\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit)\n\n# Range\nfor i in range(5):      # 0, 1, 2, 3, 4\n    print(i)\n\n# Enumerate (indeks + väärtus)\nfor i, fruit in enumerate(fruits):\n    print(f\"{i}: {fruit}\")\n```\n\n## While-tsüklid\n\n```python\ncount = 0\nwhile count < 5:\n    print(count)\n    count += 1\n```\n\n## Listi comprehensions\n\n```python\n# Traditsiooniline\nsquares = []\nfor x in range(10):\n    squares.append(x ** 2)\n\n# Comprehension (Pythonic)\nsquares = [x ** 2 for x in range(10)]\n\n# Filtreerimisega\nevens = [x for x in range(20) if x % 2 == 0]\n```\n\n> **Stiilinõuanne**: Kasuta comprehensions lihtsate teisenduste jaoks, regulaarseid tsükleid keerukama loogika jaoks.\n",
+        "title": "Juhtimisvoog"
+      },
+      "lt": {
+        "content_md": "# Valdymo srautas\n\n## If / Elif / Else\n\n```python\ntemperature = 22\n\nif temperature > 30:\n    print(\"Hot!\")\nelif temperature > 20:\n    print(\"Nice weather\")\nelse:\n    print(\"A bit chilly\")\n```\n\n## For ciklas\n\n```python\n# Iteravimas per sąrašą\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit)\n\n# Range\nfor i in range(5):      # 0, 1, 2, 3, 4\n    print(i)\n\n# Enumerate (indeksas + reikšmė)\nfor i, fruit in enumerate(fruits):\n    print(f\"{i}: {fruit}\")\n```\n\n## While ciklas\n\n```python\ncount = 0\nwhile count < 5:\n    print(count)\n    count += 1\n```\n\n## Sąrašo supratimai\n\n```python\n# Tradicinis\nsquares = []\nfor x in range(10):\n    squares.append(x ** 2)\n\n# Supratimas (Pythonic)\nsquares = [x ** 2 for x in range(10)]\n\n# Su filtru\nevens = [x for x in range(20) if x % 2 == 0]\n```\n\n> **Stiliaus patarimas**: Naudokite supratimus paprastoms transformacijoms, įprastus ciklus sudėtingai logikai.\n",
+        "title": "Valdymo srautas"
+      },
+      "source": "Control Flow"
+    },
+    "5": {
+      "et": {
+        "content_md": "# Funktsioonid\n\n## Funktsioonide defineerimine\n\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Alice\"))  # Hello, Alice!\n```\n\n## Vaikimisi argumendid\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\ngreet(\"Bob\")              # Hello, Bob!\ngreet(\"Bob\", \"Hi there\")  # Hi there, Bob!\n```\n\n## *args ja **kwargs\n\n```python\ndef flexible(*args, **kwargs):\n    print(f\"Args: {args}\")\n    print(f\"Kwargs: {kwargs}\")\n\nflexible(1, 2, 3, name=\"Alice\", age=30)\n# Args: (1, 2, 3)\n# Kwargs: {'name': 'Alice', 'age': 30}\n```\n\n## Lambda-funktsioonid\n\n```python\nsquare = lambda x: x ** 2\nprint(square(5))  # 25\n\n# Sageli kasutatakse koos sorted, map, filter\nnames = [\"Charlie\", \"Alice\", \"Bob\"]\nsorted(names, key=lambda n: len(n))  # ['Bob', 'Alice', 'Charlie']\n```\n\n## Tüüpi vihjed (Python 3.9+)\n\n```python\ndef add(a: int, b: int) -> int:\n    return a + b\n```\n\nTüüpi vihjed on valikulised ega ole runtime'is jõustatud, kuid aitavad loetavuse ja IDE toe juures.\n",
+        "title": "Funktsioonid"
+      },
+      "lt": {
+        "content_md": "# Funkcijos\n\n## Funkcijų apibrėžimas\n\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Alice\"))  # Hello, Alice!\n```\n\n## Numatytieji argumentai\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\ngreet(\"Bob\")              # Hello, Bob!\ngreet(\"Bob\", \"Hi there\")  # Hi there, Bob!\n```\n\n## *args ir **kwargs\n\n```python\ndef flexible(*args, **kwargs):\n    print(f\"Args: {args}\")\n    print(f\"Kwargs: {kwargs}\")\n\nflexible(1, 2, 3, name=\"Alice\", age=30)\n# Args: (1, 2, 3)\n# Kwargs: {'name': 'Alice', 'age': 30}\n```\n\n## Lambda funkcijos\n\n```python\nsquare = lambda x: x ** 2\nprint(square(5))  # 25\n\n# Dažnai naudojama su sorted, map, filter\nnames = [\"Charlie\", \"Alice\", \"Bob\"]\nsorted(names, key=lambda n: len(n))  # ['Bob', 'Alice', 'Charlie']\n```\n\n## Tipo užuominos (Python 3.9+)\n\n```python\ndef add(a: int, b: int) -> int:\n    return a + b\n```\n\nTipo užuominos yra neprivalomos ir nevykdomos vykdymo metu, bet padeda skaitomumui ir IDE palaikymui.\n",
+        "title": "Funkcijos"
+      },
+      "source": "Functions"
+    },
+    "6": {
+      "et": {
+        "content_md": "# Mis on masinõpe?\n\nMasinõpe on tehisintellekti alamhulk, kus süsteemid õpivad andmetest mustreid selle asemel, et neid selgesõnaliselt programmeerida.\n\n## Masinõppe kolm tüüpi\n\n### 1. Juhendatud õpe\nMudel õpib märgistatud näidetest (sisend → väljund paarid).\n- **Klassifitseerimine**: Ennusta kategooriat (rämpspost/mitte rämpspost, kass/koer)\n- **Regressioon**: Ennusta pidevat väärtust (maja hind, temperatuur)\n\n### 2. Juhendamata õpe\nMudel leiab mustreid märgistamata andmetest.\n- **Klastrite moodustamine**: Rühmita sarnased üksused (kliendisegmendid)\n- **Dimensioonide vähendamine**: Tihenda tunnuseid (PCA, t-SNE)\n\n### 3. Tugevdusõpe\nAgent õpib keskkonnaga suhtlemise ja preemiate saamise kaudu.\n- Mängimine (AlphaGo)\n- Robootika\n- Soovitussüsteemid\n\n## Masinõppe töövoog\n\n```\nAndmete kogumine → Eeltöötlus → Tunnuste inseneeria → Mudeli treenimine → Hindamine → Juurutamine\n```\n\n## Millal kasutada masinõpet\n\nKasuta masinõpet, kui:\n- Probleemil on andmetes mustrid\n- Sul on piisavalt märgistatud näiteid (juhendatud õpe)\n- Reeglid on liiga keerulised käsitsi kodeerimiseks\n- Muster võib ajas muutuda\n\nÄra kasuta masinõpet, kui:\n- Lihtsad reeglid töötavad hästi\n- Sul pole piisavalt andmeid\n- Vigade hind on tõenäosusliku süsteemi jaoks liiga kõrge\n",
+        "title": "Mis on masinõpe?"
+      },
+      "lt": {
+        "content_md": "# Kas yra mašininis mokymasis?\n\nMašininis mokymasis yra dirbtinio intelekto dalis, kurioje sistemos mokosi modelių iš duomenų, o ne yra aiškiai programuojamos.\n\n## Trys ML tipai\n\n### 1. Prižiūrimas mokymasis\nModelis mokosi iš pažymėtų pavyzdžių (įvesties → išvesties poros).\n- **Klasifikavimas**: Nuspėti kategoriją (šlamštas/ne šlamštas, katė/šuo)\n- **Regresija**: Nuspėti tęstinę reikšmę (namų kaina, temperatūra)\n\n### 2. Neprižiūrimas mokymasis\nModelis randa modelius nepažymėtuose duomenyse.\n- **Klasterizavimas**: Grupuoti panašius elementus (klientų segmentai)\n- **Dimensijų mažinimas**: Suspausti požymius (PCA, t-SNE)\n\n### 3. Pastiprinimo mokymasis\nAgentas mokosi sąveikaudamas su aplinka ir gaudamas atlygius.\n- Žaidimų žaidimas (AlphaGo)\n- Robotika\n- Rekomendacijų sistemos\n\n## ML darbo eiga\n\n```\nData Collection → Preprocessing → Feature Engineering → Model Training → Evaluation → Deployment\n```\n\n## Kada naudoti ML\n\nNaudokite ML kai:\n- Problema turi modelius duomenyse\n- Turite pakankamai pažymėtų pavyzdžių (prižiūrimas)\n- Taisyklės per sudėtingos, kad būtų užkoduotos rankiniu būdu\n- Modelis gali keistis laikui bėgant\n\nNenaudokite ML kai:\n- Paprastos taisyklės veikia gerai\n- Neturite pakankamai duomenų\n- Klaidos kaina per didelė tikimybinės sistemos atveju\n",
+        "title": "Kas yra mašininis mokymasis?"
+      },
+      "source": "What is Machine Learning?"
+    },
+    "7": {
+      "et": {
+        "content_md": "# scikit-learni seadistamine\n\n## Paigaldamine\n\n```bash\npip install scikit-learn pandas numpy matplotlib\n```\n\n## Sinu esimene mudel (5 rida)\n\n```python\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\n# Laadi andmed\nX, y = load_iris(return_X_y=True)\n\n# Jaga treening- ja testandmeteks\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Treeni mudel\nmodel = RandomForestClassifier(n_estimators=100, random_state=42)\nmodel.fit(X_train, y_train)\n\n# Hinda\npredictions = model.predict(X_test)\nprint(f\"Accuracy: {accuracy_score(y_test, predictions):.2%}\")\n```\n\n## Põhimõisted\n\n- **Tunnused (X)**: Sisendmuutujad (mõõtmised, atribuudid)\n- **Sihtmärk (y)**: See, mida ennustad\n- **Treening/testi jagamine**: Kasuta 80% treenimiseks, 20% hindamiseks\n- **Ülesobitamine**: Mudel jätab treeningandmed meelde, ebaõnnestub uutel andmetel\n- **Alasobitamine**: Mudel on liiga lihtne mustri tabamiseks\n",
+        "title": "scikit-learni seadistamine"
+      },
+      "lt": {
+        "content_md": "# scikit-learn nustatymas\n\n## Diegimas\n\n```bash\npip install scikit-learn pandas numpy matplotlib\n```\n\n## Jūsų pirmasis modelis (5 eilutės)\n\n```python\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\n# Load data\nX, y = load_iris(return_X_y=True)\n\n# Split into train/test\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Train model\nmodel = RandomForestClassifier(n_estimators=100, random_state=42)\nmodel.fit(X_train, y_train)\n\n# Evaluate\npredictions = model.predict(X_test)\nprint(f\"Accuracy: {accuracy_score(y_test, predictions):.2%}\")\n```\n\n## Pagrindinės sąvokos\n\n- **Požymiai (X)**: Įvesties kintamieji (matavimai, atributai)\n- **Tikslas (y)**: Tai, ką prognozuojate\n- **Mokymo/testavimo padalijimas**: Naudokite 80% mokymui, 20% vertinimui\n- **Perteklinis pritaikymas**: Modelis įsimena mokymo duomenis, nesiseka naujuose duomenyse\n- **Nepakankamas pritaikymas**: Modelis per paprastas, kad užfiksuotų modelį\n",
+        "title": "scikit-learn nustatymas"
+      },
+      "source": "Setting Up scikit-learn"
+    },
+    "8": {
+      "et": {
+        "content_md": "# Miks FastHTML?\n\nFastHTML võimaldab teil luua täisstacki veebirakendusi täielikult Pythonis. Ei Reacti, ei Vue'd, ei npm-i.\n\n## Kaasaegse veebiarenduse probleem\n\nTraditsiooniline stack: Pythoni backend → JSON API → React/Vue/Svelte frontend → npm, webpack, TypeScript, olekuhaldus...\n\n**FastHTML stack**: Pythoni backend → HTML vastused → HTMX interaktiivsuseks.\n\n## Põhiideed\n\n1. **HTML on API**: Server tagastab HTML fragmente, mitte JSONi\n2. **HTMX haldab interaktiivsust**: Klikid, vormid ja uuendused ilma JavaScripti kirjutamata\n3. **Serveripoolne renderdamine**: Ei kliendipoolset olekuhaldust\n4. **Python kõikjal**: Marsruudid, mallid, loogika — kõik Python\n\n## Tere maailm\n\n```python\nfrom fasthtml.common import *\n\napp = FastHTML()\n\n@app.get(\"/\")\ndef home():\n    return H1(\"Hello, World!\")\n\nif __name__ == \"__main__\":\n    import uvicorn\n    uvicorn.run(app, host=\"0.0.0.0\", port=5001)\n```\n\n## Millal kasutada FastHTML-i\n\n- Sisemised tööriistad ja armatuurlauad\n- Andmerakendused ja admin paneelid\n- MVP-d ja prototüübid\n- Iga rakendus, kus soovite kiiresti liikuda ilma JS raamistikuta\n",
+        "title": "Miks FastHTML?"
+      },
+      "lt": {
+        "content_md": "# Kodėl FastHTML?\n\nFastHTML leidžia kurti pilno kamieno žiniatinklio programas visiškai Python kalba. Jokio React, jokio Vue, jokio npm.\n\n## Šiuolaikinio žiniatinklio kūrimo problema\n\nTradicinis stekas: Python backend → JSON API → React/Vue/Svelte frontend → npm, webpack, TypeScript, state management...\n\n**FastHTML stekas**: Python backend → HTML atsakymai → HTMX interaktyvumui.\n\n## Pagrindinės idėjos\n\n1. **HTML yra API**: Serveris grąžina HTML fragmentus, ne JSON\n2. **HTMX tvarko interaktyvumą**: Paspaudimai, formos ir atnaujinimai nerašant JavaScript\n3. **Serverio pusės atvaizdavimas**: Jokio kliento pusės būsenos valdymo\n4. **Python visur**: Maršrutai, šablonai, logika — viskas Python\n\n## Sveikas pasauli\n\n```python\nfrom fasthtml.common import *\n\napp = FastHTML()\n\n@app.get(\"/\")\ndef home():\n    return H1(\"Hello, World!\")\n\nif __name__ == \"__main__\":\n    import uvicorn\n    uvicorn.run(app, host=\"0.0.0.0\", port=5001)\n```\n\n## Kada naudoti FastHTML\n\n- Vidiniai įrankiai ir skydeliai\n- Duomenų programos ir admin panelės\n- MVP ir prototipai\n- Bet kuri programa, kurioje norite greitai judėti be JS karkaso\n",
+        "title": "Kodėl FastHTML?"
+      },
+      "source": "Why FastHTML?"
+    },
+    "9": {
+      "et": {
+        "content_md": "# Muutujad ja avaldised\n\n## Mis on algebra?\n\nAlgebra on matemaatika haru, mis kasutab tähti (muutujaid) tundmatute väärtuste esitamiseks ja uurib nende manipuleerimise reegleid.\n\n## Avaldised vs võrrandid\n\n- **Avaldis**: numbrite, muutujate ja operaatorite kombinatsioon — `3x + 7`\n- **Võrrand**: väide, et kaks avaldist on võrdsed — `3x + 7 = 22`\n\n## Tehete järjekord (BODMAS / PEMDAS)\n\n1. **B**rackets / **P**arentheses\n2. **O**rders / **E**xponents (powers, roots)\n3. **D**ivision and **M**ultiplication (left to right)\n4. **A**ddition and **S**ubtraction (left to right)\n\nNäide: `2 + 3 x 4 = 2 + 12 = 14` (mitte 20!)\n\n## Avaldiste lihtsustamine\n\nKombineerige **sarnased liikmed** — liikmed sama muutuja ja astendajaga:\n\n```\n5x + 3y - 2x + 7y = (5x - 2x) + (3y + 7y) = 3x + 10y\n```\n\n## Asendamine\n\nAsendage muutujad väärtustega:\n\nKui `x = 4`, siis `2x + 5 = 2(4) + 5 = 13`\n\n> **Põhiline arusaam**: Algebra on mustrite keel. Kui suudad mustri avaldisena kirjutada, saad lahendada probleeme, mida pole varem näinud.\n",
+        "title": "Muutujad ja avaldised"
+      },
+      "lt": {
+        "content_md": "# Kintamieji ir reiškiniai\n\n## Kas yra algebra?\n\nAlgebra yra matematikos šaka, kuri naudoja raides (kintamuosius) nežinomoms reikšmėms pavaizduoti ir tiria taisykles joms manipuliuoti.\n\n## Reiškiniai vs lygtys\n\n- **Reiškinys**: skaičių, kintamųjų ir operatorių derinys — `3x + 7`\n- **Lygtis**: teiginys, kad du reiškiniai yra lygūs — `3x + 7 = 22`\n\n## Veiksmų tvarka (BODMAS / PEMDAS)\n\n1. **B**skliaustai / **P**arentezės\n2. **O**rdžiai / **E**ksponentai (laipsniai, šaknys)\n3. **D**alyba ir **M**nojimas (iš kairės į dešinę)\n4. **A**dėjimas ir **S**kaitimas (iš kairės į dešinę)\n\nExample: `2 + 3 x 4 = 2 + 12 = 14` (not 20!)\n\n## Reiškinių supaprastinimas\n\nSujunkite **panašius narius** — narius su tuo pačiu kintamuoju ir eksponentu:\n\n```\n5x + 3y - 2x + 7y = (5x - 2x) + (3y + 7y) = 3x + 10y\n```\n\n## Pakeitimas\n\nPakeiskite kintamuosius reikšmėmis:\n\nJei `x = 4`, tada `2x + 5 = 2(4) + 5 = 13`\n\n> **Pagrindinė įžvalga**: Algebra yra šablonų kalba. Kai galite parašyti šabloną kaip reiškinį, galite spręsti problemas, kurių dar niekada nematėte.\n",
+        "title": "Kintamieji ir reiškiniai"
+      },
+      "source": "Variables and Expressions"
+    }
+  },
+  "modules": {
+    "1": {
+      "et": {
+        "description": "",
+        "title": "Alustamine"
+      },
+      "lt": {
+        "description": "",
+        "title": "Pradžia"
+      },
+      "source": "Getting Started"
+    },
+    "10": {
+      "et": {
+        "description": "",
+        "title": "Aatomistruktuur"
+      },
+      "lt": {
+        "description": "",
+        "title": "Atomo sandara"
+      },
+      "source": "Atomic Structure"
+    },
+    "11": {
+      "et": {
+        "description": "",
+        "title": "Keemilised reaktsioonid"
+      },
+      "lt": {
+        "description": "",
+        "title": "Cheminės reakcijos"
+      },
+      "source": "Chemical Reactions"
+    },
+    "12": {
+      "et": {
+        "description": "",
+        "title": "Lugemine ja mõistmine"
+      },
+      "lt": {
+        "description": "",
+        "title": "Skaitymas ir supratimas"
+      },
+      "source": "Reading & Comprehension"
+    },
+    "13": {
+      "et": {
+        "description": "",
+        "title": "Kirjutamisoskused"
+      },
+      "lt": {
+        "description": "",
+        "title": "Rašymo įgūdžiai"
+      },
+      "source": "Writing Skills"
+    },
+    "14": {
+      "et": {
+        "description": "",
+        "title": "Füüsiline geograafia"
+      },
+      "lt": {
+        "description": "",
+        "title": "Fizinė geografija"
+      },
+      "source": "Physical Geography"
+    },
+    "15": {
+      "et": {
+        "description": "",
+        "title": "Inimgeograafia"
+      },
+      "lt": {
+        "description": "",
+        "title": "Žmogaus geografija"
+      },
+      "source": "Human Geography"
+    },
+    "16": {
+      "et": {
+        "description": "",
+        "title": "Jutuvestmise alused"
+      },
+      "lt": {
+        "description": "",
+        "title": "Pasakojimo pagrindai"
+      },
+      "source": "Storytelling Fundamentals"
+    },
+    "17": {
+      "et": {
+        "description": "",
+        "title": "Luule"
+      },
+      "lt": {
+        "description": "",
+        "title": "Poezija"
+      },
+      "source": "Poetry"
+    },
+    "2": {
+      "et": {
+        "description": "",
+        "title": "Põhimõisted"
+      },
+      "lt": {
+        "description": "",
+        "title": "Pagrindinės sąvokos"
+      },
+      "source": "Core Concepts"
+    },
+    "3": {
+      "et": {
+        "description": "",
+        "title": "Sissejuhatus masinõppesse"
+      },
+      "lt": {
+        "description": "",
+        "title": "Įvadas į ML"
+      },
+      "source": "Introduction to ML"
+    },
+    "4": {
+      "et": {
+        "description": "",
+        "title": "FastHTML-i põhialused"
+      },
+      "lt": {
+        "description": "",
+        "title": "FastHTML pagrindai"
+      },
+      "source": "FastHTML Basics"
+    },
+    "5": {
+      "et": {
+        "description": "",
+        "title": "Algebra"
+      },
+      "lt": {
+        "description": "",
+        "title": "Algebra"
+      },
+      "source": "Algebra"
+    },
+    "6": {
+      "et": {
+        "description": "",
+        "title": "Geomeetria"
+      },
+      "lt": {
+        "description": "",
+        "title": "Geometrija"
+      },
+      "source": "Geometry"
+    },
+    "7": {
+      "et": {
+        "description": "",
+        "title": "Mehaanika"
+      },
+      "lt": {
+        "description": "",
+        "title": "Mechanika"
+      },
+      "source": "Mechanics"
+    },
+    "8": {
+      "et": {
+        "description": "",
+        "title": "Rakubioloogia"
+      },
+      "lt": {
+        "description": "",
+        "title": "Ląstelių biologija"
+      },
+      "source": "Cell Biology"
+    },
+    "9": {
+      "et": {
+        "description": "",
+        "title": "Geneetika"
+      },
+      "lt": {
+        "description": "",
+        "title": "Genetika"
+      },
+      "source": "Genetics"
+    }
+  },
+  "quiz_questions": {
+    "1": {
+      "et": {
+        "correct_answer": "float",
+        "explanation": "Kümnendpunktiga numbrid on Pythonis `float`.",
+        "options": [
+          "int",
+          "float",
+          "str",
+          "decimal"
+        ],
+        "question_text": "Mis on `x = 3.14` tüüp?"
+      },
+      "lt": {
+        "correct_answer": "float",
+        "explanation": "Skaičiai su kableliu Python yra `float`.",
+        "options": [
+          "int",
+          "float",
+          "str",
+          "decimal"
+        ],
+        "question_text": "Koks yra `x = 3.14` tipas?"
+      },
+      "source": "What is the type of `x = 3.14`?"
+    },
+    "10": {
+      "et": {
+        "correct_answer": "Kiirusvektoril on suund, kiirusel ei ole",
+        "explanation": "Kiirus on skalaar (ainult suurus), kiirusvektor on vektor (suurus + suund).",
+        "options": [
+          "Kiirusel on suund, kiirusvektoril ei ole",
+          "Kiirusvektoril on suund, kiirusel ei ole",
+          "Need on sama asi",
+          "Kiirus on alati kiirem"
+        ],
+        "question_text": "Mis on erinevus kiiruse ja kiirusvektori vahel?"
+      },
+      "lt": {
+        "correct_answer": "Greitis turi kryptį, greitis neturi",
+        "explanation": "Greitis yra skaliarinis (tik didumas), greitis yra vektorinis (didumas + kryptis).",
+        "options": [
+          "Greitis turi kryptį, greitis neturi",
+          "Greitis turi kryptį, greitis neturi",
+          "Tai tas pats dalykas",
+          "Greitis visada greitesnis"
+        ],
+        "question_text": "Kuo skiriasi greitis nuo greičio?"
+      },
+      "source": "What is the difference between speed and velocity?"
+    },
+    "11": {
+      "et": {
+        "correct_answer": "Mitokondrid",
+        "explanation": "Mitokondrid toodavad ATP-d aeroobse hingamise kaudu.",
+        "options": [
+          "Tuum",
+          "Ribosoom",
+          "Mitokondrid",
+          "Golgi aparaat"
+        ],
+        "question_text": "Milline organell on \"raku jõujaam\"?"
+      },
+      "lt": {
+        "correct_answer": "Mitochondrija",
+        "explanation": "Mitochondrijos gamina ATP aerobinio kvėpavimo metu.",
+        "options": [
+          "Branduolys",
+          "Ribosoma",
+          "Mitochondrija",
+          "Golgi aparatas"
+        ],
+        "question_text": "Kuris organoidas yra „ląstelės jėgainė“?"
+      },
+      "source": "Which organelle is the 'powerhouse of the cell'?"
+    },
+    "12": {
+      "et": {
+        "correct_answer": "Rakusein",
+        "explanation": "Taimerakkudel on jäik tselluloosist rakusein rakumembraani välisküljel.",
+        "options": [
+          "Tuum",
+          "Rakumembraan",
+          "Rakusein",
+          "Mitokondrid"
+        ],
+        "question_text": "Milline omadus on taimerakkudel, mida loomarakkudel ei ole?"
+      },
+      "lt": {
+        "correct_answer": "Ląstelės sienelė",
+        "explanation": "Augalų ląstelės turi standžią celiuliozinę ląstelės sienelę už ląstelės membranos.",
+        "options": [
+          "Branduolys",
+          "Ląstelės membrana",
+          "Ląstelės sienelė",
+          "Mitochondrijos"
+        ],
+        "question_text": "Kokį požymį turi augalų ląstelės, kurio neturi gyvūnų ląstelės?"
+      },
+      "source": "Which feature do plant cells have that animal cells do not?"
+    },
+    "13": {
+      "et": {
+        "correct_answer": "Ei",
+        "explanation": "Prokarüootidel on nukleoidne piirkond, kuid puudub membraaniga seotud tuum.",
+        "options": [
+          "Jah",
+          "Ei",
+          "Ainult bakteritel on",
+          "Ainult jagunemise ajal"
+        ],
+        "question_text": "Kas prokarüootidel on tuum?"
+      },
+      "lt": {
+        "correct_answer": "Ne",
+        "explanation": "Prokariotai turi nukleoido sritį, bet neturi membranomis apsupto branduolio.",
+        "options": [
+          "Taip",
+          "Ne",
+          "Tik bakterijos turi",
+          "Tik dalijantis"
+        ],
+        "question_text": "Ar prokariotai turi branduolį?"
+      },
+      "source": "Do prokaryotes have a nucleus?"
+    },
+    "14": {
+      "et": {
+        "correct_answer": "Prootonite arv",
+        "explanation": "Aatomnumber (prootonite arv) määrab elemendi.",
+        "options": [
+          "Elektronide arv",
+          "Neutronite arv",
+          "Prootonite arv",
+          "Selle mass"
+        ],
+        "question_text": "Mis määrab, milline element aatom on?"
+      },
+      "lt": {
+        "correct_answer": "Protonų skaičius",
+        "explanation": "Atominis numeris (protonų skaičius) apibrėžia elementą.",
+        "options": [
+          "Elektronų skaičius",
+          "Neutronų skaičius",
+          "Protonų skaičius",
+          "Jo masė"
+        ],
+        "question_text": "Kas apibrėžia, kuris elementas yra atomas?"
+      },
+      "source": "What defines which element an atom is?"
+    },
+    "15": {
+      "et": {
+        "correct_answer": "2, 6",
+        "explanation": "Kest 1 mahutab 2 elektroni, kest 2 mahutab ülejäänud 6.",
+        "options": [
+          "2, 6",
+          "2, 8",
+          "8",
+          "2, 4, 2"
+        ],
+        "question_text": "Mis on hapniku (aatomnumber 8) elektronkonfiguratsioon?"
+      },
+      "lt": {
+        "correct_answer": "2, 6",
+        "explanation": "1 apvalkalas talpina 2 elektronus, 2 apvalkalas talpina likusius 6.",
+        "options": [
+          "2, 6",
+          "2, 8",
+          "8",
+          "2, 4, 2"
+        ],
+        "question_text": "Kokia yra Deguonies (atominis numeris 8) elektronų konfigūracija?"
+      },
+      "source": "What is the electron configuration of Oxygen (atomic number 8)?"
+    },
+    "16": {
+      "et": {
+        "correct_answer": "Punkt, Tõend, Selgitus",
+        "explanation": "PEE = Punkt, Tõend, Selgitus — analüütiliste lõikude ehituskivi.",
+        "options": [
+          "Punkt, Näide, Selgita",
+          "Punkt, Tõend, Selgitus",
+          "Lõik, Tõend, Näide",
+          "Punkt, Hinda, Laienda"
+        ],
+        "question_text": "Mida tähendab PEE esseekirjutamises?"
+      },
+      "lt": {
+        "correct_answer": "Teiginys, Įrodymas, Paaiškinimas",
+        "explanation": "PEE = Teiginys, Įrodymas, Paaiškinimas — analitinių pastraipų pagrindinis elementas.",
+        "options": [
+          "Teiginys, Pavyzdys, Paaiškinti",
+          "Teiginys, Įrodymas, Paaiškinimas",
+          "Pastraipa, Įrodymas, Pavyzdys",
+          "Teiginys, Įvertinti, Išplėsti"
+        ],
+        "question_text": "Ką reiškia PEE esė rašyme?"
+      },
+      "source": "What does PEE stand for in essay writing?"
+    },
+    "17": {
+      "et": {
+        "correct_answer": "Ilm meeleolu peegeldamas",
+        "explanation": "Pateetiline eksitus on olukord, kus ilm või keskkond peegeldab tegelase emotsioone.",
+        "options": [
+          "Loogiline viga",
+          "Ilm meeleolu peegeldamas",
+          "Metafoori tüüp",
+          "Ebausaldusväärne jutustaja"
+        ],
+        "question_text": "Mis on pateetiline eksitus?"
+      },
+      "lt": {
+        "correct_answer": "Oras atspindintis nuotaiką",
+        "explanation": "Patetinė klaida yra kai oras ar aplinka atspindi veikėjo emocijas.",
+        "options": [
+          "Loginė klaida",
+          "Oras atspindintis nuotaiką",
+          "Metaforos rūšis",
+          "Nepatikimas pasakotojas"
+        ],
+        "question_text": "Kas yra patetinė klaida?"
+      },
+      "source": "What is pathetic fallacy?"
+    },
+    "18": {
+      "et": {
+        "correct_answer": "Konstruktiivne",
+        "explanation": "Konstruktiivsetel piiridel laamad lahknevad ja uus koorik tekib tõusvast magmast.",
+        "options": [
+          "Destruktiivne",
+          "Konservatiivne",
+          "Konstruktiivne",
+          "Transform"
+        ],
+        "question_text": "Millist tüüpi laamapiiril laamad liiguvad lahku?"
+      },
+      "lt": {
+        "correct_answer": "Konstruktyvi",
+        "explanation": "Prie konstruktyvių ribų plokštės diverguoja ir nauja pluta formuojasi iš kylančios magmos.",
+        "options": [
+          "Destruktyvi",
+          "Konservatyvi",
+          "Konstruktyvi",
+          "Transformacinė"
+        ],
+        "question_text": "Prie kokio tipo plokščių ribos plokštės tolsta viena nuo kitos?"
+      },
+      "source": "At which type of plate boundary do plates move apart?"
+    },
+    "19": {
+      "et": {
+        "correct_answer": "80%",
+        "explanation": "Ligikaudu 80% maailma maavärinaid toimub Vaikse ookeani Tulerõnga ääres.",
+        "options": [
+          "50%",
+          "65%",
+          "80%",
+          "95%"
+        ],
+        "question_text": "Milline protsent maavärinaid toimub Tulerõnga ääres?"
+      },
+      "lt": {
+        "correct_answer": "80 %",
+        "explanation": "Apie 80 % pasaulio žemės drebėjimų įvyksta palei Ramiojo vandenyno Ugnies žiedą.",
+        "options": [
+          "50 %",
+          "65 %",
+          "80 %",
+          "95 %"
+        ],
+        "question_text": "Koks procentas žemės drebėjimų įvyksta palei Ugnies žiedą?"
+      },
+      "source": "What percentage of earthquakes occur along the Ring of Fire?"
+    },
+    "2": {
+      "et": {
+        "correct_answer": "dict",
+        "explanation": "Sõnastikud (`dict`) salvestavad võti-väärtus paare nagu `{'name': 'Alice'}`.",
+        "options": [
+          "list",
+          "tuple",
+          "dict",
+          "set"
+        ],
+        "question_text": "Milline andmestruktuur kasutab võti-väärtus paare?"
+      },
+      "lt": {
+        "correct_answer": "dict",
+        "explanation": "Žodynai (`dict`) saugo rakto-reikšmės poras, pvz. `{'name': 'Alice'}`.",
+        "options": [
+          "list",
+          "tuple",
+          "dict",
+          "set"
+        ],
+        "question_text": "Kuri duomenų struktūra naudoja rakto-reikšmės poras?"
+      },
+      "source": "Which data structure uses key-value pairs?"
+    },
+    "20": {
+      "et": {
+        "correct_answer": "Pisarad voolasid mööda tema põski, kui ta tühja tooli vahtis",
+        "explanation": "See kasutab konkreetseid meelelisi detaile ja tegevust, selle asemel et emotsiooni otse nimetada.",
+        "options": [
+          "Ta oli kurb",
+          "Pisarad voolasid mööda tema põski, kui ta tühja tooli vahtis",
+          "Ilm oli halb",
+          "Ta tundis end õnnelikuna"
+        ],
+        "question_text": "Milline on näide 'näitamisest' pigem kui 'ütlemisest'?"
+      },
+      "lt": {
+        "correct_answer": "Ašaros ritosi jos skruostais, kai ji žiūrėjo į tuščią kėdę",
+        "explanation": "Tai naudoja konkrečias juslines detales ir veiksmą, o ne tiesiogiai įvardija emociją.",
+        "options": [
+          "Ji buvo liūdna",
+          "Ašaros ritosi jos skruostais, kai ji žiūrėjo į tuščią kėdę",
+          "Oras buvo blogas",
+          "Jis jautėsi laimingas"
+        ],
+        "question_text": "Kuris yra „rodymo“, o ne „pasakojimo“ pavyzdys?"
+      },
+      "source": "Which is an example of 'showing' rather than 'telling'?"
+    },
+    "21": {
+      "et": {
+        "correct_answer": "Üleminekute ja väiksemate detailide jaoks",
+        "explanation": "Ütlemine sobib üleminekute ('Kolm nädalat hiljem...') ja ebaoluliste detailide jaoks, et hoida tempot.",
+        "options": [
+          "Mitte kunagi",
+          "Üleminekute ja väiksemate detailide jaoks",
+          "Ainult mitteilukirjanduses",
+          "Alati"
+        ],
+        "question_text": "Millal on 'ütlemine' loovkirjutamises vastuvõetav?"
+      },
+      "lt": {
+        "correct_answer": "Perėjimams ir mažiau svarbioms detalėms",
+        "explanation": "Pasakojimas tinka perėjimams („Po trijų savaičių...“) ir nesvarbioms detalėms, siekiant išlaikyti tempą.",
+        "options": [
+          "Niekada",
+          "Perėjimams ir mažiau svarbioms detalėms",
+          "Tik negrožinėje literatūroje",
+          "Visada"
+        ],
+        "question_text": "Kada „pasakojimas“ yra priimtinas kūrybiniame rašyme?"
+      },
+      "source": "When is 'telling' acceptable in creative writing?"
+    },
+    "3": {
+      "et": {
+        "correct_answer": "<class 'bool'>",
+        "explanation": "`True` ja `False` on Pythonis `bool` tüüp.",
+        "options": [
+          "<class 'str'>",
+          "<class 'int'>",
+          "<class 'bool'>",
+          "<class 'true'>"
+        ],
+        "question_text": "Mida tagastab `type(True)`?"
+      },
+      "lt": {
+        "correct_answer": "<class 'bool'>",
+        "explanation": "`True` ir `False` Python yra `bool` tipas.",
+        "options": [
+          "<class 'str'>",
+          "<class 'int'>",
+          "<class 'bool'>",
+          "<class 'true'>"
+        ],
+        "question_text": "Ką grąžina `type(True)`?"
+      },
+      "source": "What does `type(True)` return?"
+    },
+    "4": {
+      "et": {
+        "correct_answer": "def",
+        "explanation": "Python kasutab funktsioonide defineerimiseks `def`.",
+        "options": [
+          "func",
+          "function",
+          "def",
+          "fn"
+        ],
+        "question_text": "Milline märksõna defineerib funktsiooni Pythonis?"
+      },
+      "lt": {
+        "correct_answer": "def",
+        "explanation": "Python naudoja `def` funkcijoms apibrėžti.",
+        "options": [
+          "func",
+          "function",
+          "def",
+          "fn"
+        ],
+        "question_text": "Koks raktažodis apibrėžia funkciją Python?"
+      },
+      "source": "What keyword defines a function in Python?"
+    },
+    "5": {
+      "et": {
+        "correct_answer": "Positional arguments as a tuple",
+        "explanation": "`*args` kogub lisa positsioonilised argumendid tuple'iks.",
+        "options": [
+          "Keyword arguments",
+          "Positional arguments as a tuple",
+          "A list",
+          "A dictionary"
+        ],
+        "question_text": "Mida `*args` kogub?"
+      },
+      "lt": {
+        "correct_answer": "Poziciniai argumentai kaip tuple",
+        "explanation": "`*args` renka papildomus pozicinius argumentus į tuple.",
+        "options": [
+          "Raktiniai argumentai",
+          "Poziciniai argumentai kaip tuple",
+          "Sąrašas",
+          "Žodynas"
+        ],
+        "question_text": "Ką renka `*args`?"
+      },
+      "source": "What does `*args` collect?"
+    },
+    "6": {
+      "et": {
+        "correct_answer": "14",
+        "explanation": "Korrutamine enne liitmist: 3 x 4 = 12, seejärel 2 + 12 = 14.",
+        "options": [
+          "20",
+          "14",
+          "24",
+          "18"
+        ],
+        "question_text": "Mis on 2 + 3 x 4 õige tehete järjekorra kasutamisel?"
+      },
+      "lt": {
+        "correct_answer": "14",
+        "explanation": "Daugyba prieš sudėtį: 3 x 4 = 12, tada 2 + 12 = 14.",
+        "options": [
+          "20",
+          "14",
+          "24",
+          "18"
+        ],
+        "question_text": "Koks yra 2 + 3 x 4 naudojant teisingą veiksmų tvarką?"
+      },
+      "source": "What is 2 + 3 x 4 using correct order of operations?"
+    },
+    "7": {
+      "et": {
+        "correct_answer": "8x",
+        "explanation": "Sarnased liikmed sama muutujaga liidetakse: 5x + 3x = 8x.",
+        "options": [
+          "8x",
+          "15x",
+          "8x^2",
+          "53x"
+        ],
+        "question_text": "Lihtsusta: 5x + 3x"
+      },
+      "lt": {
+        "correct_answer": "8x",
+        "explanation": "Panašūs nariai su tuo pačiu kintamuoju sudedami: 5x + 3x = 8x.",
+        "options": [
+          "8x",
+          "15x",
+          "8x^2",
+          "53x"
+        ],
+        "question_text": "Supaprastinkite: 5x + 3x"
+      },
+      "source": "Simplify: 5x + 3x"
+    },
+    "8": {
+      "et": {
+        "correct_answer": "10",
+        "explanation": "Asenda x = 3: 4(3) - 2 = 12 - 2 = 10.",
+        "options": [
+          "10",
+          "12",
+          "6",
+          "14"
+        ],
+        "question_text": "Kui x = 3, mis on 4x - 2?"
+      },
+      "lt": {
+        "correct_answer": "10",
+        "explanation": "Pakeiskite x = 3: 4(3) - 2 = 12 - 2 = 10.",
+        "options": [
+          "10",
+          "12",
+          "6",
+          "14"
+        ],
+        "question_text": "Jei x = 3, koks yra 4x - 2?"
+      },
+      "source": "If x = 3, what is 4x - 2?"
+    },
+    "9": {
+      "et": {
+        "correct_answer": "5 m/s^2",
+        "explanation": "a = (v - u) / t = (20 - 0) / 4 = 5 m/s^2.",
+        "options": [
+          "5 m/s^2",
+          "80 m/s^2",
+          "4 m/s^2",
+          "10 m/s^2"
+        ],
+        "question_text": "Mis on kiirendus, kui auto läheb 0-st 20 m/s-ni 4 sekundiga?"
+      },
+      "lt": {
+        "correct_answer": "5 m/s^2",
+        "explanation": "a = (v - u) / t = (20 - 0) / 4 = 5 m/s^2.",
+        "options": [
+          "5 m/s^2",
+          "80 m/s^2",
+          "4 m/s^2",
+          "10 m/s^2"
+        ],
+        "question_text": "Koks yra pagreitis, jei automobilis nuo 0 iki 20 m/s įsibėgėja per 4 sekundes?"
+      },
+      "source": "What is the acceleration if a car goes from 0 to 20 m/s in 4 seconds?"
+    }
+  },
+  "quizzes": {
+    "1": {
+      "et": {
+        "title": "Muutujate ja tüüpide viktoriin"
+      },
+      "lt": {
+        "title": "Kintamųjų ir tipų testas"
+      },
+      "source": "Variables & Types Quiz"
+    },
+    "2": {
+      "et": {
+        "title": "Funktsioonide viktoriin"
+      },
+      "lt": {
+        "title": "Funkcijų testas"
+      },
+      "source": "Functions Quiz"
+    },
+    "3": {
+      "et": {
+        "title": "Algebra põhialuste viktoriin"
+      },
+      "lt": {
+        "title": "Algebros pagrindų testas"
+      },
+      "source": "Algebra Basics Quiz"
+    },
+    "4": {
+      "et": {
+        "title": "Mehaanika test"
+      },
+      "lt": {
+        "title": "Mechanikos testas"
+      },
+      "source": "Mechanics Quiz"
+    },
+    "5": {
+      "et": {
+        "title": "Raku struktuuri viktoriin"
+      },
+      "lt": {
+        "title": "Ląstelės sandaros testas"
+      },
+      "source": "Cell Structure Quiz"
+    },
+    "6": {
+      "et": {
+        "title": "Aatomite viktoriin"
+      },
+      "lt": {
+        "title": "Atomų testas"
+      },
+      "source": "Atoms Quiz"
+    },
+    "7": {
+      "et": {
+        "title": "Tekstianalüüsi viktoriin"
+      },
+      "lt": {
+        "title": "Teksto analizės testas"
+      },
+      "source": "Text Analysis Quiz"
+    },
+    "8": {
+      "et": {
+        "title": "Laamtektoonika viktoriin"
+      },
+      "lt": {
+        "title": "Plokščių tektonikos testas"
+      },
+      "source": "Plate Tectonics Quiz"
+    },
+    "9": {
+      "et": {
+        "title": "Näita, ära ütle viktoriin"
+      },
+      "lt": {
+        "title": "Rodyk, nepasakok, testas"
+      },
+      "source": "Show Don't Tell Quiz"
+    }
+  }
+}

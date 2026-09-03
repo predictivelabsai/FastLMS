@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import db
+from .i18n import SUPPORTED_LANGS, localize_record
 
 from .api_core import Resource, require_write_token
 
@@ -43,7 +44,7 @@ class EnrolmentCreate(BaseModel):
     course_id: int
 
 
-def _list(table: str, *, limit: int, offset: int):
+def _list(table: str, *, limit: int, offset: int, lang: str = "en"):
     with db.connect() as connection:
         total = connection.execute(
             sa.text(f"SELECT count(*) FROM {db.S}.{table}")
@@ -54,13 +55,17 @@ def _list(table: str, *, limit: int, offset: int):
             ),
             {"limit": limit, "offset": offset},
         ).mappings().all()
+    entity = table if table in {"courses", "lessons"} else ""
+    data = [dict(row) for row in rows]
+    if entity and lang in SUPPORTED_LANGS:
+        data = [localize_record(row, entity, lang) for row in data]
     return {
-        "data": [dict(row) for row in rows],
+        "data": data,
         "meta": {"total": total, "limit": limit, "offset": offset},
     }
 
 
-def _get(table: str, item_id: int):
+def _get(table: str, item_id: int, lang: str = "en"):
     with db.connect() as connection:
         row = connection.execute(
             sa.text(f"SELECT * FROM {db.S}.{table} WHERE id=:id"),
@@ -75,7 +80,8 @@ def _get(table: str, item_id: int):
                 "details": {"id": item_id},
             },
         )
-    return dict(row)
+    result = dict(row)
+    return localize_record(result, table, lang) if table in {"courses", "lessons"} and lang in SUPPORTED_LANGS else result
 
 
 @api.get("/", tags=["System"])
@@ -98,11 +104,12 @@ def register_read_routes(slug: str, table: str, tag: str):
     def list_records(
         limit: int = Query(50, ge=1, le=200),
         offset: int = Query(0, ge=0),
+        lang: str = Query("en", pattern="^(en|et|lt)$"),
     ):
-        return _list(table, limit=limit, offset=offset)
+        return _list(table, limit=limit, offset=offset, lang=lang)
 
-    def get_record(item_id: int):
-        return _get(table, item_id)
+    def get_record(item_id: int, lang: str = Query("en", pattern="^(en|et|lt)$")):
+        return _get(table, item_id, lang=lang)
 
     api.get(
         f"/v1/{slug}", tags=[tag], operation_id=f"list_{slug}"

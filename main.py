@@ -33,6 +33,15 @@ from components.layout import (
     xp_popup,
 )
 from components.landing import landing_page
+from components.i18n import (
+    get_lang,
+    is_fastlearn_host,
+    localize_record,
+    prompt_language_directive,
+    safe_return_path,
+    t,
+)
+from components.seo import register_seo_routes
 from components.developer import developer_page
 from components import account_auth, google_auth
 from components.api import api
@@ -69,7 +78,7 @@ def establish_local_account(session, account):
 
 
 account_auth.register_fastapi_routes(
-    app, app_name="FastLMS", success_path="/app", on_login=establish_local_account
+    app, app_name="FastLearn", success_path="/app", on_login=establish_local_account
 )
 
 
@@ -118,7 +127,28 @@ def landing(req):
     user = _get_session_user(req)
     if user:
         return RedirectResponse("/app", status_code=303)
-    return landing_page()
+    return landing_page(get_lang(req), product=is_fastlearn_host(req))
+
+
+@app.get("/fastlms")
+def fastlms_reference(req):
+    """Stable route for open-source landing capture and review."""
+    return landing_page(get_lang(req), product=False)
+
+
+@app.get("/fastlearn")
+def fastlearn_reference(req):
+    """Stable route for FastLearn product landing capture and review."""
+    return landing_page(get_lang(req), product=True)
+
+
+@app.get("/set-lang")
+def set_language(req, lang: str = "en", next: str = "/"):
+    lang = lang if lang in {"en", "et", "lt"} else "en"
+    req.session["lang"] = lang
+    response = RedirectResponse(safe_return_path(next), status_code=303)
+    response.set_cookie("language", lang, max_age=365 * 24 * 3600, samesite="lax", secure=True)
+    return response
 
 
 # ---------------------------------------------------------------------------
@@ -127,21 +157,22 @@ def landing(req):
 
 @app.get("/auth/login")
 def login_page(req):
+    lang = get_lang(req)
     error = req.query_params.get("error", "")
     return auth_page(
         Div(
-            H2("Sign in", cls="auth-title"),
+            H2(t("sign_in", lang).title(), cls="auth-title"),
             (Div(error, cls="form-error") if error else ""),
             Form(
-                Div(Label("Email", cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
-                Div(Label("Password", cls="form-label"), Input(name="password", type="password", cls="form-input", required=True), cls="form-group"),
-                Button("Sign in", cls="btn btn-primary btn-block", type="submit"),
+                Div(Label(t("email", lang), cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
+                Div(Label(t("password", lang), cls="form-label"), Input(name="password", type="password", cls="form-input", required=True), cls="form-group"),
+                Button(t("sign_in", lang), cls="btn btn-primary btn-block", type="submit"),
                 method="post",
                 action="/auth/login",
             ),
-            Div(A("Create an account", href="/auth/register"), cls="auth-footer"),
+            Div(A(t("create_account", lang), href="/auth/register"), cls="auth-footer"),
             cls="auth-box",
-        ),
+        ), lang=lang,
     )
 
 
@@ -190,22 +221,23 @@ async def login_post(req):
 
 @app.get("/auth/register")
 def register_page(req):
+    lang = get_lang(req)
     error = req.query_params.get("error", "")
     return auth_page(
         Div(
-            H2("Create account", cls="auth-title"),
+            H2(t("create_account", lang), cls="auth-title"),
             (Div(error, cls="form-error") if error else ""),
             Form(
                 Div(Label("Display name", cls="form-label"), Input(name="display_name", cls="form-input", required=True), cls="form-group"),
-                Div(Label("Email", cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
-                Div(Label("Password", cls="form-label"), Input(name="password", type="password", cls="form-input", required=True, minlength=6), cls="form-group"),
-                Button("Create account", cls="btn btn-primary btn-block", type="submit"),
+                Div(Label(t("email", lang), cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
+                Div(Label(t("password", lang), cls="form-label"), Input(name="password", type="password", cls="form-input", required=True, minlength=6), cls="form-group"),
+                Button(t("create_account", lang), cls="btn btn-primary btn-block", type="submit"),
                 method="post",
                 action="/auth/register",
             ),
-            Div(A("Already have an account? Sign in", href="/auth/login"), cls="auth-footer"),
+            Div(A(t("sign_in", lang), href="/auth/login"), cls="auth-footer"),
             cls="auth-box",
-        ),
+        ), lang=lang,
     )
 
 
@@ -246,15 +278,16 @@ def dashboard(req):
     user, redir = _require_login(req)
     if redir:
         return redir
+    lang = get_lang(req)
 
     with db.connect() as conn:
-        courses = db.get_courses(conn)
+        courses = db.get_courses(conn, lang=lang)
         import sqlalchemy as sa
         lessons_done = conn.execute(
             sa.text(f"SELECT count(*) FROM {db.S}.lesson_progress WHERE user_id = :u AND status = 'completed'"),
             {"u": user["id"]},
         ).scalar()
-        badges = db.get_user_badges(conn, user["id"])
+        badges = db.get_user_badges(conn, user["id"], lang=lang)
         enrolments = conn.execute(
             sa.text(f"SELECT course_id FROM {db.S}.enrolments WHERE user_id = :u"),
             {"u": user["id"]},
@@ -269,38 +302,38 @@ def dashboard(req):
 
     content = Div(
         Div(
-            H1(f"Welcome back, {user['display_name']}", cls="page-title"),
-            P("Your learning dashboard", cls="page-subtitle"),
+            H1(t("welcome_back", lang, name=user["display_name"]), cls="page-title"),
+            P(t("learning_dashboard", lang), cls="page-subtitle"),
 
             Div(
-                Div(Div(str(user["xp"]), cls="dashboard-card-value"), Div("Total XP", cls="dashboard-card-label"), cls="dashboard-card"),
-                Div(Div(user["level"], cls="dashboard-card-value"), Div("Level", cls="dashboard-card-label"), cls="dashboard-card"),
-                Div(Div(f"{user['streak_days']}d", cls="dashboard-card-value"), Div("Streak", cls="dashboard-card-label"), cls="dashboard-card"),
-                Div(Div(str(lessons_done), cls="dashboard-card-value"), Div("Lessons Done", cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(str(user["xp"]), cls="dashboard-card-value"), Div(t("total_xp", lang), cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(user["level"], cls="dashboard-card-value"), Div(t("level", lang), cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(f"{user['streak_days']}d", cls="dashboard-card-value"), Div(t("streak", lang), cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(str(lessons_done), cls="dashboard-card-value"), Div(t("lessons_done", lang), cls="dashboard-card-label"), cls="dashboard-card"),
                 cls="dashboard-grid",
             ),
 
             (Div(
-                H2("My Courses", style="font-size:18px; font-weight:600; margin-bottom:16px;"),
-                Div(*[course_card(c, prog) for c, prog in my_courses], cls="courses-grid"),
+                H2(t("my_courses", lang), style="font-size:18px; font-weight:600; margin-bottom:16px;"),
+                Div(*[course_card(c, prog, lang) for c, prog in my_courses], cls="courses-grid"),
                 style="margin-bottom:32px;",
             ) if my_courses else ""),
 
             (Div(
-                H2("My Badges", style="font-size:18px; font-weight:600; margin-bottom:16px;"),
+                H2(t("my_badges", lang), style="font-size:18px; font-weight:600; margin-bottom:16px;"),
                 Div(*[badge_card(b) for b in badges], cls="badges-grid"),
                 style="margin-bottom:32px;",
             ) if badges else ""),
 
             (Div(
-                H2("Browse Courses", style="font-size:18px; font-weight:600; margin-bottom:16px;"),
-                Div(*[course_card(c) for c in courses if c["id"] not in enrolled_ids], cls="courses-grid"),
+                H2(t("courses", lang), style="font-size:18px; font-weight:600; margin-bottom:16px;"),
+                Div(*[course_card(c, lang=lang) for c in courses if c["id"] not in enrolled_ids], cls="courses-grid"),
             ) if any(c["id"] not in enrolled_ids for c in courses) else ""),
 
             cls="page-content",
         ),
     )
-    return app_shell(content, user=user, active="dashboard")
+    return app_shell(content, user=user, active="dashboard", lang=lang, current_path="/app")
 
 
 # ---------------------------------------------------------------------------
@@ -313,8 +346,9 @@ def courses_page(req):
     if redir:
         return redir
 
+    lang = get_lang(req)
     with db.connect() as conn:
-        courses = db.get_courses(conn)
+        courses = db.get_courses(conn, lang=lang)
         import sqlalchemy as sa
         enrolments = conn.execute(
             sa.text(f"SELECT course_id FROM {db.S}.enrolments WHERE user_id = :u"),
@@ -325,18 +359,18 @@ def courses_page(req):
         cards = []
         for c in courses:
             prog = db.get_user_course_progress(conn, user["id"], c["id"]) if c["id"] in enrolled_ids else None
-            cards.append(course_card(c, prog))
+            cards.append(course_card(c, prog, lang))
 
     content = Div(
-        H1("Courses", cls="page-title"),
-        P("Browse all available courses", cls="page-subtitle"),
+        H1(t("courses", lang), cls="page-title"),
+        P(t("browse_all_courses", lang), cls="page-subtitle"),
         Div(*cards, cls="courses-grid") if cards else Div(
-            Div("No courses yet", cls="empty-state-text"),
+            Div(t("no_courses", lang), cls="empty-state-text"),
             cls="empty-state",
         ),
         cls="page-content",
     )
-    return app_shell(content, user=user, active="courses")
+    return app_shell(content, user=user, active="courses", lang=lang, current_path="/app/courses")
 
 
 # ---------------------------------------------------------------------------
@@ -349,12 +383,13 @@ def course_detail(req, slug: str):
     if redir:
         return redir
 
+    lang = get_lang(req)
     with db.connect() as conn:
-        course = db.get_course(conn, slug)
+        course = db.get_course(conn, slug, lang=lang)
         if not course:
             return Response("Course not found", status_code=404)
 
-        modules = db.get_modules(conn, course["id"])
+        modules = db.get_modules(conn, course["id"], lang=lang)
         import sqlalchemy as sa
         enrolled = conn.execute(
             sa.text(f"SELECT 1 FROM {db.S}.enrolments WHERE user_id = :u AND course_id = :c"),
@@ -365,7 +400,7 @@ def course_detail(req, slug: str):
         sidebar_items = []
         first_lesson_id = None
         for m in modules:
-            lessons = db.get_lessons(conn, m["id"])
+            lessons = db.get_lessons(conn, m["id"], lang=lang)
             sidebar_items.append(Div(m["title"], cls="module-header"))
             for les in lessons:
                 if first_lesson_id is None:
@@ -388,12 +423,12 @@ def course_detail(req, slug: str):
             H1(course["title"]),
             P(course.get("description", "")),
             Div(
-                Span(f"Difficulty: {course.get('difficulty', 'beginner').title()}"),
-                Span(f"Progress: {prog['percent']}%"),
+                Span(f"{t('difficulty', lang)}: {t(course.get('difficulty', 'beginner'), lang)}"),
+                Span(f"{t('progress', lang)}: {prog['percent']}%"),
                 cls="course-hero-meta",
             ),
             (Form(
-                Button("Enrol", cls="btn btn-primary", type="submit", style="margin-top:16px;"),
+                Button(t("enrol", lang), cls="btn btn-primary", type="submit", style="margin-top:16px;"),
                 method="post",
                 action=f"/app/course/{slug}/enrol",
             ) if not enrolled else ""),
@@ -405,9 +440,9 @@ def course_detail(req, slug: str):
     body = Div(
         Div(*sidebar_items, cls="course-sidebar") if sidebar_items else "",
         Div(
-            progress_bar(prog["percent"], f"{prog['completed']}/{prog['total']} lessons"),
+            progress_bar(prog["percent"], f"{prog['completed']}/{prog['total']} {t('lessons', lang)}"),
             Div(
-                P("Select a lesson from the sidebar to begin.", style="color:var(--ink-muted); margin-top:24px;"),
+                P(t("select_lesson", lang), style="color:var(--ink-muted); margin-top:24px;"),
                 cls="lesson-placeholder",
             ),
         ),
@@ -415,7 +450,7 @@ def course_detail(req, slug: str):
     )
 
     content = Div(hero, body)
-    return app_shell(content, user=user, active="courses", title=course["title"])
+    return app_shell(content, user=user, active="courses", title=course["title"], lang=lang, current_path=f"/app/course/{slug}")
 
 
 @app.post("/app/course/{slug}/enrol")
@@ -445,21 +480,24 @@ def lesson_page(req, lesson_id: int):
     if redir:
         return redir
 
+    lang = get_lang(req)
     import markdown as md
     import sqlalchemy as sa
 
     with db.connect() as conn:
-        lesson = db.get_lesson(conn, lesson_id)
+        lesson = db.get_lesson(conn, lesson_id, lang=lang)
         if not lesson:
             return Response("Lesson not found", status_code=404)
 
         module = conn.execute(sa.text(f"SELECT * FROM {db.S}.modules WHERE id = :m"), {"m": lesson["module_id"]}).mappings().first()
+        module = localize_record(dict(module), "modules", lang)
         course = conn.execute(sa.text(f"SELECT * FROM {db.S}.courses WHERE id = :c"), {"c": module["course_id"]}).mappings().first()
+        course = localize_record(dict(course), "courses", lang)
 
         lp = db.get_lesson_progress(conn, user["id"], lesson_id)
         is_done = lp and lp["status"] == "completed"
 
-        quiz = db.get_quiz_for_lesson(conn, lesson_id)
+        quiz = db.get_quiz_for_lesson(conn, lesson_id, lang=lang)
         discussions = db.get_discussions(conn, lesson_id)
 
         # Get next lesson
@@ -482,21 +520,21 @@ def lesson_page(req, lesson_id: int):
     if not is_done:
         actions.append(
             Form(
-                Button("Mark Complete", cls="btn btn-green", type="submit"),
+                Button(t("mark_complete", lang), cls="btn btn-green", type="submit"),
                 method="post",
                 action=f"/app/lesson/{lesson_id}/complete",
             )
         )
     else:
-        actions.append(Span("Completed", cls="btn btn-secondary", style="opacity:0.6;"))
+        actions.append(Span(t("completed", lang), cls="btn btn-secondary", style="opacity:0.6;"))
 
     if quiz:
-        actions.append(A("Take Quiz", href=f"/app/quiz/{quiz['id']}", cls="btn btn-blue"))
+        actions.append(A(t("take_quiz", lang), href=f"/app/quiz/{quiz['id']}", cls="btn btn-blue"))
 
-    actions.append(A("AI Tutor", href=f"/app/chat?lesson_id={lesson_id}", cls="btn btn-secondary"))
+    actions.append(A(t("ai_tutor", lang), href=f"/app/chat?lesson_id={lesson_id}", cls="btn btn-secondary"))
 
     if next_lesson:
-        actions.append(A("Next Lesson", href=f"/app/lesson/{next_lesson}", cls="btn btn-secondary"))
+        actions.append(A(t("next_lesson", lang), href=f"/app/lesson/{next_lesson}", cls="btn btn-secondary"))
 
     lesson_view = Div(
         Div(
@@ -517,7 +555,7 @@ def lesson_page(req, lesson_id: int):
         Div(*actions, cls="lesson-actions"),
         cls="lesson-layout",
     )
-    return app_shell(lesson_view, user=user, active="courses", title=lesson["title"])
+    return app_shell(lesson_view, user=user, active="courses", title=lesson["title"], lang=lang, current_path=f"/app/lesson/{lesson_id}")
 
 
 @app.post("/app/lesson/{lesson_id:int}/complete")
@@ -541,13 +579,15 @@ def quiz_page(req, quiz_id: int):
     if redir:
         return redir
 
+    lang = get_lang(req)
     with db.connect() as conn:
         import sqlalchemy as sa
         quiz = conn.execute(sa.text(f"SELECT * FROM {db.S}.quizzes WHERE id = :q"), {"q": quiz_id}).mappings().first()
         if not quiz:
             return Response("Quiz not found", status_code=404)
-        questions = db.get_quiz_questions(conn, quiz_id)
-        lesson = db.get_lesson(conn, quiz["lesson_id"])
+        quiz = localize_record(dict(quiz), "quizzes", lang)
+        questions = db.get_quiz_questions(conn, quiz_id, lang=lang)
+        lesson = db.get_lesson(conn, quiz["lesson_id"], lang=lang)
 
     q_items = []
     for i, q in enumerate(questions):
@@ -563,7 +603,7 @@ def quiz_page(req, quiz_id: int):
             )
         q_items.append(
             Div(
-                Div(f"Question {i + 1}", style="font-size:11px; color:var(--ink-dim); margin-bottom:8px;"),
+                Div(t("question", lang, number=i + 1), style="font-size:11px; color:var(--ink-dim); margin-bottom:8px;"),
                 Div(q["question_text"], cls="quiz-question-text"),
                 Div(*option_els, cls="quiz-options"),
                 cls="quiz-question",
@@ -572,20 +612,20 @@ def quiz_page(req, quiz_id: int):
 
     content = Div(
         Div(
-            A(f"← Back to lesson", href=f"/app/lesson/{quiz['lesson_id']}", style="font-size:13px; color:var(--ink-muted);"),
+            A(t("back_to_lesson", lang), href=f"/app/lesson/{quiz['lesson_id']}", style="font-size:13px; color:var(--ink-muted);"),
             cls="lesson-breadcrumb",
         ),
         H1(quiz["title"], cls="page-title"),
-        P(f"Pass threshold: {quiz['pass_threshold']}%  •  +{quiz['xp_reward']} XP on pass", cls="page-subtitle"),
+        P(t("pass_threshold", lang, threshold=quiz["pass_threshold"], xp=quiz["xp_reward"]), cls="page-subtitle"),
         Form(
             *q_items,
-            Button("Submit Quiz", cls="btn btn-primary", type="submit", style="margin-top:24px;"),
+            Button(t("submit_quiz", lang), cls="btn btn-primary", type="submit", style="margin-top:24px;"),
             method="post",
             action=f"/app/quiz/{quiz_id}/submit",
         ),
         cls="quiz-container",
     )
-    return app_shell(content, user=user, active="courses", title=quiz["title"])
+    return app_shell(content, user=user, active="courses", title=quiz["title"], lang=lang, current_path=f"/app/quiz/{quiz_id}")
 
 
 @app.post("/app/quiz/{quiz_id:int}/submit")
@@ -594,12 +634,13 @@ async def submit_quiz(req, quiz_id: int):
     if redir:
         return redir
 
+    lang = get_lang(req)
     form = await req.form()
     import sqlalchemy as sa
 
     with db.begin() as conn:
         quiz = conn.execute(sa.text(f"SELECT * FROM {db.S}.quizzes WHERE id = :q"), {"q": quiz_id}).mappings().first()
-        questions = db.get_quiz_questions(conn, quiz_id)
+        questions = db.get_quiz_questions(conn, quiz_id, lang=lang)
 
         correct = 0
         total = len(questions)
@@ -646,8 +687,8 @@ async def submit_quiz(req, quiz_id: int):
             Div(
                 Div(r["question"], cls="quiz-question-text"),
                 Div(
-                    Div(f"Your answer: {r['user_answer']}", cls=cls),
-                    (Div(f"Correct answer: {r['correct_answer']}", cls="quiz-option correct") if not r["is_correct"] else ""),
+                    Div(t("your_answer", lang, answer=r["user_answer"]), cls=cls),
+                    (Div(t("correct_answer", lang, answer=r["correct_answer"]), cls="quiz-option correct") if not r["is_correct"] else ""),
                     (Div(r["explanation"], cls="quiz-explanation") if r.get("explanation") else ""),
                     cls="quiz-options",
                 ),
@@ -659,19 +700,19 @@ async def submit_quiz(req, quiz_id: int):
     content = Div(
         Div(
             Div(f"{score}%", cls=score_cls),
-            Div("Passed!" if passed else "Not passed", style=f"font-size:18px; color: {'var(--green)' if passed else 'var(--red)'}; margin-bottom:8px;"),
+            Div(t("passed", lang) if passed else t("not_passed", lang), style=f"font-size:18px; color: {'var(--green)' if passed else 'var(--red)'}; margin-bottom:8px;"),
             (Div(f"+{xp_earned} XP earned!", style="color:var(--accent-text); font-weight:600;") if xp_earned else ""),
             cls="quiz-result",
         ),
         *result_items,
         Div(
-            A("Back to lesson", href=f"/app/lesson/{quiz['lesson_id']}", cls="btn btn-secondary"),
-            (A("Retry", href=f"/app/quiz/{quiz_id}", cls="btn btn-primary") if not passed else ""),
+            A(t("back_to_lesson", lang).lstrip("← "), href=f"/app/lesson/{quiz['lesson_id']}", cls="btn btn-secondary"),
+            (A(t("retry", lang), href=f"/app/quiz/{quiz_id}", cls="btn btn-primary") if not passed else ""),
             style="display:flex; gap:12px; justify-content:center; margin-top:24px;",
         ),
         cls="quiz-container",
     )
-    return app_shell(content, user=user, active="courses", title="Quiz Results")
+    return app_shell(content, user=user, active="courses", title=t("courses", lang), lang=lang, current_path=f"/app/quiz/{quiz_id}")
 
 
 # ---------------------------------------------------------------------------
@@ -684,6 +725,7 @@ def chat_page(req):
     if redir:
         return redir
 
+    lang = get_lang(req)
     lesson_id = req.query_params.get("lesson_id", "")
 
     with db.connect() as conn:
@@ -694,7 +736,7 @@ def chat_page(req):
         cls = "msg msg-user" if m["role"] == "user" else "msg msg-assistant"
         if m["role"] == "assistant":
             msg_els.append(Div(
-                Div(Span("AI Tutor"), cls="msg-header"),
+                Div(Span(t("ai_tutor", lang)), cls="msg-header"),
                 Div(NotStr(m["content"]), cls="msg-content"),
                 cls=cls,
             ))
@@ -702,23 +744,30 @@ def chat_page(req):
             msg_els.append(Div(m["content"], cls=cls))
 
     content = Div(
-        Div("AI Tutor", cls="chat-header"),
+        Div(t("ai_tutor", lang), cls="chat-header"),
         Div(*msg_els, id="chat-messages", cls="chat-messages"),
+        Div(*[
+            Button(t(key, lang), type="button", cls="prompt-chip", data_prompt=t(key, lang))
+            for key in ("prompt_explain", "prompt_example", "prompt_quiz")
+        ], cls="prompt-suggestions"),
         Div(
             Form(
                 Div(
-                    Textarea(placeholder="Ask anything about the lesson...", id="chat-input", cls="chat-input", rows=1),
-                    Button("Send", cls="chat-send", type="submit"),
+                    Textarea(placeholder=t("ask_placeholder", lang), id="chat-input", cls="chat-input", rows=1),
+                    Button(t("send", lang), cls="chat-send", type="submit"),
                     cls="chat-input-row",
                 ),
                 id="chat-form",
                 data_lesson_id=lesson_id,
+                data_thinking=t("thinking", lang),
+                data_tutor=t("ai_tutor", lang),
+                data_connection_error=t("connection_error", lang),
             ),
             cls="chat-input-area",
         ),
         cls="chat-container",
     )
-    return app_shell(content, user=user, active="chat", title="AI Tutor")
+    return app_shell(content, user=user, active="chat", title=t("ai_tutor", lang), lang=lang, current_path="/app/chat")
 
 
 @app.get("/app/chat/stream")
@@ -727,6 +776,7 @@ async def chat_stream(req):
     if not user:
         return Response("Unauthorized", status_code=401)
 
+    lang = get_lang(req)
     message = req.query_params.get("message", "").strip()
     lesson_id = req.query_params.get("lesson_id", "")
     lesson_id_int = int(lesson_id) if lesson_id else None
@@ -744,7 +794,7 @@ async def chat_stream(req):
     lesson_context = ""
     if lesson_id_int:
         with db.connect() as conn:
-            lesson = db.get_lesson(conn, lesson_id_int)
+            lesson = db.get_lesson(conn, lesson_id_int, lang=lang)
             if lesson:
                 lesson_context = f"\n\nThe student is currently studying the lesson: '{lesson['title']}'\nLesson content:\n{lesson.get('content_md', '')[:2000]}"
 
@@ -753,11 +803,12 @@ async def chat_stream(req):
             provider = os.environ.get("MODEL_PROVIDER", "xai")
             model = os.environ.get("DEFAULT_MODEL", "grok-4-1-fast-reasoning")
 
-            system_prompt = f"""You are an AI tutor on FastLMS, an open-source learning platform.
+            system_prompt = f"""You are an AI tutor on FastLearn, a multilingual learning platform.
 Help students understand course material, answer questions, and guide them through concepts.
 Be encouraging, clear, and concise. Use examples when helpful.
 If the student seems stuck, break down the problem into smaller steps.
-Format responses in Markdown when appropriate.{lesson_context}"""
+Format responses in Markdown when appropriate.
+{prompt_language_directive(lang)}{lesson_context}"""
 
             full_response = ""
 
@@ -852,6 +903,7 @@ def leaderboard_page(req):
     if redir:
         return redir
 
+    lang = get_lang(req)
     with db.connect() as conn:
         leaders = db.get_leaderboard(conn)
 
@@ -868,8 +920,8 @@ def leaderboard_page(req):
         ))
 
     content = Div(
-        H1("Leaderboard", cls="page-title"),
-        P("Top learners ranked by XP", cls="page-subtitle"),
+        H1(t("leaderboard", lang), cls="page-title"),
+        P(t("top_learners", lang), cls="page-subtitle"),
         Table(
             Thead(Tr(Th("#"), Th("Name"), Th("Level"), Th("XP"), Th("Streak"))),
             Tbody(*rows),
@@ -877,7 +929,7 @@ def leaderboard_page(req):
         ) if rows else Div(Div("No learners yet", cls="empty-state-text"), cls="empty-state"),
         cls="page-content",
     )
-    return app_shell(content, user=user, active="leaderboard")
+    return app_shell(content, user=user, active="leaderboard", lang=lang, current_path="/app/leaderboard")
 
 
 # ---------------------------------------------------------------------------
@@ -890,8 +942,9 @@ def profile_page(req):
     if redir:
         return redir
 
+    lang = get_lang(req)
     with db.connect() as conn:
-        badges = db.get_user_badges(conn, user["id"])
+        badges = db.get_user_badges(conn, user["id"], lang=lang)
         import sqlalchemy as sa
         lessons_done = conn.execute(
             sa.text(f"SELECT count(*) FROM {db.S}.lesson_progress WHERE user_id = :u AND status = 'completed'"),
@@ -936,7 +989,7 @@ def profile_page(req):
 
         cls="page-content",
     )
-    return app_shell(content, user=user, active=None)
+    return app_shell(content, user=user, active=None, lang=lang, current_path="/app/profile")
 
 
 # ---------------------------------------------------------------------------
@@ -1709,6 +1762,9 @@ def healthz():
 # ---------------------------------------------------------------------------
 # Bootstrap & run
 # ---------------------------------------------------------------------------
+
+
+register_seo_routes(app)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
