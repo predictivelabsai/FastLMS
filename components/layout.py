@@ -23,6 +23,7 @@ def page_head(title="FastLearn", lang="en"):
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"),
         Script(src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"),
         Script(src="/static/chat.js", defer=True),
+        Script(src="/static/activity.js", defer=True),
     )
 
 
@@ -45,12 +46,14 @@ def left_pane(user=None, active=None, lang="en", current_path="/app"):
         ("leaderboard", t("leaderboard", lang), "/app/leaderboard"),
     ]
 
-    if user and user.get("role") in ("instructor", "admin"):
+    if user and user.get("role") in ("teacher", "instructor", "admin"):
         nav_items.append(("manage", t("manage_courses", lang), "/app/manage"))
         nav_items.append(("configure", t("course_config", lang), "/app/configure"))
+        nav_items.append(("team", t("team", lang), "/app/team"))
+        nav_items.append(("reports", t("reports", lang), "/app/reports"))
 
     school_items = []
-    if user and user.get("role") in ("instructor", "admin"):
+    if user and user.get("role") in ("teacher", "instructor", "admin"):
         school_items = [
             ("school", "Overview", "/app/school"),
             ("students", "Students", "/app/school/students"),
@@ -184,7 +187,7 @@ def xp_popup(xp, message="XP earned!"):
     )
 
 
-def course_card(course, progress=None, lang="en"):
+def course_card(course, progress=None, lang="en", assigned=False):
     prog = progress_bar(progress["percent"], f"{progress['completed']}/{progress['total']}") if progress else ""
     difficulty_cls = f"difficulty-{course.get('difficulty', 'beginner')}"
     return A(
@@ -192,6 +195,7 @@ def course_card(course, progress=None, lang="en"):
             Div(
                 Span(course.get("category", "General"), cls="course-category"),
                 Span(t(course.get("difficulty", "beginner"), lang), cls=f"course-difficulty {difficulty_cls}"),
+                (Span(t("assigned", lang), cls="course-assigned") if assigned else ""),
                 cls="course-meta",
             ),
             H3(course["title"], cls="course-title"),

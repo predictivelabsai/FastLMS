@@ -7,6 +7,7 @@ Tables cover courses, lessons, quizzes, progress, interactivity, and chat.
 from __future__ import annotations
 
 import atexit
+import json
 import os
 import threading
 from contextlib import contextmanager
@@ -208,6 +209,134 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.enrolments (
     UNIQUE(user_id, course_id)
 );
 
+-- Explicit teacher-to-course access. Course owners and administrators also have access.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.teacher_course_access (
+    teacher_id      INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    course_id       INTEGER NOT NULL REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    granted_by      INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    granted_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (teacher_id, course_id)
+);
+
+-- Assignments are distinct from self-enrolment so learners can see an Assigned tag.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.course_assignments (
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    course_id       INTEGER NOT NULL REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    assigned_by     INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    assigned_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(user_id, course_id)
+);
+
+-- Invitations never expire, but are single-use and revocable.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.invitations (
+    id              SERIAL PRIMARY KEY,
+    email           TEXT NOT NULL,
+    role            TEXT NOT NULL DEFAULT 'student',
+    token_hash      TEXT UNIQUE NOT NULL,
+    invited_by      INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    consumed_at     TIMESTAMPTZ,
+    revoked_at      TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Per-course learning behaviour. Linear is deliberately the default.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.course_learning_settings (
+    course_id       INTEGER PRIMARY KEY REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    strategy        TEXT NOT NULL DEFAULT 'linear',
+    low_threshold   INTEGER NOT NULL DEFAULT 60,
+    high_threshold  INTEGER NOT NULL DEFAULT 85,
+    high_streak     INTEGER NOT NULL DEFAULT 2,
+    allow_reorder   BOOLEAN NOT NULL DEFAULT true,
+    allow_remedial  BOOLEAN NOT NULL DEFAULT true,
+    updated_by      INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.learner_course_state (
+    user_id             INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    course_id           INTEGER NOT NULL REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    difficulty_level    INTEGER NOT NULL DEFAULT 2,
+    consecutive_high    INTEGER NOT NULL DEFAULT 0,
+    consecutive_low     INTEGER NOT NULL DEFAULT 0,
+    last_score          INTEGER,
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, course_id)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.adaptive_recommendations (
+    id                  SERIAL PRIMARY KEY,
+    user_id             INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    course_id           INTEGER NOT NULL REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    source_quiz_id      INTEGER REFERENCES {SCHEMA}.quizzes(id) ON DELETE SET NULL,
+    target_lesson_id    INTEGER REFERENCES {SCHEMA}.lessons(id) ON DELETE SET NULL,
+    recommendation_type TEXT NOT NULL,
+    title               TEXT NOT NULL,
+    reason              TEXT,
+    status              TEXT NOT NULL DEFAULT 'pending',
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Aggregated active time. context_key makes general tutor sessions safely upsertable.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.learning_time (
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    course_id       INTEGER REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    resource_type   TEXT NOT NULL,
+    resource_id     INTEGER,
+    context_key     TEXT NOT NULL,
+    activity_date   DATE NOT NULL DEFAULT CURRENT_DATE,
+    seconds_active  INTEGER NOT NULL DEFAULT 0,
+    first_seen_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    last_seen_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(user_id, context_key, activity_date)
+);
+
+-- Teacher-reviewed AI/remedial content in all supported languages.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.content_drafts (
+    id              SERIAL PRIMARY KEY,
+    course_id       INTEGER NOT NULL REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    module_id       INTEGER REFERENCES {SCHEMA}.modules(id) ON DELETE CASCADE,
+    source_lesson_id INTEGER REFERENCES {SCHEMA}.lessons(id) ON DELETE SET NULL,
+    draft_type      TEXT NOT NULL,
+    difficulty_level INTEGER NOT NULL DEFAULT 2,
+    content         JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    status          TEXT NOT NULL DEFAULT 'pending',
+    created_by      INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    approved_by     INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at     TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.content_translations (
+    entity_type     TEXT NOT NULL,
+    entity_id       INTEGER NOT NULL,
+    language        TEXT NOT NULL,
+    title           TEXT,
+    description     TEXT,
+    content_md      TEXT,
+    question_text   TEXT,
+    options         JSONB,
+    correct_answer  TEXT,
+    explanation     TEXT,
+    PRIMARY KEY (entity_type, entity_id, language)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.audit_log (
+    id              BIGSERIAL PRIMARY KEY,
+    actor_id        INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    action          TEXT NOT NULL,
+    target_type     TEXT NOT NULL,
+    target_id       TEXT,
+    details         JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS lesson_kind TEXT NOT NULL DEFAULT 'core';
+ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS difficulty_level INTEGER NOT NULL DEFAULT 2;
+ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS prerequisite_lesson_id INTEGER REFERENCES {SCHEMA}.lessons(id) ON DELETE SET NULL;
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS difficulty_level INTEGER NOT NULL DEFAULT 2;
+
 -- Discussions (per-lesson threaded comments)
 CREATE TABLE IF NOT EXISTS {SCHEMA}.discussions (
     id              SERIAL PRIMARY KEY,
@@ -235,6 +364,16 @@ CREATE INDEX IF NOT EXISTS idx_progress_user ON {SCHEMA}.lesson_progress(user_id
 CREATE INDEX IF NOT EXISTS idx_chat_user_lesson ON {SCHEMA}.chat_messages(user_id, lesson_id);
 CREATE INDEX IF NOT EXISTS idx_enrolments_user ON {SCHEMA}.enrolments(user_id);
 CREATE INDEX IF NOT EXISTS idx_discussions_lesson ON {SCHEMA}.discussions(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_user ON {SCHEMA}.course_assignments(user_id);
+CREATE INDEX IF NOT EXISTS idx_learning_time_course ON {SCHEMA}.learning_time(course_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_adaptive_user_course ON {SCHEMA}.adaptive_recommendations(user_id, course_id, status);
+CREATE INDEX IF NOT EXISTS idx_drafts_course_status ON {SCHEMA}.content_drafts(course_id, status);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON {SCHEMA}.audit_log(created_at DESC);
+
+-- Normalise the legacy role name and keep one deliberately scoped administrator.
+UPDATE {SCHEMA}.users SET role = 'teacher' WHERE role = 'instructor';
+UPDATE {SCHEMA}.users SET role = 'teacher' WHERE role = 'admin' AND lower(email) <> 'kaljuvee@gmail.com';
+UPDATE {SCHEMA}.users SET role = 'admin' WHERE lower(email) = 'kaljuvee@gmail.com';
 """
 
 
@@ -266,21 +405,37 @@ def get_user_by_email(conn, email: str) -> dict | None:
     return dict(row) if row else None
 
 
-def _localized(rows, entity: str, lang: str):
+def _localized(rows, entity: str, lang: str, conn=None):
     from components.i18n import localize_record
-    return [localize_record(dict(row), entity, lang) for row in rows]
+    localized = [localize_record(dict(row), entity, lang) for row in rows]
+    if lang == "en" or conn is None or not localized:
+        return localized
+    ids = [row["id"] for row in localized]
+    translations = conn.execute(
+        sa.text(f"""
+            SELECT * FROM {S}.content_translations
+            WHERE entity_type = :entity AND language = :lang AND entity_id = ANY(:ids)
+        """),
+        {"entity": entity, "lang": lang, "ids": ids},
+    ).mappings().all()
+    overlays = {row["entity_id"]: dict(row) for row in translations}
+    for row in localized:
+        overlay = overlays.get(row["id"], {})
+        for field in ("title", "description", "content_md", "question_text", "options", "correct_answer", "explanation"):
+            if overlay.get(field) is not None:
+                row[field] = overlay[field]
+    return localized
 
 
 def get_courses(conn, published_only=True, lang="en") -> list[dict]:
     where = f"WHERE is_published = true" if published_only else ""
     rows = conn.execute(sa.text(f"SELECT * FROM {S}.courses {where} ORDER BY created_at DESC")).mappings().all()
-    return _localized(rows, "courses", lang)
+    return _localized(rows, "courses", lang, conn)
 
 
 def get_course(conn, slug: str, lang="en") -> dict | None:
     row = conn.execute(sa.text(f"SELECT * FROM {S}.courses WHERE slug = :s"), {"s": slug}).mappings().first()
-    from components.i18n import localize_record
-    return localize_record(dict(row), "courses", lang) if row else None
+    return _localized([row], "courses", lang, conn)[0] if row else None
 
 
 def get_modules(conn, course_id: int, lang="en") -> list[dict]:
@@ -288,7 +443,7 @@ def get_modules(conn, course_id: int, lang="en") -> list[dict]:
         sa.text(f"SELECT * FROM {S}.modules WHERE course_id = :c ORDER BY order_idx"),
         {"c": course_id},
     ).mappings().all()
-    return _localized(rows, "modules", lang)
+    return _localized(rows, "modules", lang, conn)
 
 
 def get_lessons(conn, module_id: int, lang="en") -> list[dict]:
@@ -296,29 +451,32 @@ def get_lessons(conn, module_id: int, lang="en") -> list[dict]:
         sa.text(f"SELECT * FROM {S}.lessons WHERE module_id = :m ORDER BY order_idx"),
         {"m": module_id},
     ).mappings().all()
-    return _localized(rows, "lessons", lang)
+    return _localized(rows, "lessons", lang, conn)
 
 
 def get_lesson(conn, lesson_id: int, lang="en") -> dict | None:
     row = conn.execute(sa.text(f"SELECT * FROM {S}.lessons WHERE id = :id"), {"id": lesson_id}).mappings().first()
-    from components.i18n import localize_record
-    return localize_record(dict(row), "lessons", lang) if row else None
+    return _localized([row], "lessons", lang, conn)[0] if row else None
 
 
 def get_quiz_for_lesson(conn, lesson_id: int, lang="en") -> dict | None:
     row = conn.execute(
         sa.text(f"SELECT * FROM {S}.quizzes WHERE lesson_id = :l"), {"l": lesson_id}
     ).mappings().first()
-    from components.i18n import localize_record
-    return localize_record(dict(row), "quizzes", lang) if row else None
+    return _localized([row], "quizzes", lang, conn)[0] if row else None
 
 
-def get_quiz_questions(conn, quiz_id: int, lang="en") -> list[dict]:
+def get_quiz_questions(conn, quiz_id: int, lang="en", learner_level: int | None = None) -> list[dict]:
     rows = conn.execute(
         sa.text(f"SELECT * FROM {S}.quiz_questions WHERE quiz_id = :q ORDER BY order_idx"),
         {"q": quiz_id},
     ).mappings().all()
-    return _localized(rows, "quiz_questions", lang)
+    questions = _localized(rows, "quiz_questions", lang, conn)
+    if learner_level is None or not questions:
+        return questions
+    level = max(1, min(3, int(learner_level)))
+    nearest_distance = min(abs((row.get("difficulty_level") or 2) - level) for row in questions)
+    return [row for row in questions if abs((row.get("difficulty_level") or 2) - level) == nearest_distance]
 
 
 def get_lesson_progress(conn, user_id: int, lesson_id: int) -> dict | None:
@@ -338,7 +496,7 @@ def get_user_course_progress(conn, user_id: int, course_id: int) -> dict:
             FROM {S}.lessons l
             JOIN {S}.modules m ON m.id = l.module_id
             LEFT JOIN {S}.lesson_progress lp ON lp.lesson_id = l.id AND lp.user_id = :u
-            WHERE m.course_id = :c
+            WHERE m.course_id = :c AND COALESCE(l.lesson_kind, 'core') = 'core'
         """),
         {"u": user_id, "c": course_id},
     ).mappings().first()
@@ -520,3 +678,400 @@ def get_chat_history(conn, user_id: int, lesson_id: int | None, limit: int = 50)
             {"u": user_id, "lim": limit},
         ).mappings().all()
     return [dict(r) for r in rows]
+
+
+# ---------------------------------------------------------------------------
+# Roles, assignments, activity and adaptive learning
+# ---------------------------------------------------------------------------
+
+ADMIN_EMAIL = "kaljuvee@gmail.com"
+VALID_ROLES = {"admin", "teacher", "student"}
+
+
+def role_for_email(email: str, requested: str = "student") -> str:
+    """Return the only role this account may receive during account creation."""
+    if (email or "").strip().lower() == ADMIN_EMAIL:
+        return "admin"
+    return requested if requested in {"teacher", "student"} else "student"
+
+
+def audit(conn, *, actor_id: int | None, action: str, target_type: str,
+          target_id: int | str | None = None, details: dict | None = None) -> None:
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.audit_log (actor_id, action, target_type, target_id, details)
+        VALUES (:actor, :action, :target_type, :target_id, :details)
+    """), {"actor": actor_id, "action": action, "target_type": target_type,
+             "target_id": str(target_id) if target_id is not None else None,
+             "details": json.dumps(details or {})})
+
+
+def can_manage_course(conn, user: dict, course_id: int) -> bool:
+    if user.get("role") == "admin":
+        return True
+    if user.get("role") != "teacher":
+        return False
+    return bool(conn.execute(
+        sa.text(f"""
+            SELECT 1 FROM {S}.courses c
+            WHERE c.id = :course AND (
+                c.instructor_id = :teacher OR EXISTS (
+                    SELECT 1 FROM {S}.teacher_course_access a
+                    WHERE a.course_id = c.id AND a.teacher_id = :teacher
+                )
+            )
+        """),
+        {"course": course_id, "teacher": user["id"]},
+    ).scalar())
+
+
+def get_managed_courses(conn, user: dict, lang: str = "en") -> list[dict]:
+    if user.get("role") == "admin":
+        return get_courses(conn, published_only=False, lang=lang)
+    rows = conn.execute(sa.text(f"""
+        SELECT DISTINCT c.* FROM {S}.courses c
+        LEFT JOIN {S}.teacher_course_access a ON a.course_id = c.id
+        WHERE c.instructor_id = :teacher OR a.teacher_id = :teacher
+        ORDER BY c.created_at DESC
+    """), {"teacher": user["id"]}).mappings().all()
+    return _localized(rows, "courses", lang, conn)
+
+
+def get_assigned_course_ids(conn, user_id: int) -> set[int]:
+    rows = conn.execute(
+        sa.text(f"SELECT course_id FROM {S}.course_assignments WHERE user_id = :user"),
+        {"user": user_id},
+    ).all()
+    return {row[0] for row in rows}
+
+
+def assign_course(conn, *, user_id: int, course_id: int, assigned_by: int) -> None:
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.course_assignments (user_id, course_id, assigned_by)
+        VALUES (:user, :course, :by)
+        ON CONFLICT (user_id, course_id)
+        DO UPDATE SET assigned_by = EXCLUDED.assigned_by, assigned_at = now()
+    """), {"user": user_id, "course": course_id, "by": assigned_by})
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.enrolments (user_id, course_id)
+        VALUES (:user, :course) ON CONFLICT DO NOTHING
+    """), {"user": user_id, "course": course_id})
+
+
+def unassign_course(conn, *, user_id: int, course_id: int) -> None:
+    conn.execute(
+        sa.text(f"DELETE FROM {S}.course_assignments WHERE user_id = :user AND course_id = :course"),
+        {"user": user_id, "course": course_id},
+    )
+
+
+def resource_course_id(conn, resource_type: str, resource_id: int | None) -> int | None:
+    if resource_type == "lesson" or resource_type == "tutor":
+        if not resource_id:
+            return None
+        return conn.execute(sa.text(f"""
+            SELECT m.course_id FROM {S}.lessons l
+            JOIN {S}.modules m ON m.id = l.module_id WHERE l.id = :id
+        """), {"id": resource_id}).scalar()
+    if resource_type == "quiz" and resource_id:
+        return conn.execute(sa.text(f"""
+            SELECT m.course_id FROM {S}.quizzes q
+            JOIN {S}.lessons l ON l.id = q.lesson_id
+            JOIN {S}.modules m ON m.id = l.module_id WHERE q.id = :id
+        """), {"id": resource_id}).scalar()
+    return None
+
+
+def record_learning_time(
+    conn, *, user_id: int, resource_type: str, resource_id: int | None, seconds: int
+) -> int | None:
+    """Accumulate a bounded active heartbeat and return its course id."""
+    if resource_type not in {"lesson", "quiz", "tutor"}:
+        raise ValueError("unsupported resource type")
+    seconds = max(1, min(int(seconds), 30))
+    resource_id = int(resource_id) if resource_id else None
+    course_id = resource_course_id(conn, resource_type, resource_id)
+    context_key = f"{resource_type}:{resource_id or 0}"
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.learning_time
+            (user_id, course_id, resource_type, resource_id, context_key, seconds_active)
+        VALUES (:user, :course, :kind, :resource, :context, :seconds)
+        ON CONFLICT (user_id, context_key, activity_date)
+        DO UPDATE SET seconds_active = {S}.learning_time.seconds_active + EXCLUDED.seconds_active,
+                      last_seen_at = now(), course_id = COALESCE(EXCLUDED.course_id, {S}.learning_time.course_id)
+    """), {
+        "user": user_id, "course": course_id, "kind": resource_type,
+        "resource": resource_id, "context": context_key, "seconds": seconds,
+    })
+    return course_id
+
+
+def get_course_learning_settings(conn, course_id: int) -> dict:
+    row = conn.execute(
+        sa.text(f"SELECT * FROM {S}.course_learning_settings WHERE course_id = :course"),
+        {"course": course_id},
+    ).mappings().first()
+    if row:
+        return dict(row)
+    return {
+        "course_id": course_id, "strategy": "linear", "low_threshold": 60,
+        "high_threshold": 85, "high_streak": 2, "allow_reorder": True,
+        "allow_remedial": True, "updated_by": None, "updated_at": None,
+    }
+
+
+def adaptive_transition(
+    current_level: int, consecutive_high: int, score: int,
+    *, low_threshold: int = 60, high_threshold: int = 85, high_streak: int = 2,
+) -> dict:
+    """Pure decision rule used by the database path and unit tests."""
+    level = max(1, min(3, int(current_level or 2)))
+    high = int(consecutive_high or 0)
+    recommendation = "hold"
+    if score < low_threshold:
+        level = max(1, level - 1)
+        high = 0
+        recommendation = "remedial"
+    elif score >= high_threshold:
+        high += 1
+        if high >= high_streak:
+            level = min(3, level + 1)
+            high = 0
+            recommendation = "extension"
+    else:
+        high = 0
+    return {
+        "difficulty_level": level,
+        "consecutive_high": high,
+        "consecutive_low": 1 if score < low_threshold else 0,
+        "recommendation": recommendation,
+    }
+
+
+def _draft_payload(kind: str, lesson_by_lang: dict[str, dict], score: int) -> dict:
+    source = lesson_by_lang.get("en", {})
+    titles = {
+        "en": f"Guided practice: {source.get('title', 'Review')}" if kind == "remedial" else f"Extension: {source.get('title', 'Challenge')}",
+        "et": f"Juhendatud harjutus: {lesson_by_lang.get('et', source).get('title', 'Kordamine')}" if kind == "remedial" else f"Süvaülesanne: {lesson_by_lang.get('et', source).get('title', 'Väljakutse')}",
+        "lt": f"Praktika su pagalba: {lesson_by_lang.get('lt', source).get('title', 'Kartojimas')}" if kind == "remedial" else f"Išplėstinė užduotis: {lesson_by_lang.get('lt', source).get('title', 'Iššūkis')}",
+    }
+    bodies = {
+        "en": f"## Why this is recommended\n\nYour latest result was {score}%. Work through one smaller example, explain each step, then retry the assessment.",
+        "et": f"## Miks see on soovitatud\n\nSinu viimane tulemus oli {score}%. Lahenda üks väiksem näide, selgita iga sammu ja proovi siis testi uuesti.",
+        "lt": f"## Kodėl tai rekomenduojama\n\nNaujausias rezultatas – {score} %. Išnagrinėkite vieną paprastesnį pavyzdį, paaiškinkite kiekvieną žingsnį ir pakartokite testą.",
+    }
+    if kind == "extension":
+        bodies = {
+            "en": f"## Stretch your understanding\n\nYou have shown consistent mastery ({score}%). Apply the idea to a less familiar case and justify your choices.",
+            "et": f"## Arenda arusaamist\n\nOled näidanud püsivat meisterlikkust ({score}%). Rakenda ideed vähem tuttavas olukorras ja põhjenda oma valikuid.",
+            "lt": f"## Pagilinkite supratimą\n\nParodėte nuoseklų meistriškumą ({score} %). Pritaikykite idėją mažiau pažįstamoje situacijoje ir pagrįskite pasirinkimus.",
+        }
+    return {lang: {"title": titles[lang], "content_md": bodies[lang]} for lang in ("en", "et", "lt")}
+
+
+def _question_draft_payload(lesson_by_lang: dict[str, dict], difficulty_level: int = 2) -> dict:
+    titles = {lang: (lesson_by_lang.get(lang) or lesson_by_lang.get("en") or {}).get("title", "the lesson")
+              for lang in ("en", "et", "lt")}
+    qualifier = {
+        1: {"en": "With the key idea in view, ", "et": "Põhiideed silmas pidades, ", "lt": "Atsižvelgiant į pagrindinę mintį, "},
+        2: {"en": "For this lesson, ", "et": "Selle tunni puhul, ", "lt": "Šioje pamokoje, "},
+        3: {"en": "In a new and unfamiliar situation, ", "et": "Uues ja võõras olukorras, ", "lt": "Naujoje ir nepažįstamoje situacijoje, "},
+    }[max(1, min(3, int(difficulty_level)))]
+    return {
+        "en": {
+            "question_text": f"{qualifier['en']}which approach best demonstrates understanding of {titles['en']}?",
+            "options": ["Apply the idea and explain each step", "Ignore the lesson context", "Choose without checking", "Skip the reasoning"],
+            "correct_answer": "Apply the idea and explain each step",
+            "explanation": "Applying the idea and making the reasoning visible demonstrates transferable understanding.",
+        },
+        "et": {
+            "question_text": f"{qualifier['et']}milline lähenemine näitab kõige paremini teema „{titles['et']}“ mõistmist?",
+            "options": ["Rakenda ideed ja selgita iga sammu", "Eira tunni konteksti", "Vali ilma kontrollimata", "Jäta põhjendus vahele"],
+            "correct_answer": "Rakenda ideed ja selgita iga sammu",
+            "explanation": "Idee rakendamine ja arutluskäigu nähtavaks tegemine näitab ülekantavat arusaamist.",
+        },
+        "lt": {
+            "question_text": f"{qualifier['lt']}kuris būdas geriausiai parodo temos „{titles['lt']}“ supratimą?",
+            "options": ["Pritaikyti idėją ir paaiškinti kiekvieną žingsnį", "Nepaisyti pamokos konteksto", "Pasirinkti nepatikrinus", "Praleisti pagrindimą"],
+            "correct_answer": "Pritaikyti idėją ir paaiškinti kiekvieną žingsnį",
+            "explanation": "Idėjos pritaikymas ir aiškus samprotavimas parodo perkeliamą supratimą.",
+        },
+    }
+
+
+def update_adaptive_state(conn, *, user_id: int, quiz_id: int, score: int) -> dict | None:
+    context = conn.execute(sa.text(f"""
+        SELECT q.lesson_id, m.course_id FROM {S}.quizzes q
+        JOIN {S}.lessons l ON l.id = q.lesson_id
+        JOIN {S}.modules m ON m.id = l.module_id WHERE q.id = :quiz
+    """), {"quiz": quiz_id}).mappings().first()
+    if not context:
+        return None
+    settings = get_course_learning_settings(conn, context["course_id"])
+    if settings["strategy"] != "adaptive":
+        return None
+    state = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.learner_course_state WHERE user_id = :user AND course_id = :course
+    """), {"user": user_id, "course": context["course_id"]}).mappings().first()
+    decision = adaptive_transition(
+        state["difficulty_level"] if state else 2,
+        state["consecutive_high"] if state else 0,
+        score,
+        low_threshold=settings["low_threshold"],
+        high_threshold=settings["high_threshold"],
+        high_streak=settings["high_streak"],
+    )
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.learner_course_state
+            (user_id, course_id, difficulty_level, consecutive_high, consecutive_low, last_score)
+        VALUES (:user, :course, :level, :high, :low, :score)
+        ON CONFLICT (user_id, course_id) DO UPDATE SET
+            difficulty_level = EXCLUDED.difficulty_level,
+            consecutive_high = EXCLUDED.consecutive_high,
+            consecutive_low = EXCLUDED.consecutive_low,
+            last_score = EXCLUDED.last_score, updated_at = now()
+    """), {
+        "user": user_id, "course": context["course_id"], "level": decision["difficulty_level"],
+        "high": decision["consecutive_high"], "low": decision["consecutive_low"], "score": score,
+    })
+    kind = decision["recommendation"]
+    if kind == "hold":
+        return decision
+    target = context["lesson_id"]
+    reason = (
+        f"Score {score}% was below the {settings['low_threshold']}% support threshold."
+        if kind == "remedial" else
+        f"Repeated scores at or above {settings['high_threshold']}% indicate readiness for a challenge."
+    )
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.adaptive_recommendations
+            (user_id, course_id, source_quiz_id, target_lesson_id, recommendation_type, title, reason)
+        VALUES (:user, :course, :quiz, :lesson, :kind, :title, :reason)
+    """), {
+        "user": user_id, "course": context["course_id"], "quiz": quiz_id, "lesson": target,
+        "kind": kind, "title": "Recommended review" if kind == "remedial" else "Ready for an extension",
+        "reason": reason,
+    })
+    if (kind == "remedial" and settings["allow_remedial"]) or kind == "extension":
+        existing = conn.execute(sa.text(f"""
+            SELECT 1 FROM {S}.content_drafts
+            WHERE source_lesson_id = :lesson AND draft_type = :kind AND status = 'pending'
+        """), {"lesson": target, "kind": kind}).scalar()
+        if not existing:
+            lesson_by_lang = {lang: get_lesson(conn, target, lang=lang) or {} for lang in ("en", "et", "lt")}
+            payload = _draft_payload(kind, lesson_by_lang, score)
+            module_id = lesson_by_lang["en"].get("module_id")
+            conn.execute(sa.text(f"""
+                INSERT INTO {S}.content_drafts
+                    (course_id, module_id, source_lesson_id, draft_type, difficulty_level, content, created_by)
+                VALUES (:course, :module, :lesson, :kind, :level, :content, :user)
+            """), {
+                "course": context["course_id"], "module": module_id, "lesson": target, "kind": kind,
+                "level": decision["difficulty_level"], "content": json.dumps(payload), "user": user_id,
+            })
+        question_exists = conn.execute(sa.text(f"""
+            SELECT 1 FROM {S}.content_drafts
+            WHERE source_lesson_id = :lesson AND draft_type = 'quiz_variant'
+              AND difficulty_level = :level AND status = 'pending'
+        """), {"lesson": target, "level": decision["difficulty_level"]}).scalar()
+        if not question_exists:
+            lesson_by_lang = {lang: get_lesson(conn, target, lang=lang) or {} for lang in ("en", "et", "lt")}
+            conn.execute(sa.text(f"""
+                INSERT INTO {S}.content_drafts
+                    (course_id, module_id, source_lesson_id, draft_type, difficulty_level, content, created_by)
+                VALUES (:course, :module, :lesson, 'quiz_variant', :level, :content, :user)
+            """), {
+                "course": context["course_id"], "module": lesson_by_lang["en"].get("module_id"),
+                "lesson": target, "level": decision["difficulty_level"],
+                "content": json.dumps(_question_draft_payload(lesson_by_lang, decision["difficulty_level"])), "user": user_id,
+            })
+    return decision
+
+
+def get_learning_path(conn, *, user_id: int, course_id: int, lang: str = "en") -> list[dict]:
+    rows = conn.execute(sa.text(f"""
+        SELECT l.*, m.title AS module_title, m.order_idx AS module_order
+        FROM {S}.lessons l JOIN {S}.modules m ON m.id = l.module_id
+        WHERE m.course_id = :course ORDER BY m.order_idx, l.order_idx
+    """), {"course": course_id}).mappings().all()
+    lessons = _localized(rows, "lessons", lang, conn)
+    settings = get_course_learning_settings(conn, course_id)
+    if settings["strategy"] != "adaptive" or not settings["allow_reorder"]:
+        return lessons
+    state = conn.execute(sa.text(f"""
+        SELECT difficulty_level FROM {S}.learner_course_state
+        WHERE user_id = :user AND course_id = :course
+    """), {"user": user_id, "course": course_id}).scalar() or 2
+    targets = {row[0] for row in conn.execute(sa.text(f"""
+        SELECT target_lesson_id FROM {S}.adaptive_recommendations
+        WHERE user_id = :user AND course_id = :course AND status = 'pending'
+          AND target_lesson_id IS NOT NULL
+    """), {"user": user_id, "course": course_id}).all()}
+    ordered = sorted(lessons, key=lambda row: (
+        0 if row["id"] in targets else 1,
+        0 if row.get("lesson_kind") == "remedial" and state == 1 else 1,
+        abs((row.get("difficulty_level") or 2) - state),
+        row.get("module_order") or 0,
+        row.get("order_idx") or 0,
+    ))
+    # Adaptive priority never moves a lesson ahead of its explicit prerequisite.
+    for _ in range(len(ordered)):
+        positions = {row["id"]: index for index, row in enumerate(ordered)}
+        changed = False
+        for index, row in enumerate(list(ordered)):
+            prerequisite = row.get("prerequisite_lesson_id")
+            if prerequisite in positions and positions[prerequisite] > index:
+                dependency = ordered.pop(positions[prerequisite])
+                ordered.insert(index, dependency)
+                changed = True
+                break
+        if not changed:
+            break
+    return ordered
+
+
+def learning_time_report(conn, course_ids: list[int] | None = None) -> list[dict]:
+    where = ""
+    params = {}
+    if course_ids is not None:
+        if not course_ids:
+            return []
+        where = "WHERE lt.course_id = ANY(:courses)"
+        params["courses"] = course_ids
+    rows = conn.execute(sa.text(f"""
+        WITH times AS (
+            SELECT lt.user_id, lt.course_id,
+                   sum(lt.seconds_active) AS seconds_active,
+                   sum(lt.seconds_active) FILTER (WHERE lt.resource_type='lesson') AS lesson_seconds,
+                   sum(lt.seconds_active) FILTER (WHERE lt.resource_type='quiz') AS quiz_seconds,
+                   sum(lt.seconds_active) FILTER (WHERE lt.resource_type='tutor') AS tutor_seconds
+            FROM {S}.learning_time lt {where}
+            GROUP BY lt.user_id, lt.course_id
+        ), attempts AS (
+            SELECT qa.user_id, m.course_id, round(avg(qa.score)) AS average_score
+            FROM {S}.quiz_attempts qa JOIN {S}.quizzes q ON q.id=qa.quiz_id
+            JOIN {S}.lessons l ON l.id=q.lesson_id JOIN {S}.modules m ON m.id=l.module_id
+            GROUP BY qa.user_id, m.course_id
+        ), progress AS (
+            SELECT t.user_id, t.course_id, count(DISTINCT l.id) AS total_lessons,
+                   count(DISTINCT l.id) FILTER (WHERE lp.status='completed') AS completed_lessons
+            FROM times t JOIN {S}.modules m ON m.course_id=t.course_id
+            JOIN {S}.lessons l ON l.module_id=m.id AND COALESCE(l.lesson_kind,'core')='core'
+            LEFT JOIN {S}.lesson_progress lp ON lp.lesson_id=l.id AND lp.user_id=t.user_id
+            GROUP BY t.user_id, t.course_id
+        )
+        SELECT u.id AS user_id, u.display_name, u.email, c.id AS course_id, c.title AS course_title,
+               COALESCE(t.seconds_active, 0) AS seconds_active,
+               COALESCE(t.lesson_seconds, 0) AS lesson_seconds,
+               COALESCE(t.quiz_seconds, 0) AS quiz_seconds,
+               COALESCE(t.tutor_seconds, 0) AS tutor_seconds,
+               a.average_score, COALESCE(p.completed_lessons, 0) AS completed_lessons,
+               COALESCE(p.total_lessons, 0) AS total_lessons,
+               COALESCE(s.difficulty_level, 2) AS difficulty_level, s.last_score
+        FROM times t JOIN {S}.users u ON u.id = t.user_id
+        LEFT JOIN {S}.courses c ON c.id = t.course_id
+        LEFT JOIN attempts a ON a.user_id=t.user_id AND a.course_id=t.course_id
+        LEFT JOIN progress p ON p.user_id=t.user_id AND p.course_id=t.course_id
+        LEFT JOIN {S}.learner_course_state s ON s.user_id=t.user_id AND s.course_id=t.course_id
+        ORDER BY t.seconds_active DESC
+    """), params).mappings().all()
+    return [dict(row) for row in rows]

@@ -5,12 +5,7 @@
 **Open-source foundation:** [FastLMS](https://lms.fastsme.com)  
 **Languages:** English, Estonian and Lithuanian
 
-This guide explains how students and teachers use FastLearn today and documents the approved role-based access, learning-time and adaptive-learning design for the next platform release.
-
-> **Status legend**
->
-> - **Available now** — present in the current FastLearn application.
-> - **Approved next release** — agreed product behaviour that is not yet available in the live interface.
+This guide explains how students, teachers and the administrator use FastLearn, including role-based access, learning-time reporting and configurable adaptive learning.
 
 Screenshots were reviewed on 2026-09-04. Learner screens come from the current FastLearn product tour; teacher screens use a controlled documentation account on the same application build. No production learner data is shown.
 
@@ -20,21 +15,18 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 
 ![FastLearn landing page](img/fastlearn-platform-guide/01-home.png)
 
-**Available now:**
+**Platform capabilities:**
 
 - Ten published courses across programming, mathematics, science, language, geography and creative writing.
 - Course modules, lessons, quizzes, XP, streaks, badges and a leaderboard.
 - An AI Tutor grounded in the lesson being studied.
 - English, Estonian and Lithuanian interface and course content.
 - Google OAuth and password authentication.
-
-**Approved next release:**
-
 - Enforced admin, teacher and student permissions.
 - Team invitations and teacher/course assignments.
 - Active learning-time measurement.
 - Linear and adaptive learning strategies.
-- Teacher-reviewed AI generation for question variants and remedial or extension lessons.
+- Teacher-reviewed generation for question variants and remedial or extension lessons.
 
 ## 2. Roles and permissions
 
@@ -48,9 +40,9 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 | Assign students to a teacher-owned course | Yes | Yes | No |
 | View learners in assigned courses | Yes | Yes | No |
 | Manage all users, roles and courses | Yes | No | No |
-| Promote teachers or admins | Yes | No | No |
+| Change users between teacher and student roles | Yes | No | No |
 
-`kaljuvee@gmail.com` is the initial administrator. Administrators may promote additional administrators. New accounts always begin without elevated privileges.
+`kaljuvee@gmail.com` is the sole administrator. Other accounts can be promoted between student and teacher, but cannot be made administrators through the application. New accounts begin as students unless an administrator invited them as teachers.
 
 ### Access principles
 
@@ -83,7 +75,7 @@ Select **Courses** in the left navigation. Course cards show subject, difficulty
 
 ![Student course catalogue](img/fastlearn-platform-guide/03-student-course-catalogue.png)
 
-In the approved RBAC release, an **Assigned** tag will distinguish a teacher/admin assignment from a course the student chose independently. Assignment is a recommendation or curriculum requirement; it does not hide the rest of the catalogue.
+An **Assigned** tag distinguishes a teacher/admin assignment from a course the student chose independently. Assignment is a recommendation or curriculum requirement; it does not hide the rest of the catalogue.
 
 ### 4.2 Open a course and follow its path
 
@@ -112,7 +104,7 @@ Choose one answer for each question and submit the quiz. FastLearn displays the 
 
 ![Student quiz](img/fastlearn-platform-guide/06-student-quiz.png)
 
-Quiz attempts contribute to progress and, in adaptive mode, to the learner's mastery estimate. An unsuccessful attempt is evidence for extra support—not a punishment or a permanent label.
+Quiz attempts contribute to progress and, in adaptive mode, to the learner's current difficulty and recommendation state. An unsuccessful attempt is evidence for extra support—not a punishment or a permanent label.
 
 ### 4.5 Use the AI Tutor
 
@@ -124,7 +116,7 @@ The tutor responds in the selected interface language unless the student asks fo
 
 ### 4.6 Understand active learning time
 
-**Approved next release.** FastLearn will count active learning in three contexts:
+FastLearn counts active learning in three contexts:
 
 - reading or interacting with a lesson;
 - answering a quiz;
@@ -132,11 +124,11 @@ The tutor responds in the selected interface language unless the student asks fo
 
 The browser sends a heartbeat every 30 seconds. Time pauses immediately when the tab is hidden and after 90 seconds without keyboard, pointer or touch activity. Returning to the page starts a new active interval. This prevents a page left open overnight from being counted as study time.
 
-Students will see their own totals by course, lesson and day. Historical time before the feature is released cannot be reconstructed reliably.
+Students see their total active time on their profile. Teachers see the lesson, quiz and AI Tutor split for their own courses. Historical time from before tracking was enabled cannot be reconstructed reliably.
 
 ### 4.7 Understand adaptive recommendations
 
-**Approved next release.** Courses remain linear unless a teacher enables **adaptive** mode.
+Courses remain linear unless a teacher enables **adaptive** mode.
 
 In adaptive mode:
 
@@ -166,7 +158,7 @@ Open **Manage courses** to review course title, subject, difficulty and publicat
 
 ![Teacher course management](img/fastlearn-platform-guide/08-teacher-manage-courses.png)
 
-In the RBAC release, this list will contain only courses assigned to the teacher. Administrators retain access to every course.
+This list contains only courses owned by or assigned to the teacher. The administrator retains access to every course.
 
 ### 5.2 Build and publish a course
 
@@ -184,7 +176,9 @@ Draft courses remain invisible to students until published. Teachers should prev
 
 ### 5.3 Invite and assign students
 
-**Approved next release.** Teachers will open **Team**, enter the student's email and send an invitation through the existing Postmark service.
+Open **Team**, enter the student's email and send an invitation through the existing Postmark service.
+
+![Team invitations, roles and course assignments](img/fastlearn-platform-guide/10-team.png)
 
 - Invitations do not expire.
 - Each invitation is single-use and can be revoked.
@@ -193,27 +187,27 @@ Draft courses remain invisible to students until published. Teachers should prev
 - An administrator may assign any learner to any course.
 - Assigned courses display an **Assigned** tag in the learner catalogue.
 
-Teachers cannot change a user's platform role. Administrators manage role promotion, suspension and reactivation.
+Teachers cannot change a user's platform role. The administrator can change users between student and teacher roles and can grant teachers access to courses.
 
 ### 5.4 Configure a learning strategy
 
-**Approved next release.** Each course will have a **Learning strategy** section.
+Open **Manage courses**, then select **Learning strategy** for a course.
 
-For **Linear**, configure the normal module and lesson order. For **Adaptive**, additionally configure:
+![Adaptive strategy and generated drafts](img/fastlearn-platform-guide/11-adaptive-strategy.png)
 
-- baseline and permitted difficulty range;
+**Linear** preserves the normal module and lesson order. For **Adaptive**, configure:
+
 - low- and high-performance thresholds;
-- number of recent assessments used as evidence;
-- learning objectives covered by each question and lesson;
-- prerequisite relationships;
-- lesson type: `core`, `remedial`, `optional` or `extension`;
-- whether a recommendation requires teacher review.
+- whether recommendations may reorder the path;
+- whether FastLearn should generate support lessons;
+- lesson type: `core`, `remedial` or `optional`;
+- question difficulty: easier, standard or harder.
 
-Core lessons cannot be skipped. Remedial and extension material can be inserted or prioritized according to mastery.
+Core lessons determine required course completion. Remedial and optional extension material can be inserted or prioritized according to performance; explicit prerequisites remain ahead of dependent lessons.
 
 ### 5.5 Generate material for approval
 
-**Approved next release.** A teacher may request generated material for a selected learning objective. FastLearn will produce:
+A teacher may request generated material for a selected lesson. FastLearn produces:
 
 - easy, standard and challenging question variants;
 - answer options, correct answer and explanation;
@@ -221,32 +215,33 @@ Core lessons cannot be skipped. Remedial and extension material can be inserted 
 - extension lesson drafts for learners ready to move further;
 - English, Estonian and Lithuanian versions.
 
-Generated material always starts as **Draft**. Before approval, the teacher should verify factual accuracy, difficulty, age appropriateness, wording, translations and that the correct answer appears exactly among the answer options. Only approved variants can be selected for students.
+Generated material always starts as **Pending**. Before approval, the teacher should verify factual accuracy, difficulty, age appropriateness, wording, translations and that the correct answer appears exactly among the answer options. Only approved variants become lessons or quiz questions.
 
 ### 5.6 Review learner progress and time
 
-**Approved next release.** Teachers will see reporting only for learners in their assigned courses. Reports will include:
+Teachers see reporting only for learners in their assigned courses. The administrator sees platform-wide reporting.
 
-- active time by course, lesson and day;
-- completed and current lessons;
-- quiz attempts and individual responses;
-- mastery by learning objective;
+![Learning progress, difficulty and active-time report](img/fastlearn-platform-guide/12-learning-reports.png)
+
+Reports include:
+
+- active time by course, split across lessons, quizzes and AI Tutor;
+- completed core lessons;
+- average quiz score;
 - current adaptive difficulty;
-- remedial or extension recommendations and their reasons.
+- the learner and course associated with each total.
 
 Time is an engagement signal, not proof of understanding. It should be considered alongside assessment evidence and teacher observation.
 
 ## 6. Administrator guide
 
-**Approved next release.** Administrators will use **Team** to:
+The administrator uses **Team** to:
 
 - invite students or teachers;
-- promote or demote roles;
+- change student and teacher roles;
 - assign teachers to courses;
 - assign any student to any course;
 - revoke unused invitations;
-- suspend or reactivate accounts;
-- review role and assignment audit history;
 - view platform-wide learning and time reports.
 
 Role changes take effect on the next authorized request. The server will reject unauthorized direct URLs and form submissions even if a user attempts to bypass the interface.
@@ -255,11 +250,11 @@ Role changes take effect on the next authorized request. The server will reject 
 
 The adaptive engine is deterministic and explainable:
 
-1. Record the student's individual answers and the objectives tested.
-2. Update mastery from recent approved evidence.
+1. Record the student's individual answers and assessment score.
+2. Update the learner's course difficulty and consecutive-high-score count.
 3. Compare performance with the course thresholds.
 4. Move at most one difficulty level.
-5. Filter candidate lessons by prerequisites and teacher approval.
+5. Select the nearest approved question difficulty and keep prerequisites ahead of dependent lessons.
 6. Keep all core lessons, insert remedial work after difficulty, or prioritize extension work after sustained success.
 7. Store the decision, evidence and rule used.
 8. Show the student a plain-language reason and make the decision visible to the teacher.
@@ -278,14 +273,14 @@ The selected language applies to navigation, course and lesson content, quizzes,
 
 ## 9. Data and audit records
 
-The approved release will retain:
+FastLearn retains:
 
 - user role and status;
 - invitations and their sender, recipient, use or revocation state;
 - teacher/course and student/course assignments;
 - active learning sessions and aggregated durations;
 - quiz attempts and individual responses;
-- mastery estimates and adaptive decisions;
+- adaptive difficulty, recommendations and their assessment evidence;
 - generated content versions and teacher approval decisions.
 
 Access follows least privilege: students see their own data, teachers see relevant assigned-course data, and administrators see platform-wide records. Passwords and OAuth tokens are never part of learning analytics.
@@ -299,21 +294,20 @@ Access follows least privilege: students see their own data, teachers see releva
 3. Work through the recommended lesson.
 4. Complete its quiz.
 5. Use AI Tutor when an explanation is unclear.
-6. Review progress and, when released, active time and adaptive recommendations.
+6. Review progress, active time and adaptive recommendations.
 
 ### Teacher
 
 1. Open **Manage courses**.
 2. Build content through **Course setup**.
 3. Preview and publish the course.
-4. When Team is released, invite students and assign them to teacher-owned courses.
+4. Use **Team** to invite students and assign them to teacher-owned courses.
 5. Configure linear or adaptive learning.
 6. Generate variants, review every draft and approve suitable material.
-7. Monitor progress, mastery and active time.
+7. Monitor progress, adaptive difficulty and active time.
 
 ### Support
 
 - Product: [https://fastlearn.fun](https://fastlearn.fun)
 - Open-source project: [https://github.com/predictivelabsai/FastLMS](https://github.com/predictivelabsai/FastLMS)
 - FastLMS reference: [https://lms.fastsme.com](https://lms.fastsme.com)
-

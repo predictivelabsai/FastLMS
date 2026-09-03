@@ -12,6 +12,10 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **Progress tracking** — per-lesson completion, per-course percentage bars, dashboard overview
 - **AI Tutor** — SSE streaming chat powered by Grok / OpenAI / Claude, with lesson-aware context
 - **Discussions** — per-lesson threaded comments
+- **Role-based access** — one administrator, scoped teachers, and students
+- **Team and assignments** — Postmark invitations, course grants, and visible Assigned tags
+- **Active-time reporting** — lesson, quiz, and AI Tutor time with visibility and inactivity controls
+- **Adaptive learning** — configurable thresholds, bounded difficulty changes, remediation, and extension drafts
 
 ### Interactivity
 - **XP system** — earn points for completing lessons and passing quizzes
@@ -21,7 +25,7 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **Leaderboard** — ranked by XP with level badges and streak display
 
 ### School administration (the `frappe/education` layer — `school.py`)
-For schools/colleges, not just self-serve courses. Admin/instructor pages under **/app/school**:
+For schools/colleges, not just self-serve courses. Admin/teacher pages under **/app/school**:
 - **Students & guardians** — a first-class Student (distinct from a learner account) with guardian contacts and class/section groups
 - **Programmes & enrolment** — course bundles per academic term, with student groups
 - **Gradebook** — assessments (mid-term / coursework / exam) with a grading scale (A–U) and per-student averages
@@ -35,7 +39,7 @@ For schools/colleges, not just self-serve courses. Admin/instructor pages under 
 
 ### Architecture
 - **3-pane layout** — left navigation (280px), center content (flex), right canvas (400px slide-in)
-- **Dark theme** — navy + amber palette, Inter font, CSS custom properties
+- **Light theme** — calm violet palette, Inter font, CSS custom properties
 - **Server-side rendering** — all UI generated in Python, HTMX for partial updates
 - **PostgreSQL** — full schema with courses, users, progress, interactivity, chat history
 - **Multi-provider AI** — pluggable LLM backend (X.AI Grok, OpenAI, Anthropic Claude)
@@ -73,7 +77,7 @@ python seed.py
 ```
 
 This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), 11 badges, and two accounts:
-- **Instructor**: `instructor@fastlms.dev` / `admin`
+- **Teacher**: `instructor@fastlms.dev` / `admin`
 - **Student**: `student@fastlms.dev` / `admin`
 
 To add 7 academic subjects (Mathematics, Physics, Biology, Chemistry, English, Geography, Creative Writing):
@@ -101,7 +105,7 @@ FastLMS/
 ├── components/
 │   └── layout.py            # 3-pane layout, UI fragments (cards, badges, progress bars)
 ├── static/
-│   ├── app.css              # Dark theme (navy + amber), 3-pane grid, all components
+│   ├── app.css              # Light theme, 3-pane grid, all components
 │   └── chat.js              # SSE streaming chat client
 ├── requirements.txt
 ├── .env.example
@@ -114,7 +118,7 @@ All tables live in the `fastlms` PostgreSQL schema:
 
 | Table | Purpose |
 |-------|---------|
-| `users` | Auth, XP, level, streak, role (student/instructor/admin) |
+| `users` | Auth, XP, level, streak, role (student/teacher/admin) |
 | `courses` | Title, slug, category, difficulty, publish state |
 | `modules` | Ordered sections within a course |
 | `lessons` | Markdown content, video URL, XP reward, duration |
@@ -127,6 +131,15 @@ All tables live in the `fastlms` PostgreSQL schema:
 | `user_badges` | Awarded badges per user |
 | `chat_messages` | AI tutor conversation history per user/lesson |
 | `discussions` | Per-lesson threaded comments |
+| `course_assignments` | Explicit assigned-course tags for students |
+| `teacher_course_access` | Scoped teacher course grants |
+| `invitations` | Single-use, revocable, non-expiring invitations |
+| `learning_time` | Active seconds by learner, course, and learning context |
+| `course_learning_settings` | Linear/adaptive strategy and thresholds |
+| `learner_course_state` | Current bounded adaptive difficulty state |
+| `adaptive_recommendations` | Explainable remediation and extension decisions |
+| `content_drafts` | Multilingual teacher-approval queue |
+| `audit_log` | Role, invitation, assignment, strategy, and approval events |
 
 ## Interactivity details
 
@@ -194,8 +207,12 @@ The tutor receives lesson context automatically when accessed from a lesson page
 | `GET /app/chat/stream` | SSE streaming endpoint |
 | `GET /app/leaderboard` | XP leaderboard |
 | `GET /app/profile` | User profile, badges, progress to next level |
-| `GET /app/manage` | Instructor course management |
+| `GET /app/manage` | Teacher course management |
 | `GET /app/configure` | Course configuration wizard (5-step: course → modules → lessons → quizzes → publish) |
+| `GET /app/team` | Invite users, change roles, and assign courses |
+| `GET /app/reports` | Scoped progress, assessment, and active-time reporting |
+| `GET /app/course/{id}/strategy` | Configure adaptive learning and review generated drafts |
+| `POST /app/activity/heartbeat` | Record bounded active learning time |
 | `GET /healthz` | Health check |
 
 ## Supported Courses
@@ -224,7 +241,7 @@ Run `python seed.py` for the 3 programming courses, then `python seed_subjects.p
 
 ## Design inspiration
 
-The 3-pane layout, dark theme, SSE streaming chat, and interactivity engine are inspired by [LiquidRound](https://github.com/plai/liquidround), an M&A research platform built on the same FastHTML + PostgreSQL + HTMX stack. FastLMS adapts that architecture for education.
+The 3-pane layout, SSE streaming chat, and interactivity engine are inspired by [LiquidRound](https://github.com/plai/liquidround), an M&A research platform built on the same FastHTML + PostgreSQL + HTMX stack. FastLMS adapts that architecture for education with a lighter FastLearn product surface.
 
 ## License
 

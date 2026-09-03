@@ -322,6 +322,11 @@ def _send_email(to, subject, html_body):
         return False
 
 
+def send_email(to, subject, html_body):
+    """Send a transactional message through the configured Postmark stream."""
+    return _send_email(to, subject, html_body)
+
+
 accounts = AccountStore()
 
 
