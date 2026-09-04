@@ -28,10 +28,49 @@ AUTH_CSS = """
 .auth-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:#9ca3af;font-size:12px}.auth-divider:before,.auth-divider:after{content:"";height:1px;background:#e5e7eb;flex:1}
 .auth-field{width:100%;padding:11px 12px;border:1px solid #d1d5db;border-radius:9px;font:inherit;font-size:14px;margin-bottom:12px}.auth-field:focus{outline:2px solid color-mix(in srgb,var(--accent) 22%,white);border-color:var(--accent)}
 .auth-submit{width:100%;padding:11px 14px;border:0;border-radius:9px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}.auth-link{border:0;background:transparent;color:var(--accent);padding:0;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+.auth-role-picker{border:0;padding:0;margin:0 0 16px}.auth-role-legend{font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}.auth-role-help{font-size:12px;line-height:1.45;color:#64748b;margin:0 0 10px}
+.auth-role-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-role-option{position:relative;display:flex;gap:8px;align-items:flex-start;padding:11px;border:1px solid #d1d5db;border-radius:10px;cursor:pointer;background:#fff}.auth-role-option:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,white);box-shadow:0 0 0 1px var(--accent)}.auth-role-option input{margin-top:2px;accent-color:var(--accent)}.auth-role-copy{display:flex;flex-direction:column;gap:2px}.auth-role-copy strong{font-size:13px;color:#111827}.auth-role-copy small{font-size:11px;line-height:1.35;color:#64748b}
 .auth-forgot{display:block;margin:-3px 0 15px;text-align:right}.auth-msg{min-height:18px;margin:10px 0 0;font-size:13px;color:#b42318}.auth-msg.ok{color:#15803d}.auth-help{font-size:12px;line-height:1.5;color:#6b7280;margin:12px 0 0}
 """
 
-_GOOGLE_ICON = """<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/><path d="M3.96 10.71A5.4 5.4 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58A8.64 8.64 0 0 0 9 0 9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg>"""
+GOOGLE_ICON = """<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/><path d="M3.96 10.71A5.4 5.4 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58A8.64 8.64 0 0 0 9 0 9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg>"""
+
+SIGNUP_ROLES = ("student", "teacher")
+
+
+def normalize_signup_role(value) -> str:
+    role = str(value or "").strip().lower()
+    return role if role in SIGNUP_ROLES else "student"
+
+
+def signup_role_picker(lang: str = "en", selected: str = "student"):
+    from .i18n import t
+
+    selected = normalize_signup_role(selected)
+    return Fieldset(
+        Legend(t("signup_as", lang), cls="auth-role-legend"),
+        P(t("signup_role_help", lang), cls="auth-role-help"),
+        Div(*[
+            Label(
+                Input(type="radio", name="role", value=role, checked=role == selected),
+                Span(
+                    Strong(t(role, lang)),
+                    Small(t(f"signup_{role}_help", lang)),
+                    cls="auth-role-copy",
+                ),
+                cls="auth-role-option",
+            )
+            for role in SIGNUP_ROLES
+        ], cls="auth-role-options"),
+        cls="auth-role-picker",
+    )
+
+
+def google_button(label: str, href: str = "/auth/google", **attrs):
+    return A(NotStr(GOOGLE_ICON), Span(label), href=href, cls="auth-google", **attrs)
+
+
+GOOGLE_SIGNUP_ONCLICK = "const f=this.closest('form'),r=f&&f.querySelector('input[name=role]:checked');if(r)this.href='/auth/google?role='+encodeURIComponent(r.value)"
 
 AUTH_JS = """
 function authOpen(tab='login'){document.getElementById('auth-overlay').classList.add('visible');authTab(tab)}
@@ -66,7 +105,7 @@ def auth_modal(app_name: str, lang: str = "en"):
             ),
             Div(
                 P(f"{t('sign_in', lang)} · {app_name}", cls="auth-title"),
-                A(NotStr(_GOOGLE_ICON), Span(t("continue_google", lang)), href="/auth/google", cls="auth-google"),
+                google_button(t("continue_google", lang)),
                 Div("or", cls="auth-divider"),
                 Form(
                     Input(name="email", type="email", placeholder=t("email", lang), autocomplete="email", required=True, cls="auth-field"),
@@ -82,6 +121,9 @@ def auth_modal(app_name: str, lang: str = "en"):
             Div(
                 P(f"{t('create_account', lang)} · {app_name}", cls="auth-title"),
                 Form(
+                    signup_role_picker(lang),
+                    google_button(t("continue_google", lang), href="/auth/google?role=student", onclick=GOOGLE_SIGNUP_ONCLICK),
+                    Div("or", cls="auth-divider"),
                     Input(name="name", placeholder="Name", autocomplete="name", required=True, cls="auth-field"),
                     Input(name="email", type="email", placeholder=t("email", lang), autocomplete="email", required=True, cls="auth-field"),
                     Input(name="password", type="password", placeholder=f"{t('password', lang)} (10+)", autocomplete="new-password", minlength="10", required=True, cls="auth-field"),
@@ -131,7 +173,7 @@ class AccountStore:
             CREATE TABLE IF NOT EXISTS accounts (
               id INTEGER PRIMARY KEY, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL DEFAULT '',
               password_hash TEXT, is_verified INTEGER NOT NULL DEFAULT 0,
-              google_linked INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL,
+              google_linked INTEGER NOT NULL DEFAULT 0, role TEXT NOT NULL DEFAULT 'student', created_at INTEGER NOT NULL,
               updated_at INTEGER NOT NULL
             );
             CREATE TABLE IF NOT EXISTS auth_tokens (
@@ -145,6 +187,9 @@ class AccountStore:
               attempts INTEGER NOT NULL, PRIMARY KEY(subject_hash,action)
             );
             """)
+            columns = {row[1] for row in db.execute("PRAGMA table_info(accounts)").fetchall()}
+            if "role" not in columns:
+                db.execute("ALTER TABLE accounts ADD COLUMN role TEXT NOT NULL DEFAULT 'student'")
 
     @staticmethod
     def _email(value):
@@ -203,8 +248,9 @@ class AccountStore:
             )
             return True
 
-    def register(self, email, password, name):
+    def register(self, email, password, name, role="student"):
         email, name = self._email(email), (name or "").strip()[:120]
+        role = normalize_signup_role(role)
         if not email or len(password or "") < 10:
             return False, "Use a valid email and a password of at least 10 characters."
         if not self._allowed_attempt(email, "register", 5, 3600):
@@ -216,12 +262,12 @@ class AccountStore:
                 return True, "If this address can be registered, a verification email is on its way."
             password_hash = self._hash_password(password)
             if row:
-                db.execute("UPDATE accounts SET name=?,password_hash=?,updated_at=? WHERE id=?", (name, password_hash, now, row["id"]))
+                db.execute("UPDATE accounts SET name=?,password_hash=?,role=?,updated_at=? WHERE id=?", (name, password_hash, role, now, row["id"]))
                 account_id = row["id"]
             else:
                 cur = db.execute(
-                    "INSERT INTO accounts(email,name,password_hash,created_at,updated_at) VALUES(?,?,?,?,?)",
-                    (email, name, password_hash, now, now),
+                    "INSERT INTO accounts(email,name,password_hash,role,created_at,updated_at) VALUES(?,?,?,?,?,?)",
+                    (email, name, password_hash, role, now, now),
                 )
                 account_id = cur.lastrowid
             token = self._issue_token(db, account_id, "verify", 24 * 3600)
@@ -355,7 +401,7 @@ def register_fasthtml_routes(rt, *, app_name, session_key=None, success_path="/"
     @rt("/auth/local/register", methods=["POST"])
     async def local_register(request):
         form = await request.form()
-        ok, message = accounts.register(form.get("email"), form.get("password"), form.get("name"))
+        ok, message = accounts.register(form.get("email"), form.get("password"), form.get("name"), form.get("role"))
         return JSONResponse({"message": message}, status_code=200 if ok else 400)
 
     @rt("/auth/local/login", methods=["POST"])
@@ -405,7 +451,7 @@ def register_fastapi_routes(app, *, app_name, session_key=None, success_path="/"
     @app.post("/auth/local/register")
     async def local_register(request):
         form = await request.form()
-        ok, message = accounts.register(form.get("email"), form.get("password"), form.get("name"))
+        ok, message = accounts.register(form.get("email"), form.get("password"), form.get("name"), form.get("role"))
         return JSONResponse({"message": message}, status_code=200 if ok else 400)
 
     @app.post("/auth/local/login")

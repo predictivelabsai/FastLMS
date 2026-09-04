@@ -44,7 +44,7 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 | Manage all users, roles and courses | Yes | No | No |
 | Change users between teacher and student roles | Yes | No | No |
 
-`kaljuvee@gmail.com` is the sole administrator. Other accounts can be promoted between student and teacher, but cannot be made administrators through the application. New accounts begin as students unless an administrator invited them as teachers.
+`kaljuvee@gmail.com` is the sole administrator. During signup, a new user chooses **Student** or **Teacher**, and the same choice is carried through password registration or Google SSO. Existing accounts keep their saved role when signing in again. Invitation roles take precedence, and no signup option can create another administrator. The administrator can later move other accounts between student and teacher.
 
 ### Access principles
 
@@ -57,9 +57,9 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 
 ## 3. Signing in
 
-Open [fastlearn.fun](https://fastlearn.fun) and select **Sign In**.
+Open [fastlearn.fun](https://fastlearn.fun), select **Sign In**, then choose **Create your account**.
 
-![FastLearn sign-in page](img/fastlearn-platform-guide/02-sign-in.png)
+![FastLearn account creation with Student and Teacher choices](img/fastlearn-platform-guide/02-sign-in.png)
 
 Students and teachers may use their email and password. Google SSO is available at [fastlearn.fun/auth/google](https://fastlearn.fun/auth/google); it returns the authenticated user to the FastLearn application. The registered callback is:
 
@@ -68,6 +68,8 @@ https://fastlearn.fun/auth/google/callback
 ```
 
 The original FastLMS callback remains registered separately. Never share a password, OAuth code or recovery token with another user.
+
+On **Create account**, select **Student** to learn and explore courses or **Teacher** to teach and manage learners. The selected role also applies when **Continue with Google** is used from that signup screen. Returning Google users retain their existing database role.
 
 ## 4. Student guide
 

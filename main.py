@@ -76,7 +76,7 @@ def establish_local_account(session, account):
             conn.execute(
                 sa.text(f"INSERT INTO {db.S}.users (email, password_hash, display_name, role) VALUES (:e, :p, :n, :r)"),
                 {"e": account["email"], "p": _hash_pw(os.urandom(32).hex()), "n": account["name"],
-                 "r": db.role_for_email(account["email"])},
+                 "r": db.role_for_email(account["email"], account.get("role", "student"))},
             )
             user = db.get_user_by_email(conn, account["email"])
     session["user_id"] = user["id"]
@@ -201,7 +201,7 @@ def login_page(req):
         Div(
             H2(t("sign_in", lang).title(), cls="auth-title"),
             (Div(error, cls="form-error") if error else ""),
-            A(t("continue_google", lang), href="/auth/google", cls="auth-google"),
+            account_auth.google_button(t("continue_google", lang)),
             Div("or", cls="auth-divider"),
             Form(
                 Div(Label(t("email", lang), cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
@@ -222,6 +222,10 @@ def google_start(req):
         return RedirectResponse("/auth/login?error=Google+sign-in+is+not+configured", status_code=303)
     state = google_auth.new_state()
     req.session["google_oauth_state"] = state
+    req.session.pop("pending_signup_role", None)
+    requested_role = str(req.query_params.get("role", "")).strip().lower()
+    if requested_role in account_auth.SIGNUP_ROLES:
+        req.session["pending_signup_role"] = requested_role
     invite = req.query_params.get("invite", "")
     if invite:
         req.session["pending_invite_hash"] = hashlib.sha256(invite.encode()).hexdigest()
@@ -232,6 +236,7 @@ def google_start(req):
 def google_callback(req, code: str = "", state: str = "", error: str = ""):
     if error or not code or state != req.session.pop("google_oauth_state", None):
         return RedirectResponse("/auth/login?error=Google+sign-in+failed", status_code=303)
+    signup_role = account_auth.normalize_signup_role(req.session.pop("pending_signup_role", "student"))
     identity = google_auth.exchange(req, code)
     if not identity:
         return RedirectResponse("/auth/login?error=Google+account+is+not+authorised", status_code=303)
@@ -243,7 +248,7 @@ def google_callback(req, code: str = "", state: str = "", error: str = ""):
             conn.execute(
                 sa.text(f"INSERT INTO {db.S}.users (email, password_hash, display_name, role) VALUES (:e, :p, :n, :r)"),
                 {"e": identity["email"], "p": _hash_pw(os.urandom(32).hex()), "n": identity["name"],
-                 "r": db.role_for_email(identity["email"])},
+                 "r": db.role_for_email(identity["email"], signup_role)},
             )
             user = db.get_user_by_email(conn, identity["email"])
         pending_invite = req.session.pop("pending_invite_hash", "")
@@ -275,6 +280,12 @@ def register_page(req):
             H2(t("create_account", lang), cls="auth-title"),
             (Div(error, cls="form-error") if error else ""),
             Form(
+                account_auth.signup_role_picker(lang),
+                account_auth.google_button(
+                    t("continue_google", lang), href="/auth/google?role=student",
+                    onclick=account_auth.GOOGLE_SIGNUP_ONCLICK,
+                ),
+                Div("or", cls="auth-divider"),
                 Div(Label("Display name", cls="form-label"), Input(name="display_name", cls="form-input", required=True), cls="form-group"),
                 Div(Label(t("email", lang), cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
                 Div(Label(t("password", lang), cls="form-label"), Input(name="password", type="password", cls="form-input", required=True, minlength=6), cls="form-group"),
@@ -294,7 +305,8 @@ async def register_post(req):
     name = form.get("display_name", "").strip()
     email = form.get("email", "").strip().lower()
     password = form.get("password", "")
-    if not name or not email or len(password) < 6:
+    role = str(form.get("role", "")).strip().lower()
+    if not name or not email or len(password) < 6 or role not in account_auth.SIGNUP_ROLES:
         return RedirectResponse("/auth/register?error=All+fields+required+and+password+min+6+chars", status_code=303)
     with db.begin() as conn:
         existing = db.get_user_by_email(conn, email)
@@ -303,7 +315,7 @@ async def register_post(req):
         import sqlalchemy as sa
         conn.execute(
             sa.text(f"INSERT INTO {db.S}.users (email, password_hash, display_name, role) VALUES (:e, :p, :n, :r)"),
-            {"e": email, "p": _hash_pw(password), "n": name, "r": db.role_for_email(email)},
+            {"e": email, "p": _hash_pw(password), "n": name, "r": db.role_for_email(email, role)},
         )
         user = db.get_user_by_email(conn, email)
     req.session["user_id"] = user["id"]
@@ -1901,7 +1913,7 @@ def invitation_page(req, token: str):
     return auth_page(Div(
         H2("Join FastLearn", cls="auth-title"),
         P(f"You were invited as {invite['role']}.", cls="page-subtitle"),
-        A("Continue with Google", href=f"/auth/google?invite={token}", cls="auth-google"),
+        account_auth.google_button("Continue with Google", href=f"/auth/google?invite={token}"),
         Div("or create a password", cls="auth-divider"),
         Form(
             Input(type="hidden", name="token", value=token),

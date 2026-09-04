@@ -24,6 +24,7 @@ table { width: 100%; border-collapse: collapse; margin: 4mm 0 6mm; font-size: 8.
 th, td { border: 1px solid #d8dce7; padding: 2.2mm; text-align: left; vertical-align: top; }
 th { background: #f5f3ff; color: #3b1d78; }
 img { display: block; max-width: 100%; max-height: 112mm; object-fit: contain; margin: 4mm auto 5mm; border: 1px solid #d8dce7; border-radius: 3mm; break-inside: avoid-page; page-break-inside: avoid; }
+img[src$="02-sign-in.png"],
 img[src$="10-team.png"],
 img[src$="11-adaptive-strategy.png"],
 img[src$="12-learning-reports.png"],
