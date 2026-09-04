@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from arts_catalog import ART_COURSES
 import db
 
 
@@ -59,3 +60,16 @@ def test_generated_question_variants_are_complete_in_every_language():
         assert set(payload) == {"en", "et", "lt", "es"}
         for variant in payload.values():
             assert variant["correct_answer"] in variant["options"]
+
+
+def test_art_and_music_catalogue_is_principles_first():
+    assert {course["slug"] for course in ART_COURSES} == {
+        "art-history", "music-history", "art-principles", "music-principles",
+    }
+    assert all(course["is_published"] for course in ART_COURSES)
+    art = next(course for course in ART_COURSES if course["slug"] == "art-principles")
+    music = next(course for course in ART_COURSES if course["slug"] == "music-principles")
+    assert art["title"] == "Art"
+    assert music["title"] == "Music"
+    assert "no drawing" in art["description"].lower()
+    assert "without requiring singing or an instrument" in music["description"].lower()

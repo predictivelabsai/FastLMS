@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import db
+from app_version import APP_VERSION
 from .i18n import SUPPORTED_LANGS, localize_record
 
 from .api_core import Resource, require_write_token
@@ -19,7 +20,7 @@ RESOURCES = (
 
 api = FastAPI(
     title="FastLMS API",
-    version="1.0.0",
+    version=APP_VERSION,
     description=(
         "Open integration access to FastLMS courses, lessons, learners, and "
         "enrolments. Reads are public. Selected writes require a bearer token "
@@ -88,7 +89,7 @@ def _get(table: str, item_id: int, lang: str = "en"):
 def index():
     return {
         "name": "FastLMS API",
-        "version": "1.0.0",
+        "version": APP_VERSION,
         "documentation": "https://lms.fastsme.com/developers",
         "swagger": "https://lms.fastsme.com/api/docs",
         "openapi": "https://lms.fastsme.com/api/openapi.json",
@@ -97,7 +98,7 @@ def index():
 
 @api.get("/v1/health", tags=["System"])
 def health():
-    return {"status": "ok", "product": "FastLMS", "version": "1.0.0"}
+    return {"status": "ok", "product": "FastLMS", "version": APP_VERSION}
 
 
 def register_read_routes(slug: str, table: str, tag: str):

@@ -11,6 +11,7 @@ import json
 import os
 import re
 import threading
+import uuid
 from contextlib import contextmanager
 from datetime import date, datetime, timezone
 
@@ -392,21 +393,37 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.discussions (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Chat messages (AI tutor per-lesson conversations)
+-- Persistent conversations. Context stores the current course, lesson, quiz,
+-- and the choices shown to the learner so chat can safely resume after reload.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.chat_sessions (
+    id              VARCHAR(36) PRIMARY KEY,
+    user_id         INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    title           TEXT NOT NULL DEFAULT 'New Chat',
+    context         JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Chat messages within a persistent conversation.
 CREATE TABLE IF NOT EXISTS {SCHEMA}.chat_messages (
     id              SERIAL PRIMARY KEY,
     user_id         INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
     lesson_id       INTEGER REFERENCES {SCHEMA}.lessons(id) ON DELETE SET NULL,
+    session_id      VARCHAR(36),
     role            TEXT NOT NULL,  -- user | assistant | system
     content         TEXT NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE {SCHEMA}.chat_messages ADD COLUMN IF NOT EXISTS session_id VARCHAR(36);
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_lessons_module ON {SCHEMA}.lessons(module_id, order_idx);
 CREATE INDEX IF NOT EXISTS idx_modules_course ON {SCHEMA}.modules(course_id, order_idx);
 CREATE INDEX IF NOT EXISTS idx_progress_user ON {SCHEMA}.lesson_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_chat_user_lesson ON {SCHEMA}.chat_messages(user_id, lesson_id);
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_user_updated ON {SCHEMA}.chat_sessions(user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON {SCHEMA}.chat_messages(session_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_enrolments_user ON {SCHEMA}.enrolments(user_id);
 CREATE INDEX IF NOT EXISTS idx_discussions_lesson ON {SCHEMA}.discussions(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_user ON {SCHEMA}.course_assignments(user_id);
@@ -705,7 +722,89 @@ def get_discussions(conn, lesson_id: int) -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def get_chat_history(conn, user_id: int, lesson_id: int | None, limit: int = 50) -> list[dict]:
+def create_chat_session(
+    conn, user_id: int, *, title: str = "New Chat", context: dict | None = None,
+    session_id: str | None = None,
+) -> dict:
+    session_id = session_id or str(uuid.uuid4())
+    row = conn.execute(sa.text(f"""
+        INSERT INTO {S}.chat_sessions (id, user_id, title, context)
+        VALUES (:id, :user, :title, CAST(:context AS jsonb))
+        RETURNING *
+    """), {
+        "id": session_id, "user": user_id, "title": (title or "New Chat")[:100],
+        "context": json.dumps(context or {}),
+    }).mappings().one()
+    return dict(row)
+
+
+def get_chat_session(conn, user_id: int, session_id: str) -> dict | None:
+    row = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.chat_sessions WHERE id = :id AND user_id = :user
+    """), {"id": session_id, "user": user_id}).mappings().first()
+    return dict(row) if row else None
+
+
+def list_chat_sessions(conn, user_id: int, limit: int = 20) -> list[dict]:
+    rows = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.chat_sessions WHERE user_id = :user
+        ORDER BY updated_at DESC LIMIT :limit
+    """), {"user": user_id, "limit": max(1, min(int(limit), 100))}).mappings().all()
+    return [dict(row) for row in rows]
+
+
+def update_chat_session(
+    conn, user_id: int, session_id: str, *, title: str | None = None,
+    context: dict | None = None,
+) -> dict | None:
+    row = conn.execute(sa.text(f"""
+        UPDATE {S}.chat_sessions SET
+            title = COALESCE(:title, title),
+            context = COALESCE(CAST(:context AS jsonb), context),
+            updated_at = now()
+        WHERE id = :id AND user_id = :user
+        RETURNING *
+    """), {
+        "id": session_id, "user": user_id,
+        "title": title[:100] if title else None,
+        "context": json.dumps(context) if context is not None else None,
+    }).mappings().first()
+    return dict(row) if row else None
+
+
+def add_chat_message(
+    conn, *, user_id: int, session_id: str, role: str, content: str,
+    lesson_id: int | None = None,
+) -> None:
+    if role not in {"user", "assistant", "system"}:
+        raise ValueError("unsupported chat role")
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.chat_messages (user_id, lesson_id, session_id, role, content)
+        VALUES (:user, :lesson, :session, :role, :content)
+    """), {
+        "user": user_id, "lesson": lesson_id, "session": session_id,
+        "role": role, "content": content,
+    })
+    conn.execute(sa.text(f"""
+        UPDATE {S}.chat_sessions SET updated_at = now()
+        WHERE id = :session AND user_id = :user
+    """), {"session": session_id, "user": user_id})
+
+
+def get_chat_history(
+    conn, user_id: int, lesson_id: int | None = None, limit: int = 50,
+    *, session_id: str | None = None,
+) -> list[dict]:
+    if session_id:
+        rows = conn.execute(
+            sa.text(f"""
+                SELECT * FROM {S}.chat_messages
+                WHERE user_id = :u AND session_id = :session
+                ORDER BY created_at ASC LIMIT :lim
+            """),
+            {"u": user_id, "session": session_id, "lim": limit},
+        ).mappings().all()
+        return [dict(r) for r in rows]
     if lesson_id:
         rows = conn.execute(
             sa.text(f"""

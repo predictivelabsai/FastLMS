@@ -26,7 +26,9 @@ load_dotenv()
 
 import db
 import language_learning as languages
+import learning_chat
 import school
+from app_version import APP_VERSION
 from components.layout import (
     app_shell,
     auth_page,
@@ -35,6 +37,7 @@ from components.layout import (
     progress_bar,
     xp_popup,
 )
+from components.chat_markdown import render_chat_markdown
 from components.landing import landing_page
 from components.i18n import (
     SUPPORTED_LANGS,
@@ -201,11 +204,15 @@ def login_page(req):
         Div(
             H2(t("sign_in", lang).title(), cls="auth-title"),
             (Div(error, cls="form-error") if error else ""),
-            account_auth.google_button(t("continue_google", lang)),
-            Div("or", cls="auth-divider"),
             Form(
-                Div(Label(t("email", lang), cls="form-label"), Input(name="email", type="email", cls="form-input", required=True), cls="form-group"),
-                Div(Label(t("password", lang), cls="form-label"), Input(name="password", type="password", cls="form-input", required=True), cls="form-group"),
+                account_auth.signin_role_picker(lang),
+                account_auth.google_button(
+                    t("continue_google", lang), href="/auth/google?role=student",
+                    onclick=account_auth.GOOGLE_SIGNUP_ONCLICK,
+                ),
+                Div("or", cls="auth-divider"),
+                Div(Label(t("email", lang), cls="form-label"), Input(name="email", type="email", autocomplete="email", cls="form-input", required=True), cls="form-group"),
+                Div(Label(t("password", lang), cls="form-label"), Input(name="password", type="password", autocomplete="current-password", cls="form-input", required=True), cls="form-group"),
                 Button(t("sign_in", lang), cls="btn btn-primary btn-block", type="submit"),
                 method="post",
                 action="/auth/login",
@@ -333,6 +340,14 @@ def logout(req):
 # ---------------------------------------------------------------------------
 
 @app.get("/app")
+def app_home(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    return RedirectResponse("/app/chat", status_code=303)
+
+
+@app.get("/app/dashboard")
 def dashboard(req):
     user, redir = _require_login(req)
     if redir:
@@ -393,7 +408,7 @@ def dashboard(req):
             cls="page-content",
         ),
     )
-    return app_shell(content, user=user, active="dashboard", lang=lang, current_path="/app")
+    return app_shell(content, user=user, active="dashboard", lang=lang, current_path="/app/dashboard")
 
 
 # ---------------------------------------------------------------------------
@@ -443,6 +458,9 @@ def course_detail(req, slug: str):
     user, redir = _require_login(req)
     if redir:
         return redir
+
+    if user.get("role") == "student":
+        return RedirectResponse(f"/app/chat/new?course={slug}", status_code=303)
 
     lang = get_lang(req)
     with db.connect() as conn:
@@ -561,6 +579,9 @@ def lesson_page(req, lesson_id: int):
     if redir:
         return redir
 
+    if user.get("role") == "student":
+        return RedirectResponse(f"/app/chat/new?lesson_id={lesson_id}", status_code=303)
+
     lang = get_lang(req)
     import markdown as md
     import sqlalchemy as sa
@@ -607,7 +628,7 @@ def lesson_page(req, lesson_id: int):
     if quiz:
         actions.append(A(t("take_quiz", lang), href=f"/app/quiz/{quiz['id']}", cls="btn btn-blue"))
 
-    actions.append(A(t("ai_tutor", lang), href=f"/app/chat?lesson_id={lesson_id}", cls="btn btn-secondary"))
+    actions.append(A(t("new_chat", lang), href=f"/app/chat/new?lesson_id={lesson_id}", cls="btn btn-secondary"))
 
     if next_lesson:
         actions.append(A(t("next_lesson", lang), href=f"/app/lesson/{next_lesson}", cls="btn btn-secondary"))
@@ -680,11 +701,13 @@ def _language_options(codes, selected):
     ]
 
 
-@app.get("/app/languages")
+@app.get("/app/languages/dashboard")
 def language_learning_page(req):
     user, redir = _require_login(req)
     if redir:
         return redir
+    if user.get("role") == "student":
+        return RedirectResponse("/app/chat/new?mode=language", status_code=303)
     lang = get_lang(req)
     with db.connect() as conn:
         profile = db.get_language_profile(conn, user["id"])
@@ -794,8 +817,16 @@ def language_learning_page(req):
     )
     return app_shell(
         content, user=user, active="languages", title=t("language_learning", lang),
-        lang=lang, current_path="/app/languages",
+        lang=lang, current_path="/app/languages/dashboard",
     )
+
+
+@app.get("/app/languages")
+def language_learning_chat(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    return RedirectResponse("/app/chat/new?mode=language", status_code=303)
 
 
 @app.post("/app/languages/preferences")
@@ -855,6 +886,9 @@ def quiz_page(req, quiz_id: int):
     user, redir = _require_login(req)
     if redir:
         return redir
+
+    if user.get("role") == "student":
+        return RedirectResponse(f"/app/chat/new?quiz_id={quiz_id}", status_code=303)
 
     lang = get_lang(req)
     with db.connect() as conn:
@@ -1012,14 +1046,15 @@ async def submit_quiz(req, quiz_id: int):
 
 
 # ---------------------------------------------------------------------------
-# Chat (AI Tutor)
+# Legacy tutor handlers retained only for backward-compatible redirects.
 # ---------------------------------------------------------------------------
 
-@app.get("/app/chat")
+@app.get("/app/chat/legacy")
 def chat_page(req):
     user, redir = _require_login(req)
     if redir:
         return redir
+    return RedirectResponse("/app/chat", status_code=303)
 
     lang = get_lang(req)
     lesson_id = req.query_params.get("lesson_id", "")
@@ -1033,7 +1068,7 @@ def chat_page(req):
         if m["role"] == "assistant":
             msg_els.append(Div(
                 Div(Span(t("ai_tutor", lang)), cls="msg-header"),
-                Div(NotStr(m["content"]), cls="msg-content"),
+                Div(NotStr(render_chat_markdown(m["content"])), cls="msg-content"),
                 cls=cls,
             ))
         else:
@@ -1066,8 +1101,9 @@ def chat_page(req):
     return app_shell(content, user=user, active="chat", title=t("ai_tutor", lang), lang=lang, current_path="/app/chat")
 
 
-@app.get("/app/chat/stream")
+@app.get("/app/chat/stream/legacy")
 async def chat_stream(req):
+    return Response("This tutor endpoint has moved to the chat workspace.", status_code=410)
     user = _get_session_user(req)
     if not user:
         return Response("Unauthorized", status_code=401)
@@ -1107,6 +1143,21 @@ Format responses in Markdown when appropriate.
 {prompt_language_directive(lang)}{lesson_context}"""
 
             full_response = ""
+            pending_tokens = ""
+
+            def response_event(token: str, *, force: bool = False) -> str | None:
+                """Batch source tokens while ensuring every browser update is HTML."""
+                nonlocal full_response, pending_tokens
+                full_response += token
+                pending_tokens += token
+                if not force and len(pending_tokens) < 64 and "\n" not in token:
+                    return None
+                payload = {
+                    "token": pending_tokens,
+                    "html": render_chat_markdown(full_response),
+                }
+                pending_tokens = ""
+                return f"data: {json.dumps(payload)}\n\n"
 
             if provider == "xai":
                 import httpx
@@ -1124,8 +1175,9 @@ Format responses in Markdown when appropriate.
                                 chunk = json.loads(line[6:])
                                 token = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
                                 if token:
-                                    full_response += token
-                                    yield f"data: {json.dumps({'token': token})}\n\n"
+                                    event = response_event(token)
+                                    if event:
+                                        yield event
                             except json.JSONDecodeError:
                                 pass
 
@@ -1145,8 +1197,9 @@ Format responses in Markdown when appropriate.
                                 chunk = json.loads(line[6:])
                                 token = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
                                 if token:
-                                    full_response += token
-                                    yield f"data: {json.dumps({'token': token})}\n\n"
+                                    event = response_event(token)
+                                    if event:
+                                        yield event
                             except json.JSONDecodeError:
                                 pass
 
@@ -1167,15 +1220,18 @@ Format responses in Markdown when appropriate.
                                 if chunk.get("type") == "content_block_delta":
                                     token = chunk.get("delta", {}).get("text", "")
                                     if token:
-                                        full_response += token
-                                        yield f"data: {json.dumps({'token': token})}\n\n"
+                                        event = response_event(token)
+                                        if event:
+                                            yield event
                             except json.JSONDecodeError:
                                 pass
             else:
                 full_response = "No LLM provider configured. Set MODEL_PROVIDER in .env to 'xai', 'openai', or 'anthropic'."
-                yield f"data: {json.dumps({'token': full_response})}\n\n"
+                yield f"data: {json.dumps({'token': full_response, 'html': render_chat_markdown(full_response)})}\n\n"
 
-            yield f"data: {json.dumps({'done': True})}\n\n"
+            if pending_tokens:
+                yield response_event("", force=True)
+            yield f"data: {json.dumps({'done': True, 'html': render_chat_markdown(full_response)})}\n\n"
 
             with db.begin() as conn:
                 conn.execute(
@@ -1187,6 +1243,245 @@ Format responses in Markdown when appropriate.
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
+
+
+def _query_int(req, key: str) -> int | None:
+    value = req.query_params.get(key, "")
+    return int(value) if str(value).isdigit() else None
+
+
+def _choice_buttons(choices):
+    return Div(*[
+        Button(
+            Span(choice["key"], cls="chat-choice-key"), Span(choice["label"]),
+            type="button", cls="chat-choice", data_choice=choice["key"],
+        ) for choice in choices or []
+    ], cls="chat-choices") if choices else ""
+
+
+@app.get("/app/chat/new")
+def new_chat(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    lang = get_lang(req)
+    with db.begin() as conn:
+        initial = learning_chat.initial_response(
+            conn, user["id"], lang,
+            mode=req.query_params.get("mode", "courses"),
+            course_slug=req.query_params.get("course", ""),
+            lesson_id=_query_int(req, "lesson_id"),
+            quiz_id=_query_int(req, "quiz_id"),
+        )
+        session = db.create_chat_session(
+            conn, user["id"], title=initial["title"], context=initial["context"]
+        )
+        db.add_chat_message(
+            conn, user_id=user["id"], session_id=session["id"], role="assistant",
+            content=initial["content"], lesson_id=initial.get("lesson_id"),
+        )
+    return RedirectResponse(f"/app/chat?chat={session['id']}", status_code=303)
+
+
+@app.get("/app/chat")
+def chat_workspace(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    if req.query_params.get("lesson_id"):
+        return RedirectResponse(f"/app/chat/new?lesson_id={req.query_params['lesson_id']}", status_code=303)
+
+    lang = get_lang(req)
+    chat_id = req.query_params.get("chat", "")
+    with db.connect() as conn:
+        if not chat_id:
+            sessions = db.list_chat_sessions(conn, user["id"], limit=1)
+            if not sessions:
+                return RedirectResponse("/app/chat/new", status_code=303)
+            chat_id = sessions[0]["id"]
+        session = db.get_chat_session(conn, user["id"], chat_id)
+        if not session:
+            return RedirectResponse("/app/chat/new", status_code=303)
+        history = db.get_chat_history(conn, user["id"], limit=100, session_id=chat_id)
+
+    message_elements = []
+    for index, message in enumerate(history):
+        if message["role"] == "assistant":
+            choices = session.get("context", {}).get("choices", []) if index == len(history) - 1 else []
+            message_elements.append(Div(
+                Div(Span("FastLearn"), cls="msg-header"),
+                Div(NotStr(render_chat_markdown(message["content"])), cls="msg-content"),
+                _choice_buttons(choices), cls="msg msg-assistant",
+            ))
+        elif message["role"] == "user":
+            message_elements.append(Div(message["content"], cls="msg msg-user"))
+
+    content = Div(
+        Div(
+            Span(session.get("title") or t("new_chat", lang)),
+            A("+ " + t("new_chat", lang), href="/app/chat/new", cls="chat-new-button"),
+            cls="chat-header",
+        ),
+        Div(*message_elements, id="chat-messages", cls="chat-messages"),
+        Div(
+            Form(
+                Div(
+                    Textarea(placeholder=t("ask_placeholder", lang), id="chat-input", cls="chat-input", rows=1),
+                    Button(t("send", lang), cls="chat-send", type="submit"), cls="chat-input-row",
+                ),
+                id="chat-form", data_chat_id=chat_id, data_thinking=t("thinking", lang),
+                data_lesson_id=(session.get("context") or {}).get("lesson_id") or "",
+                data_tutor="FastLearn", data_connection_error=t("connection_error", lang),
+            ), cls="chat-input-area",
+        ), cls="chat-container",
+    )
+    return app_shell(
+        content, user=user, active="chat", title=session.get("title") or t("new_chat", lang),
+        lang=lang, current_path=f"/app/chat?chat={chat_id}", current_chat_id=chat_id,
+    )
+
+
+@app.get("/app/chat/stream")
+async def chat_stream_workspace(req):
+    user = _get_session_user(req)
+    if not user:
+        return Response("Unauthorized", status_code=401)
+    lang = get_lang(req)
+    message = req.query_params.get("message", "").strip()
+    chat_id = req.query_params.get("chat", "").strip()
+    if not message:
+        return Response("No message", status_code=400)
+    if not chat_id:
+        return Response("No chat", status_code=400)
+
+    guided = None
+    with db.begin() as conn:
+        session = db.get_chat_session(conn, user["id"], chat_id)
+        if not session:
+            return Response("Chat not found", status_code=404)
+        context = dict(session.get("context") or {})
+        lesson_id = context.get("lesson_id")
+        db.add_chat_message(
+            conn, user_id=user["id"], session_id=chat_id, role="user",
+            content=message, lesson_id=lesson_id,
+        )
+        guided = learning_chat.handle_guided_message(conn, user["id"], context, message, lang)
+        if guided:
+            db.update_chat_session(
+                conn, user["id"], chat_id, title=guided.get("title"), context=guided["context"]
+            )
+            db.add_chat_message(
+                conn, user_id=user["id"], session_id=chat_id, role="assistant",
+                content=guided["content"], lesson_id=guided.get("lesson_id"),
+            )
+
+    stream_headers = {"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"}
+    if guided:
+        async def generate_guided():
+            rendered = render_chat_markdown(guided["content"])
+            yield f"data: {json.dumps({'html': rendered})}\n\n"
+            yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'lesson_id': guided.get('lesson_id')})}\n\n"
+        return StreamingResponse(generate_guided(), media_type="text/event-stream", headers=stream_headers)
+
+    with db.connect() as conn:
+        session = db.get_chat_session(conn, user["id"], chat_id)
+        history = db.get_chat_history(conn, user["id"], limit=20, session_id=chat_id)
+        lesson_id = (session.get("context") or {}).get("lesson_id")
+        lesson = db.get_lesson(conn, int(lesson_id), lang=lang) if lesson_id else None
+
+    lesson_context = ""
+    if lesson:
+        lesson_context = f"\n\nThe student is studying '{lesson['title']}'. Ground answers in this lesson:\n{lesson.get('content_md', '')[:3000]}"
+
+    async def generate():
+        try:
+            provider = os.environ.get("MODEL_PROVIDER", "xai")
+            model = os.environ.get("DEFAULT_MODEL", "grok-4-1-fast-reasoning")
+            system_prompt = f"""You are FastLearn, a multilingual conversational tutor.
+Help the student understand material and move forward through dialogue. Be encouraging, clear, and concise.
+When useful, offer a small set of lettered choices that the learner can answer by typing the letter.
+Format responses in Markdown.
+{prompt_language_directive(lang)}{lesson_context}"""
+            llm_messages = [{"role": "system", "content": system_prompt}] + [
+                {"role": item["role"], "content": item["content"]}
+                for item in history if item["role"] in {"user", "assistant"}
+            ]
+            full_response = ""
+            pending_tokens = ""
+
+            def response_event(token: str, *, force: bool = False) -> str | None:
+                nonlocal full_response, pending_tokens
+                full_response += token
+                pending_tokens += token
+                if not force and len(pending_tokens) < 64 and "\n" not in token:
+                    return None
+                payload = {"token": pending_tokens, "html": render_chat_markdown(full_response)}
+                pending_tokens = ""
+                return f"data: {json.dumps(payload)}\n\n"
+
+            if provider in {"xai", "openai"}:
+                import httpx
+                api_key = os.environ.get("XAI_API_KEY" if provider == "xai" else "OPENAI_API_KEY", "")
+                endpoint = "https://api.x.ai/v1/chat/completions" if provider == "xai" else "https://api.openai.com/v1/chat/completions"
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        endpoint,
+                        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                        json={"model": model, "messages": llm_messages, "stream": True}, timeout=60,
+                    )
+                    response.raise_for_status()
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: ") and line != "data: [DONE]":
+                            try:
+                                token = json.loads(line[6:]).get("choices", [{}])[0].get("delta", {}).get("content", "")
+                                if token:
+                                    event = response_event(token)
+                                    if event:
+                                        yield event
+                            except json.JSONDecodeError:
+                                pass
+            elif provider == "anthropic":
+                import httpx
+                api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+                anthropic_messages = [item for item in llm_messages if item["role"] != "system"]
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        "https://api.anthropic.com/v1/messages",
+                        headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json"},
+                        json={"model": model, "max_tokens": 4096, "system": system_prompt,
+                              "messages": anthropic_messages, "stream": True}, timeout=60,
+                    )
+                    response.raise_for_status()
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            try:
+                                chunk = json.loads(line[6:])
+                                token = chunk.get("delta", {}).get("text", "") if chunk.get("type") == "content_block_delta" else ""
+                                if token:
+                                    event = response_event(token)
+                                    if event:
+                                        yield event
+                            except json.JSONDecodeError:
+                                pass
+            else:
+                full_response = "No LLM provider configured. Set MODEL_PROVIDER to xai, openai, or anthropic."
+                yield f"data: {json.dumps({'html': render_chat_markdown(full_response)})}\n\n"
+
+            if pending_tokens:
+                yield response_event("", force=True)
+            active_choices = (session.get("context") or {}).get("choices", [])
+            yield f"data: {json.dumps({'done': True, 'html': render_chat_markdown(full_response), 'choices': active_choices})}\n\n"
+            with db.begin() as conn:
+                db.add_chat_message(
+                    conn, user_id=user["id"], session_id=chat_id, role="assistant",
+                    content=full_response, lesson_id=lesson_id,
+                )
+                if session.get("title") == "New Chat":
+                    db.update_chat_session(conn, user["id"], chat_id, title=message[:60])
+        except Exception as exc:
+            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream", headers=stream_headers)
 
 
 # ---------------------------------------------------------------------------
@@ -2666,7 +2961,7 @@ def school_fees(req):
 
 @app.get("/healthz")
 def healthz():
-    return {"status": "ok"}
+    return {"status": "ok", "version": APP_VERSION}
 
 
 # ---------------------------------------------------------------------------

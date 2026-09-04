@@ -93,6 +93,9 @@ TEXT = {
 
     # Learning application.
     "dashboard": {"en": "Dashboard", "et": "Töölaud", "lt": "Pagrindinis skydelis"},
+    "new_chat": {"en": "New Chat", "et": "Uus vestlus", "lt": "Naujas pokalbis", "es": "Nuevo chat"},
+    "chat_history": {"en": "Chat history", "et": "Vestluste ajalugu", "lt": "Pokalbių istorija", "es": "Historial de chats"},
+    "more_chats": {"en": "More chats", "et": "Veel vestlusi", "lt": "Daugiau pokalbių", "es": "Más chats"},
     "courses": {"en": "Courses", "et": "Kursused", "lt": "Kursai"},
     "leaderboard": {"en": "Leaderboard", "et": "Edetabel", "lt": "Lyderių lentelė"},
     "manage_courses": {"en": "Manage courses", "et": "Halda kursusi", "lt": "Valdyti kursus"},
@@ -151,6 +154,8 @@ TEXT = {
     "admin": {"en": "Administrator", "et": "Administraator", "lt": "Administratorius"},
     "signup_as": {"en": "I am signing up as", "et": "Registreerun rolliga", "lt": "Registruojuosi kaip", "es": "Me registro como"},
     "signup_role_help": {"en": "Choose how you plan to use FastLearn.", "et": "Vali, kuidas soovid FastLearni kasutada.", "lt": "Pasirinkite, kaip naudosite „FastLearn“.", "es": "Elige cómo quieres utilizar FastLearn."},
+    "signin_as": {"en": "Sign in as", "et": "Logi sisse rolliga", "lt": "Prisijungti kaip", "es": "Iniciar sesión como"},
+    "signin_role_help": {"en": "Choose your account type. Your saved role will not be changed.", "et": "Vali oma konto tüüp. Sinu salvestatud rolli ei muudeta.", "lt": "Pasirinkite paskyros tipą. Jūsų išsaugotas vaidmuo nebus pakeistas.", "es": "Elige el tipo de cuenta. Tu rol guardado no cambiará."},
     "signup_student_help": {"en": "Learn and explore courses", "et": "Õpi ja avasta kursusi", "lt": "Mokykitės ir tyrinėkite kursus", "es": "Aprende y explora cursos"},
     "signup_teacher_help": {"en": "Teach and manage learners", "et": "Õpeta ja halda õppijaid", "lt": "Mokykite ir valdykite mokinius", "es": "Enseña y gestiona estudiantes"},
     "people": {"en": "People", "et": "Inimesed", "lt": "Žmonės"},
@@ -274,7 +279,11 @@ def course_catalog() -> dict:
     path = Path(__file__).resolve().parents[1] / "data" / "course_translations.json"
     if not path.exists():
         return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    catalog = json.loads(path.read_text(encoding="utf-8"))
+    from arts_catalog import ART_TRANSLATIONS
+    for entity, entries in ART_TRANSLATIONS.items():
+        catalog.setdefault(entity, {}).update(entries)
+    return catalog
 
 
 def localize_record(record: dict | None, entity: str, lang: str) -> dict | None:
@@ -282,9 +291,16 @@ def localize_record(record: dict | None, entity: str, lang: str) -> dict | None:
     if not record or lang == DEFAULT_LANG:
         return record
     row = dict(record)
-    entry = course_catalog().get(entity, {}).get(str(row.get("id")), {})
+    entries = course_catalog().get(entity, {})
+    entry = entries.get(str(row.get("id")), {})
     source = entry.get("source")
     source_field = "question_text" if entity == "quiz_questions" else "title"
+    if not source or row.get(source_field) != source:
+        entry = next(
+            (candidate for candidate in entries.values() if candidate.get("source") == row.get(source_field)),
+            {},
+        )
+        source = entry.get("source")
     if source and row.get(source_field) != source:
         return row
     row.update(entry.get(lang, {}))

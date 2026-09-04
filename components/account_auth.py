@@ -43,13 +43,13 @@ def normalize_signup_role(value) -> str:
     return role if role in SIGNUP_ROLES else "student"
 
 
-def signup_role_picker(lang: str = "en", selected: str = "student"):
+def _role_picker(lang: str, selected: str, *, legend_key: str, help_key: str):
     from .i18n import t
 
     selected = normalize_signup_role(selected)
     return Fieldset(
-        Legend(t("signup_as", lang), cls="auth-role-legend"),
-        P(t("signup_role_help", lang), cls="auth-role-help"),
+        Legend(t(legend_key, lang), cls="auth-role-legend"),
+        P(t(help_key, lang), cls="auth-role-help"),
         Div(*[
             Label(
                 Input(type="radio", name="role", value=role, checked=role == selected),
@@ -63,6 +63,18 @@ def signup_role_picker(lang: str = "en", selected: str = "student"):
             for role in SIGNUP_ROLES
         ], cls="auth-role-options"),
         cls="auth-role-picker",
+    )
+
+
+def signup_role_picker(lang: str = "en", selected: str = "student"):
+    return _role_picker(
+        lang, selected, legend_key="signup_as", help_key="signup_role_help"
+    )
+
+
+def signin_role_picker(lang: str = "en", selected: str = "student"):
+    return _role_picker(
+        lang, selected, legend_key="signin_as", help_key="signin_role_help"
     )
 
 
@@ -105,9 +117,10 @@ def auth_modal(app_name: str, lang: str = "en"):
             ),
             Div(
                 P(f"{t('sign_in', lang)} · {app_name}", cls="auth-title"),
-                google_button(t("continue_google", lang)),
-                Div("or", cls="auth-divider"),
                 Form(
+                    signin_role_picker(lang),
+                    google_button(t("continue_google", lang), href="/auth/google?role=student", onclick=GOOGLE_SIGNUP_ONCLICK),
+                    Div("or", cls="auth-divider"),
                     Input(name="email", type="email", placeholder=t("email", lang), autocomplete="email", required=True, cls="auth-field"),
                     Input(name="password", type="password", placeholder=t("password", lang), autocomplete="current-password", required=True, cls="auth-field"),
                     Button(t("forgot_password", lang), type="button", cls="auth-link auth-forgot", onclick="authTab('forgot')"),

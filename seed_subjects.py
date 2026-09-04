@@ -12,6 +12,7 @@ import sqlalchemy as sa
 from dotenv import load_dotenv
 
 import db
+from arts_catalog import ART_COURSES
 
 load_dotenv()
 
@@ -927,6 +928,8 @@ than anything
     },
 ]
 
+COURSES.extend(ART_COURSES)
+
 
 def seed_subjects():
     print("Bootstrapping schema...")
@@ -1002,7 +1005,7 @@ def seed_subjects():
 
             print(f"  {course_data['title']} ({len(modules)} modules)")
 
-    print("Done! 7 new subjects seeded.")
+    print(f"Done! {len(COURSES)} subjects seeded.")
 
 
 if __name__ == "__main__":

@@ -22,7 +22,8 @@ reviewable drafts. Nothing enters the learning path without human approval.
 
 📚 **Useful subjects already included** — Python, machine learning, FastHTML,
 mathematics, physics, biology, chemistry, English language and literature,
-geography, and creative writing.
+geography, creative writing, art history, music history, visual-art principles,
+and music principles.
 
 🗣️ **Language learning from your native language** — choose among ten targets:
 English, Spanish, French, German, Italian, Portuguese, Mandarin Chinese, Arabic,

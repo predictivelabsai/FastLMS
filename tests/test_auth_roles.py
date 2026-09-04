@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from fasthtml.common import to_xml
 
 import db
+from components.layout import left_pane
 
 _AUTH_TEMP = tempfile.TemporaryDirectory(prefix="fastlearn-auth-tests-")
 os.environ["FASTSME_AUTH_DB"] = str(Path(_AUTH_TEMP.name) / "accounts.sqlite")
@@ -25,8 +26,9 @@ def test_signup_role_is_limited_to_student_or_teacher():
 
 def test_landing_signup_has_role_choices_and_google_branding():
     markup = to_xml(account_auth.auth_modal("FastLearn", "en"))
-    assert 'type="radio" name="role" value="student"' in markup
-    assert 'type="radio" name="role" value="teacher"' in markup
+    assert markup.count('type="radio" name="role" value="student"') == 2
+    assert markup.count('type="radio" name="role" value="teacher"') == 2
+    assert "Sign in as" in markup
     assert 'href="/auth/google?role=student"' in markup
     assert "this.closest('form')" in markup
     assert "#4285F4" in markup
@@ -57,6 +59,31 @@ def test_full_registration_page_has_the_same_choices():
     assert 'value="student"' in markup
     assert 'value="teacher"' in markup
     assert 'href="/auth/google?role=student"' in markup
+
+
+def test_full_login_page_has_role_choices_for_local_and_google_signin():
+    import main
+
+    request = SimpleNamespace(
+        query_params={}, session={}, cookies={},
+        headers={"host": "fastlearn.fun", "accept-language": "en"},
+    )
+    markup = to_xml(main.login_page(request))
+    assert "Sign in as" in markup
+    assert 'name="role" value="student"' in markup
+    assert 'name="role" value="teacher"' in markup
+    assert 'href="/auth/google?role=student"' in markup
+    assert "this.closest('form')" in markup
+
+
+def test_navigation_profile_shows_effective_role_next_to_name():
+    for role, label in (("admin", "Admin"), ("teacher", "Teacher"), ("student", "Student")):
+        markup = to_xml(left_pane(
+            user={"display_name": "Test User", "role": role, "xp": 0, "streak_days": 0},
+            lang="en",
+        ))
+        assert f"({label})" in markup
+        assert f"user-role-{role}" in markup
 
 
 def test_google_start_preserves_only_a_safe_signup_role(monkeypatch):

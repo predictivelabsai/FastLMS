@@ -6,6 +6,7 @@ from urllib.parse import quote, urlencode
 
 from fasthtml.common import *
 
+from app_version import APP_VERSION
 from .account_auth import AUTH_CSS, AUTH_JS, auth_modal
 from .i18n import LANG_META, SUPPORTED_LANGS, t
 from .seo import seo_meta
@@ -45,7 +46,7 @@ a{color:inherit}.site-nav{height:70px;display:flex;align-items:center;justify-co
 .oss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}.oss-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px}.oss-card h2,.oss-card h3{font-size:21px;margin:20px 0 9px}.oss-card p{color:var(--muted);line-height:1.63;margin:0}.split{display:grid;grid-template-columns:1fr 1fr;gap:65px;align-items:start}.reference{border:1px solid var(--line);border-radius:25px;background:linear-gradient(135deg,var(--tint),#fff);padding:42px}
 .partner-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}.partner{color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:18px;padding:20px;background:#fff}.partner-top{display:flex;justify-content:space-between;align-items:center}.partner img{width:42px;height:42px;object-fit:contain}.partner small{color:var(--accent);font-weight:750}.partner h3{font-size:17px;margin:17px 0 8px}.partner p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
 .cta{max-width:1148px;margin:0 auto 78px;padding:56px;border-radius:28px;background:var(--accent);color:#fff;display:grid;grid-template-columns:1fr auto;align-items:end;gap:30px}.cta .eyebrow{color:#cce8e3}.cta h2{font-size:clamp(31px,4vw,50px);letter-spacing:-.045em;line-height:1.08;margin:13px 0}.cta p{color:#dcefeb;max-width:700px;line-height:1.6}.cta .button{background:#fff;color:var(--accent)}
-.footer{max-width:1200px;margin:auto;padding:28px 26px 46px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:13px}.footer-links{display:flex;gap:18px}.footer a{color:var(--accent);text-decoration:none}
+.footer{max-width:1200px;margin:auto;padding:28px 26px 46px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:13px}.footer-links{display:flex;gap:18px}.footer a{color:var(--accent);text-decoration:none}.site-version{margin-left:8px;color:#9aa7a4;font-size:10px;font-weight:500}
 @media(max-width:820px){.nav-actions{gap:9px}.nav-link.optional,.nav-actions>.secondary{display:none}.hero{padding-top:74px}.metrics,.card-grid,.oss-grid,.partner-grid,.split{grid-template-columns:1fr}.metric{border-right:1px solid var(--line);border-bottom:0}.metric:first-child{border-radius:18px 18px 0 0}.metric:last-child{border-bottom:1px solid var(--line);border-radius:0 0 18px 18px}.cta{margin-inline:16px;padding:34px;grid-template-columns:1fr}.footer{flex-direction:column}.footer-links{flex-wrap:wrap}}
 """
 
@@ -114,7 +115,7 @@ def fastlms_landing(lang: str = "en"):
                                 href=url, target="_blank", rel="noopener noreferrer", cls="partner") for name, url, logo, description in PARTNERS], cls="partner-grid")),
                     cls="section split"),
             ),
-            Footer(Span("FastLMS · FastSME"), Div(A(t("demo", lang), href=FASTLEARN_URL), A(t("developers", lang), href="/developers"), A(t("view_github", lang), href=REPOSITORY_URL), cls="footer-links"), cls="footer"),
+            Footer(Div(Span("FastLMS · FastSME"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A(t("demo", lang), href=FASTLEARN_URL), A(t("developers", lang), href="/developers"), A(t("view_github", lang), href=REPOSITORY_URL), cls="footer-links"), cls="footer"),
             auth_modal("FastLMS", lang), Script(AUTH_JS),
         ), lang=lang,
     )
@@ -143,7 +144,7 @@ def fastlearn_landing(lang: str = "en"):
                 Section(Div(Span(t("cta_eyebrow", lang), cls="eyebrow"), H2(t("cta_title", lang)), P(t("cta_body", lang))),
                         A(t("start_learning", lang), href="/auth/login", cls="button"), cls="cta"),
             ),
-            Footer(Span("© 2026 FastLearn"), Div(A("FastLMS", href="https://lms.fastsme.com"), A(t("language", lang), href="#overview"), cls="footer-links"), cls="footer"),
+            Footer(Div(Span("© 2026 FastLearn"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A("FastLMS", href="https://lms.fastsme.com"), A(t("language", lang), href="#overview"), cls="footer-links"), cls="footer"),
             auth_modal("FastLearn", lang), Script(AUTH_JS),
         ), lang=lang,
     )

@@ -42,7 +42,7 @@ def test_return_path_rejects_external_redirects():
 
 
 def test_every_catalogue_record_has_all_demo_languages():
-    expected = {"courses": 10, "modules": 17, "lessons": 24, "quizzes": 9, "quiz_questions": 21}
+    expected = {"courses": 14, "modules": 21, "lessons": 32, "quizzes": 13, "quiz_questions": 29}
     catalog = course_catalog()
     assert {entity: len(rows) for entity, rows in catalog.items()} == expected
     for rows in catalog.values():

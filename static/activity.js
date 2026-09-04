@@ -5,7 +5,8 @@
     let resourceId = match ? Number(match[2]) : null;
     if (location.pathname === '/app/chat') {
         resourceType = 'tutor';
-        resourceId = Number(new URLSearchParams(location.search).get('lesson_id')) || null;
+        const chatForm = document.getElementById('chat-form');
+        resourceId = Number(chatForm && chatForm.dataset.lessonId) || null;
     }
     if (!resourceType) return;
 
@@ -27,6 +28,10 @@
         const seconds = Math.max(1, Math.min(30, Math.round((now - lastSent) / 1000)));
         lastSent = now;
         sending = true;
+        if (resourceType === 'tutor') {
+            const chatForm = document.getElementById('chat-form');
+            resourceId = Number(chatForm && chatForm.dataset.lessonId) || null;
+        }
         try {
             await fetch('/app/activity/heartbeat', {
                 method: 'POST',

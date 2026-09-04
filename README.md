@@ -1,5 +1,7 @@
 # FastLMS
 
+Current release: `v1.1.0`
+
 Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, AI tutor chat with SSE streaming, and Duolingo-style interactive elements (XP, streaks, badges, leaderboards, levels).
 
 ![FastLMS Demo](docs/fastlms-demo.gif)
@@ -10,11 +12,11 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **Course management** — courses, modules, lessons with markdown content and embedded video
 - **Quizzes** — multiple-choice with auto-grading, pass thresholds, explanations, and XP rewards
 - **Progress tracking** — per-lesson completion, per-course percentage bars, dashboard overview
-- **AI Tutor** — SSE streaming chat powered by Grok / OpenAI / Claude, with lesson-aware context
+- **Chat-first learning** — persistent conversations for course choice, lessons, quizzes, language practice, and open tutoring, with SSE responses from Grok / OpenAI / Claude
 - **Discussions** — per-lesson threaded comments
 - **Role-based access** — one administrator, scoped teachers, and students
 - **Team and assignments** — Postmark invitations, course grants, and visible Assigned tags
-- **Active-time reporting** — lesson, quiz, and AI Tutor time with visibility and inactivity controls
+- **Active-time reporting** — lesson, quiz, and conversational tutor time with visibility and inactivity controls
 - **Adaptive learning** — configurable thresholds, bounded difficulty changes, remediation, and extension drafts
 - **Language learning** — native-to-target practice across 10 major languages using a ranked frequency dictionary, browser pronunciation, anticipation, and graduated recall
 - **Multilingual demo** — complete catalogue and core UI in English, Estonian, Lithuanian, and Spanish
@@ -83,7 +85,7 @@ This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), 11 bad
 - **Teacher**: `instructor@fastlms.dev` / `admin`
 - **Student**: `student@fastlms.dev` / `admin`
 
-To add 7 academic subjects (Mathematics, Physics, Biology, Chemistry, English, Geography, Creative Writing):
+To add 11 academic and creative subjects (Mathematics, Physics, Biology, Chemistry, English, Geography, Creative Writing, Art History, Music History, Art, and Music):
 
 ```bash
 python seed_subjects.py
@@ -104,7 +106,7 @@ FastLMS/
 ├── main.py                  # FastHTML app — all routes
 ├── db.py                    # PostgreSQL schema, queries, interactivity logic
 ├── seed.py                  # Demo data seeder (courses, badges, users)
-├── seed_subjects.py         # Academic subjects seeder (7 courses with lessons + quizzes)
+├── seed_subjects.py         # Academic and creative subjects seeder (11 courses with lessons + quizzes)
 ├── components/
 │   └── layout.py            # 3-pane layout, UI fragments (cards, badges, progress bars)
 ├── static/
@@ -185,7 +187,7 @@ Badges are checked automatically after every lesson completion and quiz submissi
 
 Activity on consecutive days increments the streak counter. Missing a day resets it to 1. The streak updates on lesson completion and quiz submission.
 
-## AI Tutor
+## New Chat workspace
 
 The chat supports three LLM providers via environment variables:
 
@@ -195,14 +197,15 @@ The chat supports three LLM providers via environment variables:
 | OpenAI | `openai` | `gpt-4o` | `OPENAI_API_KEY` |
 | Anthropic | `anthropic` | `claude-sonnet-4-6` | `ANTHROPIC_API_KEY` |
 
-The tutor receives lesson context automatically when accessed from a lesson page. Chat history is persisted per user per lesson.
+Students land in chat after signing in. Course, lesson, adaptive quiz, and language-learning choices appear as clickable chat responses and also accept typed answers such as `A` or `B`. Open-ended tutor responses receive the active lesson context. Conversation history and guided-learning state are persisted per user and thread.
 
 ## Routes
 
 | Route | Description |
 |-------|-------------|
 | `GET /` | Landing page |
-| `GET /app` | Dashboard (enrolled courses, stats, badges) |
+| `GET /app` | Chat-first student entry point |
+| `GET /app/dashboard` | Optional progress dashboard (courses, stats, badges) |
 | `GET /app/courses` | Browse all published courses |
 | `GET /app/course/{slug}` | Course detail with module/lesson sidebar |
 | `POST /app/course/{slug}/enrol` | Enrol in a course |
@@ -210,7 +213,8 @@ The tutor receives lesson context automatically when accessed from a lesson page
 | `POST /app/lesson/{id}/complete` | Mark lesson complete, award XP |
 | `GET /app/quiz/{id}` | Take a quiz |
 | `POST /app/quiz/{id}/submit` | Submit quiz, auto-grade, award XP |
-| `GET /app/chat` | AI Tutor chat page |
+| `GET /app/chat/new` | Create a contextual course, lesson, quiz, or language chat |
+| `GET /app/chat` | Persistent chat workspace and history |
 | `GET /app/chat/stream` | SSE streaming endpoint |
 | `GET /app/leaderboard` | XP leaderboard |
 | `GET /app/profile` | User profile, badges, progress to next level |
@@ -220,14 +224,14 @@ The tutor receives lesson context automatically when accessed from a lesson page
 | `GET /app/reports` | Scoped progress, assessment, and active-time reporting |
 | `GET /app/course/{id}/strategy` | Configure adaptive learning and review generated drafts |
 | `POST /app/activity/heartbeat` | Record bounded active learning time |
-| `GET /app/languages` | Choose a native/target language pair and practise due expressions |
+| `GET /app/languages` | Start native-to-target language practice in chat |
 | `POST /app/languages/preferences` | Save the learner's language pair and daily goal |
 | `POST /app/languages/review` | Schedule the next graduated-recall interval |
 | `GET /healthz` | Health check |
 
 ## Supported Courses
 
-FastLMS ships with 10 ready-to-use courses:
+FastLMS ships with 14 ready-to-use courses:
 
 ### Programming & Technology
 | Course | Category | Difficulty | Modules | Lessons |
@@ -247,7 +251,15 @@ FastLMS ships with 10 ready-to-use courses:
 | Geography: Physical & Human | Geography | Beginner | 2 (Physical, Human) | 4 |
 | Creative Writing | Creative Writing | Beginner | 2 (Storytelling, Poetry) | 4 |
 
-Run `python seed.py` for the 3 programming courses, then `python seed_subjects.py` for the 7 academic subjects.
+### Art & Music
+| Course | Category | Difficulty | Modules | Lessons |
+|--------|----------|------------|---------|---------|
+| Art History | Art History | Beginner | 1 (Seeing Art Across Time) | 2 |
+| Music History | Music History | Beginner | 1 (Listening Through Time) | 2 |
+| Art | Art | Beginner | 1 (Visual Language) | 2 |
+| Music | Music | Beginner | 1 (How Music Works) | 2 |
+
+Run `python seed.py` for the 3 programming courses, then `python seed_subjects.py` for the 11 academic and creative subjects.
 
 ## Language learning
 
