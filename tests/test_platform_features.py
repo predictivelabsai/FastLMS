@@ -50,12 +50,12 @@ def test_activity_client_uses_approved_limits():
 
 def test_generated_question_variants_are_complete_in_every_language():
     lessons = {code: {"title": title} for code, title in {
-        "en": "Fractions", "et": "Murrud", "lt": "Trupmenos",
+        "en": "Fractions", "et": "Murrud", "lt": "Trupmenos", "es": "Fracciones",
     }.items()}
     easy = db._question_draft_payload(lessons, 1)
     hard = db._question_draft_payload(lessons, 3)
     assert easy["en"]["question_text"] != hard["en"]["question_text"]
     for payload in (easy, hard):
-        assert set(payload) == {"en", "et", "lt"}
+        assert set(payload) == {"en", "et", "lt", "es"}
         for variant in payload.values():
             assert variant["correct_answer"] in variant["options"]

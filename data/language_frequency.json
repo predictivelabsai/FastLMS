@@ -1,0 +1,1686 @@
+{
+  "version": 1,
+  "method": "frequency-informed graduated interval recall",
+  "target_languages": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "it",
+    "pt",
+    "zh",
+    "ar",
+    "ja",
+    "hi"
+  ],
+  "native_only_languages": [
+    "et",
+    "lt"
+  ],
+  "languages": {
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "zh": "Mandarin Chinese (Simplified)",
+    "ar": "Modern Standard Arabic",
+    "ja": "Japanese",
+    "hi": "Hindi",
+    "et": "Estonian",
+    "lt": "Lithuanian"
+  },
+  "items": [
+    {
+      "id": "hello",
+      "rank": 1,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Hello",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Hola",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Bonjour",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Hallo",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Ciao",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Olá",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "你好",
+          "romanization": "Nǐ hǎo"
+        },
+        "ar": {
+          "text": "مرحبا",
+          "romanization": "Marḥaban"
+        },
+        "ja": {
+          "text": "こんにちは",
+          "romanization": "Konnichiwa"
+        },
+        "hi": {
+          "text": "नमस्ते",
+          "romanization": "Namaste"
+        },
+        "et": {
+          "text": "Tere",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Sveiki",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "yes",
+      "rank": 2,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Yes",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Sí",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Oui",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ja",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Sì",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Sim",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "是",
+          "romanization": "Shì"
+        },
+        "ar": {
+          "text": "نعم",
+          "romanization": "Naʿam"
+        },
+        "ja": {
+          "text": "はい",
+          "romanization": "Hai"
+        },
+        "hi": {
+          "text": "हाँ",
+          "romanization": "Hā̃"
+        },
+        "et": {
+          "text": "Jah",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Taip",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "no",
+      "rank": 3,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "No",
+          "romanization": ""
+        },
+        "es": {
+          "text": "No",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Non",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Nein",
+          "romanization": ""
+        },
+        "it": {
+          "text": "No",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Não",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "不",
+          "romanization": "Bù"
+        },
+        "ar": {
+          "text": "لا",
+          "romanization": "Lā"
+        },
+        "ja": {
+          "text": "いいえ",
+          "romanization": "Iie"
+        },
+        "hi": {
+          "text": "नहीं",
+          "romanization": "Nahī̃"
+        },
+        "et": {
+          "text": "Ei",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Ne",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "please",
+      "rank": 4,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Please",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Por favor",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "S'il vous plaît",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Bitte",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Per favore",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Por favor",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "请",
+          "romanization": "Qǐng"
+        },
+        "ar": {
+          "text": "من فضلك",
+          "romanization": "Min faḍlik"
+        },
+        "ja": {
+          "text": "お願いします",
+          "romanization": "Onegaishimasu"
+        },
+        "hi": {
+          "text": "कृपया",
+          "romanization": "Kṛpayā"
+        },
+        "et": {
+          "text": "Palun",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Prašau",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "thank_you",
+      "rank": 5,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Thank you",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Gracias",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Merci",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Danke",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Grazie",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Obrigado",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "谢谢",
+          "romanization": "Xièxie"
+        },
+        "ar": {
+          "text": "شكرا",
+          "romanization": "Shukran"
+        },
+        "ja": {
+          "text": "ありがとう",
+          "romanization": "Arigatō"
+        },
+        "hi": {
+          "text": "धन्यवाद",
+          "romanization": "Dhanyavād"
+        },
+        "et": {
+          "text": "Tänan",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Ačiū",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "excuse_me",
+      "rank": 6,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Excuse me",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Perdón",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Excusez-moi",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Entschuldigung",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Scusi",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Com licença",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "对不起",
+          "romanization": "Duìbuqǐ"
+        },
+        "ar": {
+          "text": "عفوا",
+          "romanization": "ʿAfwan"
+        },
+        "ja": {
+          "text": "すみません",
+          "romanization": "Sumimasen"
+        },
+        "hi": {
+          "text": "माफ़ कीजिए",
+          "romanization": "Māf kījiye"
+        },
+        "et": {
+          "text": "Vabandage",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Atsiprašau",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "sorry",
+      "rank": 7,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Sorry",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Lo siento",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Désolé",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Entschuldigung",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Scusa",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Desculpe",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "对不起",
+          "romanization": "Duìbuqǐ"
+        },
+        "ar": {
+          "text": "آسف",
+          "romanization": "Āsif"
+        },
+        "ja": {
+          "text": "ごめんなさい",
+          "romanization": "Gomen nasai"
+        },
+        "hi": {
+          "text": "माफ़ कीजिए",
+          "romanization": "Māf kījiye"
+        },
+        "et": {
+          "text": "Vabandust",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Atsiprašau",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "goodbye",
+      "rank": 8,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Goodbye",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Adiós",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Au revoir",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Auf Wiedersehen",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Arrivederci",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Adeus",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "再见",
+          "romanization": "Zàijiàn"
+        },
+        "ar": {
+          "text": "مع السلامة",
+          "romanization": "Maʿa s-salāma"
+        },
+        "ja": {
+          "text": "さようなら",
+          "romanization": "Sayōnara"
+        },
+        "hi": {
+          "text": "अलविदा",
+          "romanization": "Alvidā"
+        },
+        "et": {
+          "text": "Hüvasti",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Sudie",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "good_morning",
+      "rank": 9,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Good morning",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Buenos días",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Bonjour",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Guten Morgen",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Buongiorno",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Bom dia",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "早上好",
+          "romanization": "Zǎoshang hǎo"
+        },
+        "ar": {
+          "text": "صباح الخير",
+          "romanization": "Ṣabāḥ al-khayr"
+        },
+        "ja": {
+          "text": "おはようございます",
+          "romanization": "Ohayō gozaimasu"
+        },
+        "hi": {
+          "text": "सुप्रभात",
+          "romanization": "Suprabhāt"
+        },
+        "et": {
+          "text": "Tere hommikust",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Labas rytas",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "my_name_is",
+      "rank": 10,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "My name is…",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Me llamo…",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Je m'appelle…",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich heiße…",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Mi chiamo…",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Meu nome é…",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我叫…",
+          "romanization": "Wǒ jiào…"
+        },
+        "ar": {
+          "text": "اسمي…",
+          "romanization": "Ismī…"
+        },
+        "ja": {
+          "text": "私の名前は…です",
+          "romanization": "Watashi no namae wa… desu"
+        },
+        "hi": {
+          "text": "मेरा नाम… है",
+          "romanization": "Merā nām… hai"
+        },
+        "et": {
+          "text": "Minu nimi on…",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Mano vardas…",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "your_name",
+      "rank": 11,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "What is your name?",
+          "romanization": ""
+        },
+        "es": {
+          "text": "¿Cómo te llamas?",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Comment vous appelez-vous ?",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Wie heißen Sie?",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Come ti chiami?",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Qual é o seu nome?",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "你叫什么名字？",
+          "romanization": "Nǐ jiào shénme míngzi?"
+        },
+        "ar": {
+          "text": "ما اسمك؟",
+          "romanization": "Mā ismuk?"
+        },
+        "ja": {
+          "text": "お名前は何ですか",
+          "romanization": "Onamae wa nan desu ka"
+        },
+        "hi": {
+          "text": "आपका नाम क्या है?",
+          "romanization": "Āpkā nām kyā hai?"
+        },
+        "et": {
+          "text": "Mis on sinu nimi?",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Koks tavo vardas?",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "nice_to_meet_you",
+      "rank": 12,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Nice to meet you",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Encantado de conocerte",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Enchanté",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Freut mich",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Piacere di conoscerti",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Prazer em conhecê-lo",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "很高兴认识你",
+          "romanization": "Hěn gāoxìng rènshi nǐ"
+        },
+        "ar": {
+          "text": "تشرفت بمعرفتك",
+          "romanization": "Tasharraftu bimaʿrifatik"
+        },
+        "ja": {
+          "text": "よろしくお願いします",
+          "romanization": "Yoroshiku onegaishimasu"
+        },
+        "hi": {
+          "text": "आपसे मिलकर अच्छा लगा",
+          "romanization": "Āpse milkar acchā lagā"
+        },
+        "et": {
+          "text": "Rõõm tutvuda",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Malonu susipažinti",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "i",
+      "rank": 13,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "I",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Yo",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Je",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Io",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Eu",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我",
+          "romanization": "Wǒ"
+        },
+        "ar": {
+          "text": "أنا",
+          "romanization": "Anā"
+        },
+        "ja": {
+          "text": "私",
+          "romanization": "Watashi"
+        },
+        "hi": {
+          "text": "मैं",
+          "romanization": "Maĩ"
+        },
+        "et": {
+          "text": "Mina",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Aš",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "you",
+      "rank": 14,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "You",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Tú",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Tu",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Du",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Tu",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Você",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "你",
+          "romanization": "Nǐ"
+        },
+        "ar": {
+          "text": "أنت",
+          "romanization": "Anta"
+        },
+        "ja": {
+          "text": "あなた",
+          "romanization": "Anata"
+        },
+        "hi": {
+          "text": "तुम",
+          "romanization": "Tum"
+        },
+        "et": {
+          "text": "Sina",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Tu",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "we",
+      "rank": 15,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "We",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Nosotros",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Nous",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Wir",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Noi",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Nós",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我们",
+          "romanization": "Wǒmen"
+        },
+        "ar": {
+          "text": "نحن",
+          "romanization": "Naḥnu"
+        },
+        "ja": {
+          "text": "私たち",
+          "romanization": "Watashitachi"
+        },
+        "hi": {
+          "text": "हम",
+          "romanization": "Ham"
+        },
+        "et": {
+          "text": "Meie",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Mes",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "i_want_this",
+      "rank": 16,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "I want this",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Quiero esto",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Je veux ceci",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich will das",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Voglio questo",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Eu quero isto",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我想要这个",
+          "romanization": "Wǒ xiǎng yào zhège"
+        },
+        "ar": {
+          "text": "أريد هذا",
+          "romanization": "Urīdu hādhā"
+        },
+        "ja": {
+          "text": "これが欲しいです",
+          "romanization": "Kore ga hoshii desu"
+        },
+        "hi": {
+          "text": "मुझे यह चाहिए",
+          "romanization": "Mujhe yah cāhiye"
+        },
+        "et": {
+          "text": "Ma tahan seda",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Aš noriu to",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "i_need_help",
+      "rank": 17,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "I need help",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Necesito ayuda",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "J'ai besoin d'aide",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich brauche Hilfe",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Ho bisogno di aiuto",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Eu preciso de ajuda",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我需要帮助",
+          "romanization": "Wǒ xūyào bāngzhù"
+        },
+        "ar": {
+          "text": "أحتاج مساعدة",
+          "romanization": "Aḥtāju musāʿada"
+        },
+        "ja": {
+          "text": "助けが必要です",
+          "romanization": "Tasukē ga hitsuyō desu"
+        },
+        "hi": {
+          "text": "मुझे मदद चाहिए",
+          "romanization": "Mujhe madad cāhiye"
+        },
+        "et": {
+          "text": "Mul on abi vaja",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Man reikia pagalbos",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "i_have_time",
+      "rank": 18,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "I have time",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Tengo tiempo",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "J'ai du temps",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich habe Zeit",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Ho tempo",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Tenho tempo",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我有时间",
+          "romanization": "Wǒ yǒu shíjiān"
+        },
+        "ar": {
+          "text": "لدي وقت",
+          "romanization": "Ladayya waqt"
+        },
+        "ja": {
+          "text": "時間があります",
+          "romanization": "Jikan ga arimasu"
+        },
+        "hi": {
+          "text": "मेरे पास समय है",
+          "romanization": "Mere pās samay hai"
+        },
+        "et": {
+          "text": "Mul on aega",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Aš turiu laiko",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "i_understand",
+      "rank": 19,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "I understand",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Entiendo",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Je comprends",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich verstehe",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Capisco",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Eu entendo",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我明白",
+          "romanization": "Wǒ míngbai"
+        },
+        "ar": {
+          "text": "أفهم",
+          "romanization": "Afhamu"
+        },
+        "ja": {
+          "text": "わかります",
+          "romanization": "Wakarimasu"
+        },
+        "hi": {
+          "text": "मैं समझता हूँ",
+          "romanization": "Maĩ samajhtā hū̃"
+        },
+        "et": {
+          "text": "Ma saan aru",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Aš suprantu",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "dont_understand",
+      "rank": 20,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "I do not understand",
+          "romanization": ""
+        },
+        "es": {
+          "text": "No entiendo",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Je ne comprends pas",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Ich verstehe nicht",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Non capisco",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Eu não entendo",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "我不明白",
+          "romanization": "Wǒ bù míngbai"
+        },
+        "ar": {
+          "text": "لا أفهم",
+          "romanization": "Lā afhamu"
+        },
+        "ja": {
+          "text": "わかりません",
+          "romanization": "Wakarimasen"
+        },
+        "hi": {
+          "text": "मुझे समझ नहीं आया",
+          "romanization": "Mujhe samajh nahī̃ āyā"
+        },
+        "et": {
+          "text": "Ma ei saa aru",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Aš nesuprantu",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "speak_slowly",
+      "rank": 21,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Please speak slowly",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Por favor habla despacio",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Parlez lentement s'il vous plaît",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Bitte sprechen Sie langsam",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Parla lentamente per favore",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Por favor fale devagar",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "请说慢一点",
+          "romanization": "Qǐng shuō màn yīdiǎn"
+        },
+        "ar": {
+          "text": "تكلم ببطء من فضلك",
+          "romanization": "Takallam bi-buṭʾin min faḍlik"
+        },
+        "ja": {
+          "text": "ゆっくり話してください",
+          "romanization": "Yukkuri hanashite kudasai"
+        },
+        "hi": {
+          "text": "कृपया धीरे बोलें",
+          "romanization": "Kṛpayā dhīre bolẽ"
+        },
+        "et": {
+          "text": "Palun räägi aeglaselt",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Prašau kalbėti lėtai",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "repeat_please",
+      "rank": 22,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Please repeat that",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Por favor repite eso",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Répétez s'il vous plaît",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Bitte wiederholen Sie das",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Per favore ripeti",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Por favor repita",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "请重复一遍",
+          "romanization": "Qǐng chóngfù yībiàn"
+        },
+        "ar": {
+          "text": "أعد من فضلك",
+          "romanization": "Aʿid min faḍlik"
+        },
+        "ja": {
+          "text": "もう一度お願いします",
+          "romanization": "Mō ichido onegaishimasu"
+        },
+        "hi": {
+          "text": "कृपया दोहराएं",
+          "romanization": "Kṛpayā doharāẽ"
+        },
+        "et": {
+          "text": "Palun korda",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Prašau pakartoti",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "help",
+      "rank": 23,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Help!",
+          "romanization": ""
+        },
+        "es": {
+          "text": "¡Ayuda!",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "À l'aide !",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Hilfe!",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Aiuto!",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Socorro!",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "救命！",
+          "romanization": "Jiùmìng!"
+        },
+        "ar": {
+          "text": "مساعدة!",
+          "romanization": "Musāʿada!"
+        },
+        "ja": {
+          "text": "助けて！",
+          "romanization": "Tasukete!"
+        },
+        "hi": {
+          "text": "मदद!",
+          "romanization": "Madad!"
+        },
+        "et": {
+          "text": "Appi!",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Pagalbos!",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "water",
+      "rank": 24,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Water",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Agua",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Eau",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Wasser",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Acqua",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Água",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "水",
+          "romanization": "Shuǐ"
+        },
+        "ar": {
+          "text": "ماء",
+          "romanization": "Māʾ"
+        },
+        "ja": {
+          "text": "水",
+          "romanization": "Mizu"
+        },
+        "hi": {
+          "text": "पानी",
+          "romanization": "Pānī"
+        },
+        "et": {
+          "text": "Vesi",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Vanduo",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "food",
+      "rank": 25,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Food",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Comida",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Nourriture",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Essen",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Cibo",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Comida",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "食物",
+          "romanization": "Shíwù"
+        },
+        "ar": {
+          "text": "طعام",
+          "romanization": "Ṭaʿām"
+        },
+        "ja": {
+          "text": "食べ物",
+          "romanization": "Tabemono"
+        },
+        "hi": {
+          "text": "खाना",
+          "romanization": "Khānā"
+        },
+        "et": {
+          "text": "Toit",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Maistas",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "where_is_bathroom",
+      "rank": 26,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "Where is the bathroom?",
+          "romanization": ""
+        },
+        "es": {
+          "text": "¿Dónde está el baño?",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Où sont les toilettes ?",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Wo ist die Toilette?",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Dov'è il bagno?",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Onde fica o banheiro?",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "洗手间在哪里？",
+          "romanization": "Xǐshǒujiān zài nǎlǐ?"
+        },
+        "ar": {
+          "text": "أين الحمام؟",
+          "romanization": "Ayna al-ḥammām?"
+        },
+        "ja": {
+          "text": "トイレはどこですか",
+          "romanization": "Toire wa doko desu ka"
+        },
+        "hi": {
+          "text": "बाथरूम कहाँ है?",
+          "romanization": "Bāthrūm kahā̃ hai?"
+        },
+        "et": {
+          "text": "Kus on vannituba?",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Kur yra vonios kambarys?",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "how_much",
+      "rank": 27,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "How much is this?",
+          "romanization": ""
+        },
+        "es": {
+          "text": "¿Cuánto cuesta esto?",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Combien ça coûte ?",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Wie viel kostet das?",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Quanto costa questo?",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Quanto custa isso?",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "这个多少钱？",
+          "romanization": "Zhège duōshǎo qián?"
+        },
+        "ar": {
+          "text": "كم سعر هذا؟",
+          "romanization": "Kam siʿru hādhā?"
+        },
+        "ja": {
+          "text": "これはいくらですか",
+          "romanization": "Kore wa ikura desu ka"
+        },
+        "hi": {
+          "text": "यह कितने का है?",
+          "romanization": "Yah kitne kā hai?"
+        },
+        "et": {
+          "text": "Kui palju see maksab?",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Kiek tai kainuoja?",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "today",
+      "rank": 28,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Today",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Hoy",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Aujourd'hui",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Heute",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Oggi",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Hoje",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "今天",
+          "romanization": "Jīntiān"
+        },
+        "ar": {
+          "text": "اليوم",
+          "romanization": "Al-yawm"
+        },
+        "ja": {
+          "text": "今日",
+          "romanization": "Kyō"
+        },
+        "hi": {
+          "text": "आज",
+          "romanization": "Āj"
+        },
+        "et": {
+          "text": "Täna",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Šiandien",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "tomorrow",
+      "rank": 29,
+      "kind": "word",
+      "forms": {
+        "en": {
+          "text": "Tomorrow",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Mañana",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "Demain",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Morgen",
+          "romanization": ""
+        },
+        "it": {
+          "text": "Domani",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Amanhã",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "明天",
+          "romanization": "Míngtiān"
+        },
+        "ar": {
+          "text": "غدا",
+          "romanization": "Ghadan"
+        },
+        "ja": {
+          "text": "明日",
+          "romanization": "Ashita"
+        },
+        "hi": {
+          "text": "कल",
+          "romanization": "Kal"
+        },
+        "et": {
+          "text": "Homme",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Rytoj",
+          "romanization": ""
+        }
+      }
+    },
+    {
+      "id": "see_you_later",
+      "rank": 30,
+      "kind": "phrase",
+      "forms": {
+        "en": {
+          "text": "See you later",
+          "romanization": ""
+        },
+        "es": {
+          "text": "Hasta luego",
+          "romanization": ""
+        },
+        "fr": {
+          "text": "À plus tard",
+          "romanization": ""
+        },
+        "de": {
+          "text": "Bis später",
+          "romanization": ""
+        },
+        "it": {
+          "text": "A dopo",
+          "romanization": ""
+        },
+        "pt": {
+          "text": "Até logo",
+          "romanization": ""
+        },
+        "zh": {
+          "text": "回头见",
+          "romanization": "Huítóu jiàn"
+        },
+        "ar": {
+          "text": "أراك لاحقا",
+          "romanization": "Arāka lāḥiqan"
+        },
+        "ja": {
+          "text": "また後で",
+          "romanization": "Mata ato de"
+        },
+        "hi": {
+          "text": "बाद में मिलेंगे",
+          "romanization": "Bād mẽ milẽge"
+        },
+        "et": {
+          "text": "Näeme hiljem",
+          "romanization": ""
+        },
+        "lt": {
+          "text": "Iki vėliau",
+          "romanization": ""
+        }
+      }
+    }
+  ]
+}

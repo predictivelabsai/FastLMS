@@ -1,4 +1,4 @@
-"""English, Estonian, and Lithuanian localisation helpers for FastLearn."""
+"""English, Estonian, Lithuanian, and Spanish localisation for FastLearn."""
 
 from __future__ import annotations
 
@@ -9,11 +9,12 @@ from urllib.parse import urlsplit
 
 
 DEFAULT_LANG = "en"
-SUPPORTED_LANGS = ("en", "et", "lt")
+SUPPORTED_LANGS = ("en", "et", "lt", "es")
 LANG_META = {
     "en": {"flag": "🇬🇧", "name": "English"},
     "et": {"flag": "🇪🇪", "name": "Eesti"},
     "lt": {"flag": "🇱🇹", "name": "Lietuvių"},
+    "es": {"flag": "🇪🇸", "name": "Español"},
 }
 FASTLEARN_HOSTS = {"fastlearn.fun", "www.fastlearn.fun"}
 
@@ -60,7 +61,7 @@ TEXT = {
     "start_learning": {"en": "Start learning →", "et": "Alusta õppimist →", "lt": "Pradėti mokytis →"},
     "browse_courses": {"en": "Browse courses →", "et": "Sirvi kursusi →", "lt": "Naršyti kursus →"},
     "metric_courses": {"en": "published courses", "et": "avaldatud kursust", "lt": "paskelbtų kursų"},
-    "metric_languages": {"en": "learning languages", "et": "õppekeelt", "lt": "mokymosi kalbos"},
+    "metric_languages": {"en": "target languages", "et": "sihtkeelt", "lt": "tikslinių kalbų"},
     "metric_subjects": {"en": "subject areas", "et": "ainevaldkonda", "lt": "dalykų sritys"},
     "metric_tutor": {"en": "AI tutor, always ready", "et": "AI-juhendaja on alati valmis", "lt": "DI mokytojas visada pasirengęs"},
     "inside_eyebrow": {"en": "A look inside", "et": "Pilk sisse", "lt": "Žvilgsnis į vidų"},
@@ -84,7 +85,7 @@ TEXT = {
     "subject_creativity": {"en": "Creativity", "et": "Loovus", "lt": "Kūryba"},
     "subject_technology_body": {"en": "Python, machine learning, and building web applications.", "et": "Python, masinõpe ja veebirakenduste loomine.", "lt": "Python, mašininis mokymasis ir interneto programų kūrimas."},
     "subject_science_body": {"en": "Mathematics, physics, biology, chemistry, and geography.", "et": "Matemaatika, füüsika, bioloogia, keemia ja geograafia.", "lt": "Matematika, fizika, biologija, chemija ir geografija."},
-    "subject_language_body": {"en": "English language and literature through practical examples.", "et": "Inglise keel ja kirjandus praktiliste näidete kaudu.", "lt": "Anglų kalba ir literatūra per praktinius pavyzdžius."},
+    "subject_language_body": {"en": "Practise ten target languages from your native language with high-frequency speech and graduated recall.", "et": "Harjuta kümmet sihtkeelt oma emakeele kaudu, kasutades sagedast kõnet ja astmelist kordamist.", "lt": "Praktikuokite dešimt tikslinių kalbų iš savo gimtosios kalbos naudodami dažnus posakius ir laipsnišką kartojimą."},
     "subject_creativity_body": {"en": "Creative writing, storytelling, revision, and voice.", "et": "Loovkirjutamine, jutustamine, toimetamine ja isikupärane hääl.", "lt": "Kūrybinis rašymas, pasakojimas, redagavimas ir savitas balsas."},
     "cta_eyebrow": {"en": "Ready when you are", "et": "Alusta, kui oled valmis", "lt": "Pradėkite, kai būsite pasirengę"},
     "cta_title": {"en": "Make your next lesson the one that clicks.", "et": "Tee järgmisest tunnist see, kus kõik paika loksub.", "lt": "Tegul kita pamoka tampa ta, kurioje viskas tampa aišku."},
@@ -173,7 +174,44 @@ TEXT = {
     "remedial": {"en": "Support", "et": "Tugi", "lt": "Pagalba"},
     "core": {"en": "Core", "et": "Põhiosa", "lt": "Pagrindinė"},
     "question_variant": {"en": "Question variant", "et": "Küsimuse variant", "lt": "Klausimo variantas"},
+
+    # Language learning.
+    "language_learning": {"en": "Language learning", "et": "Keeleõpe", "lt": "Kalbų mokymasis", "es": "Aprendizaje de idiomas"},
+    "language_learning_title": {"en": "Practise a new language", "et": "Harjuta uut keelt", "lt": "Praktikuokite naują kalbą", "es": "Practica un nuevo idioma"},
+    "language_learning_subtitle": {"en": "Start from your native language and build useful speech through high-frequency vocabulary and graduated recall.", "et": "Alusta oma emakeelest ning arenda praktilist kõnet sagedaste sõnade ja astmelise kordamisega.", "lt": "Pradėkite nuo gimtosios kalbos ir ugdykite praktinę kalbą naudodami dažnus žodžius bei laipsnišką kartojimą.", "es": "Empieza desde tu idioma nativo y desarrolla el habla útil con vocabulario frecuente y repetición gradual."},
+    "native_language": {"en": "I speak", "et": "Ma räägin", "lt": "Aš kalbu", "es": "Hablo"},
+    "target_language": {"en": "I want to learn", "et": "Ma tahan õppida", "lt": "Noriu išmokti", "es": "Quiero aprender"},
+    "daily_goal": {"en": "Daily goal", "et": "Päeva eesmärk", "lt": "Dienos tikslas", "es": "Objetivo diario"},
+    "save_language_pair": {"en": "Save language pair", "et": "Salvesta keelepaar", "lt": "Išsaugoti kalbų porą", "es": "Guardar combinación de idiomas"},
+    "practice_prompt": {"en": "Say this in {language}", "et": "Ütle seda {language} keeles", "lt": "Pasakykite tai {language} kalba", "es": "Di esto en {language}"},
+    "listen": {"en": "Listen", "et": "Kuula", "lt": "Klausyti", "es": "Escuchar"},
+    "reveal_answer": {"en": "Reveal answer", "et": "Näita vastust", "lt": "Rodyti atsakymą", "es": "Mostrar respuesta"},
+    "recall_again": {"en": "Again", "et": "Uuesti", "lt": "Dar kartą", "es": "Otra vez"},
+    "recall_hard": {"en": "Hard", "et": "Raske", "lt": "Sunku", "es": "Difícil"},
+    "recall_good": {"en": "Got it", "et": "Selge", "lt": "Supratau", "es": "Entendido"},
+    "frequency_rank": {"en": "Frequency rank {rank}", "et": "Sagedusaste {rank}", "lt": "Dažnio vieta {rank}", "es": "Rango de frecuencia {rank}"},
+    "due_now": {"en": "Due now", "et": "Korda nüüd", "lt": "Kartoti dabar", "es": "Repasar ahora"},
+    "new_expression": {"en": "New expression", "et": "Uus väljend", "lt": "Naujas posakis", "es": "Expresión nueva"},
+    "reviewed_today": {"en": "Reviewed today", "et": "Täna korratud", "lt": "Šiandien pakartota", "es": "Repasado hoy"},
+    "learning_streak": {"en": "Recall streak", "et": "Kordamisjada", "lt": "Kartojimo serija", "es": "Racha de recuerdo"},
+    "language_method_title": {"en": "How each session works", "et": "Kuidas iga seanss töötab", "lt": "Kaip vyksta kiekviena sesija", "es": "Cómo funciona cada sesión"},
+    "language_method_body": {"en": "Read or hear a prompt in your native language, anticipate the target phrase aloud, reveal it, listen, then rate your recall. Correct answers return at expanding intervals; difficult material returns sooner.", "et": "Loe või kuula vihjet emakeeles, ütle sihtkeelne väljend valjusti, vaata vastust, kuula ja hinda meenutamist. Õiged vastused naasevad pikenevate vahedega, raske materjal varem.", "lt": "Perskaitykite arba išgirskite užuominą gimtąja kalba, garsiai numatykite frazę tiksline kalba, atskleiskite ją, išklausykite ir įvertinkite prisiminimą. Teisingi atsakymai grįžta vis ilgesniais intervalais, o sudėtinga medžiaga – greičiau.", "es": "Lee o escucha una indicación en tu idioma nativo, anticipa en voz alta la frase objetivo, descúbrela, escúchala y evalúa tu recuerdo. Las respuestas correctas vuelven en intervalos crecientes; el material difícil regresa antes."},
+    "language_pair_error": {"en": "Choose two different supported languages.", "et": "Vali kaks erinevat toetatud keelt.", "lt": "Pasirinkite dvi skirtingas palaikomas kalbas.", "es": "Elige dos idiomas compatibles diferentes."},
+    "language_progress": {"en": "Expressions learned", "et": "Õpitud väljendid", "lt": "Išmokti posakiai", "es": "Expresiones aprendidas"},
+    "all_caught_up": {"en": "You are caught up. Your next expression will appear when its recall interval is due.", "et": "Kõik on korratud. Järgmine väljend ilmub, kui kordamisvahemik täitub.", "lt": "Viską pakartojote. Kitas posakis pasirodys, kai ateis jo kartojimo laikas.", "es": "Estás al día. La próxima expresión aparecerá cuando llegue su intervalo de repaso."},
+    "mastered": {"en": "Mastered", "et": "Omandatud", "lt": "Įsisavinta", "es": "Dominadas"},
 }
+
+
+def _add_spanish_ui() -> None:
+    path = Path(__file__).resolve().parents[1] / "data" / "ui_translations_es.json"
+    translations = json.loads(path.read_text(encoding="utf-8"))
+    for key, value in translations.items():
+        if key in TEXT:
+            TEXT[key]["es"] = value
+
+
+_add_spanish_ui()
 
 
 def t(key: str, lang: str = DEFAULT_LANG, **values) -> str:
@@ -254,4 +292,5 @@ def prompt_language_directive(lang: str) -> str:
         "en": "Respond in English unless the learner explicitly asks for another language.",
         "et": "Vasta eesti keeles, kui õppija ei palu selgelt kasutada teist keelt.",
         "lt": "Atsakyk lietuvių kalba, nebent besimokantysis aiškiai paprašo kitos kalbos.",
+        "es": "Responde en español, salvo que el estudiante pida explícitamente otro idioma.",
     }.get(lang, "Respond in English.")

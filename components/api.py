@@ -104,11 +104,11 @@ def register_read_routes(slug: str, table: str, tag: str):
     def list_records(
         limit: int = Query(50, ge=1, le=200),
         offset: int = Query(0, ge=0),
-        lang: str = Query("en", pattern="^(en|et|lt)$"),
+        lang: str = Query("en", pattern="^(en|et|lt|es)$"),
     ):
         return _list(table, limit=limit, offset=offset, lang=lang)
 
-    def get_record(item_id: int, lang: str = Query("en", pattern="^(en|et|lt)$")):
+    def get_record(item_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
         return _get(table, item_id, lang=lang)
 
     api.get(

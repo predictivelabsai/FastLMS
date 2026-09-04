@@ -1,26 +1,41 @@
-@page { size: A4; margin: 16mm 15mm 17mm; }
+@page {
+  size: A4 landscape;
+  margin: 12mm 14mm 14mm;
+  @bottom-right {
+    content: counter(page);
+    color: #6b7280;
+    font-size: 8pt;
+  }
+}
 * { box-sizing: border-box; }
 html { font: 10pt/1.48 "Noto Sans", "Liberation Sans", Arial, sans-serif; color: #172033; }
-body { max-width: 180mm; margin: 0 auto; }
-h1, h2, h3 { color: #24134f; line-height: 1.2; break-after: avoid-page; }
+body { max-width: 267mm; margin: 0 auto; }
+h1, h2, h3, h4 { color: #24134f; line-height: 1.2; break-after: avoid-page; page-break-after: avoid; }
 h1 { font-size: 25pt; margin: 0 0 8mm; padding-bottom: 5mm; border-bottom: 3px solid #7c3aed; }
 h2 { font-size: 17pt; margin: 9mm 0 3mm; }
 h3 { font-size: 12.5pt; margin: 6mm 0 2mm; }
-p { margin: 0 0 3mm; }
+h4 { font-size: 10.5pt; margin: 5mm 0 2mm; }
+p { margin: 0 0 3mm; orphans: 3; widows: 3; }
 a { color: #6d28d9; text-decoration: none; }
-ul, ol { margin: 2mm 0 4mm 6mm; padding-left: 4mm; }
+ul, ol { margin: 2mm 0 4mm 6mm; padding-left: 4mm; break-inside: avoid-page; page-break-inside: avoid; }
 li { margin: 1mm 0; }
-blockquote { margin: 4mm 0; padding: 3mm 4mm; border-left: 3px solid #8b5cf6; background: #f5f3ff; }
-table { width: 100%; border-collapse: collapse; margin: 4mm 0 6mm; font-size: 8.8pt; break-inside: avoid-page; }
+blockquote { margin: 4mm 0; padding: 3mm 4mm; border-left: 3px solid #8b5cf6; background: #f5f3ff; break-inside: avoid-page; page-break-inside: avoid; }
+table { width: 100%; border-collapse: collapse; margin: 4mm 0 6mm; font-size: 8.8pt; break-inside: avoid-page; page-break-inside: avoid; }
 th, td { border: 1px solid #d8dce7; padding: 2.2mm; text-align: left; vertical-align: top; }
 th { background: #f5f3ff; color: #3b1d78; }
-img { display: block; max-width: 100%; max-height: 158mm; object-fit: contain; margin: 4mm auto 6mm; border: 1px solid #d8dce7; border-radius: 3mm; break-inside: avoid-page; }
+img { display: block; max-width: 100%; max-height: 112mm; object-fit: contain; margin: 4mm auto 5mm; border: 1px solid #d8dce7; border-radius: 3mm; break-inside: avoid-page; page-break-inside: avoid; }
+img[src$="10-team.png"],
+img[src$="11-adaptive-strategy.png"],
+img[src$="12-learning-reports.png"],
+img[src$="14-spanish-demo.png"] { max-height: 90mm; }
+p:has(> img:only-child) { break-inside: avoid-page; page-break-inside: avoid; }
 code { font: 8.8pt "DejaVu Sans Mono", monospace; background: #f3f4f6; padding: .3mm 1mm; border-radius: 1mm; }
 pre { padding: 3mm; background: #111827; color: #f9fafb; border-radius: 2mm; white-space: pre-wrap; break-inside: avoid-page; }
 pre code { background: transparent; padding: 0; }
 strong { color: #251443; }
 hr { border: 0; border-top: 1px solid #d8dce7; margin: 8mm 0; }
 @media print {
-  h2 { break-before: auto; }
-  img + h2 { break-before: page; }
+  h2, h3 { break-before: page; page-break-before: always; }
+  h2 + h3 { break-before: auto; page-break-before: auto; }
+  h2[id="10-quick-reference"] ~ h3 { break-before: auto; page-break-before: auto; }
 }

@@ -9,6 +9,7 @@ from __future__ import annotations
 import atexit
 import json
 import os
+import re
 import threading
 from contextlib import contextmanager
 from datetime import date, datetime, timezone
@@ -19,7 +20,9 @@ from sqlalchemy.engine import Engine
 
 load_dotenv()
 
-SCHEMA = "fastlms"
+SCHEMA = os.getenv("DB_SCHEMA", "fastlms")
+if not re.fullmatch(r"[a-z_][a-z0-9_]*", SCHEMA):
+    raise RuntimeError("DB_SCHEMA must be a lowercase PostgreSQL identifier")
 _engines: dict[str, Engine] = {}
 _engine_lock = threading.Lock()
 
@@ -322,6 +325,48 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.content_translations (
     PRIMARY KEY (entity_type, entity_id, language)
 );
 
+-- Native-to-target language practice preferences and graduated recall state.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.language_profiles (
+    user_id          INTEGER PRIMARY KEY REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    native_language  TEXT NOT NULL DEFAULT 'en',
+    target_language  TEXT NOT NULL DEFAULT 'es',
+    daily_goal       INTEGER NOT NULL DEFAULT 10,
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (native_language IN ('en','es','fr','de','it','pt','zh','ar','ja','hi','et','lt')),
+    CHECK (target_language IN ('en','es','fr','de','it','pt','zh','ar','ja','hi')),
+    CHECK (native_language <> target_language),
+    CHECK (daily_goal BETWEEN 5 AND 50)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.language_reviews (
+    user_id          INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    target_language  TEXT NOT NULL,
+    concept_id       TEXT NOT NULL,
+    interval_step    INTEGER NOT NULL DEFAULT 0,
+    repetitions      INTEGER NOT NULL DEFAULT 0,
+    correct_streak   INTEGER NOT NULL DEFAULT 0,
+    last_rating      TEXT,
+    last_reviewed_at TIMESTAMPTZ,
+    next_due_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (target_language IN ('en','es','fr','de','it','pt','zh','ar','ja','hi')),
+    CHECK (last_rating IS NULL OR last_rating IN ('again','hard','good')),
+    PRIMARY KEY (user_id, target_language, concept_id)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.language_attempts (
+    id               BIGSERIAL PRIMARY KEY,
+    user_id          INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    native_language  TEXT NOT NULL,
+    target_language  TEXT NOT NULL,
+    concept_id       TEXT NOT NULL,
+    rating           TEXT NOT NULL,
+    interval_seconds INTEGER NOT NULL,
+    attempted_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (native_language IN ('en','es','fr','de','it','pt','zh','ar','ja','hi','et','lt')),
+    CHECK (target_language IN ('en','es','fr','de','it','pt','zh','ar','ja','hi')),
+    CHECK (rating IN ('again','hard','good'))
+);
+
 CREATE TABLE IF NOT EXISTS {SCHEMA}.audit_log (
     id              BIGSERIAL PRIMARY KEY,
     actor_id        INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
@@ -369,6 +414,8 @@ CREATE INDEX IF NOT EXISTS idx_learning_time_course ON {SCHEMA}.learning_time(co
 CREATE INDEX IF NOT EXISTS idx_adaptive_user_course ON {SCHEMA}.adaptive_recommendations(user_id, course_id, status);
 CREATE INDEX IF NOT EXISTS idx_drafts_course_status ON {SCHEMA}.content_drafts(course_id, status);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON {SCHEMA}.audit_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_language_reviews_due ON {SCHEMA}.language_reviews(user_id, target_language, next_due_at);
+CREATE INDEX IF NOT EXISTS idx_language_attempts_user ON {SCHEMA}.language_attempts(user_id, attempted_at DESC);
 
 -- Normalise the legacy role name and keep one deliberately scoped administrator.
 UPDATE {SCHEMA}.users SET role = 'teacher' WHERE role = 'instructor';
@@ -805,6 +852,110 @@ def record_learning_time(
     return course_id
 
 
+def get_language_profile(conn, user_id: int) -> dict | None:
+    row = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.language_profiles WHERE user_id = :user
+    """), {"user": user_id}).mappings().first()
+    return dict(row) if row else None
+
+
+def save_language_profile(
+    conn, *, user_id: int, native_language: str, target_language: str, daily_goal: int = 10
+) -> dict:
+    from language_learning import validate_language_pair
+
+    native, target = validate_language_pair(native_language, target_language)
+    goal = max(5, min(50, int(daily_goal)))
+    row = conn.execute(sa.text(f"""
+        INSERT INTO {S}.language_profiles (user_id, native_language, target_language, daily_goal)
+        VALUES (:user, :native, :target, :goal)
+        ON CONFLICT (user_id) DO UPDATE SET
+            native_language = EXCLUDED.native_language,
+            target_language = EXCLUDED.target_language,
+            daily_goal = EXCLUDED.daily_goal,
+            updated_at = now()
+        RETURNING *
+    """), {"user": user_id, "native": native, "target": target, "goal": goal}).mappings().one()
+    return dict(row)
+
+
+def get_language_reviews(conn, *, user_id: int, target_language: str) -> list[dict]:
+    rows = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.language_reviews
+        WHERE user_id = :user AND target_language = :target
+        ORDER BY next_due_at, concept_id
+    """), {"user": user_id, "target": target_language}).mappings().all()
+    return [dict(row) for row in rows]
+
+
+def record_language_review(
+    conn, *, user_id: int, native_language: str, target_language: str,
+    concept_id: str, rating: str, now: datetime | None = None,
+) -> dict:
+    from language_learning import frequency_dictionary, schedule_review, validate_language_pair
+
+    native, target = validate_language_pair(native_language, target_language)
+    valid_concepts = {item["id"] for item in frequency_dictionary()["items"]}
+    if concept_id not in valid_concepts:
+        raise ValueError("unknown language concept")
+    current = conn.execute(sa.text(f"""
+        SELECT interval_step, repetitions, correct_streak FROM {S}.language_reviews
+        WHERE user_id = :user AND target_language = :target AND concept_id = :concept
+    """), {"user": user_id, "target": target, "concept": concept_id}).mappings().first()
+    decision = schedule_review(current["interval_step"] if current else None, rating, now=now)
+    repetitions = int(current["repetitions"] if current else 0) + 1
+    correct_streak = int(current["correct_streak"] if current else 0) + 1 if decision["success"] else 0
+    reviewed_at = now or datetime.now(timezone.utc)
+    row = conn.execute(sa.text(f"""
+        INSERT INTO {S}.language_reviews
+            (user_id, target_language, concept_id, interval_step, repetitions,
+             correct_streak, last_rating, last_reviewed_at, next_due_at)
+        VALUES (:user, :target, :concept, :step, :repetitions, :streak,
+                :rating, :reviewed, :due)
+        ON CONFLICT (user_id, target_language, concept_id) DO UPDATE SET
+            interval_step = EXCLUDED.interval_step,
+            repetitions = EXCLUDED.repetitions,
+            correct_streak = EXCLUDED.correct_streak,
+            last_rating = EXCLUDED.last_rating,
+            last_reviewed_at = EXCLUDED.last_reviewed_at,
+            next_due_at = EXCLUDED.next_due_at
+        RETURNING *
+    """), {
+        "user": user_id, "target": target, "concept": concept_id,
+        "step": decision["interval_step"], "repetitions": repetitions,
+        "streak": correct_streak, "rating": rating, "reviewed": reviewed_at,
+        "due": decision["next_due_at"],
+    }).mappings().one()
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.language_attempts
+            (user_id, native_language, target_language, concept_id, rating, interval_seconds)
+        VALUES (:user, :native, :target, :concept, :rating, :seconds)
+    """), {
+        "user": user_id, "native": native, "target": target,
+        "concept": concept_id, "rating": rating,
+        "seconds": decision["interval_seconds"],
+    })
+    result = dict(row)
+    result["interval_seconds"] = decision["interval_seconds"]
+    return result
+
+
+def get_language_stats(conn, *, user_id: int, target_language: str) -> dict:
+    row = conn.execute(sa.text(f"""
+        SELECT count(*) AS expressions_seen,
+               count(*) FILTER (WHERE interval_step >= 4) AS mastered,
+               count(*) FILTER (WHERE next_due_at <= now()) AS due_now
+        FROM {S}.language_reviews
+        WHERE user_id = :user AND target_language = :target
+    """), {"user": user_id, "target": target_language}).mappings().one()
+    reviewed_today = conn.execute(sa.text(f"""
+        SELECT count(*) FROM {S}.language_attempts
+        WHERE user_id = :user AND target_language = :target
+          AND attempted_at::date = CURRENT_DATE
+    """), {"user": user_id, "target": target_language}).scalar() or 0
+    return {**dict(row), "reviewed_today": int(reviewed_today)}
+
+
 def get_course_learning_settings(conn, course_id: int) -> dict:
     row = conn.execute(
         sa.text(f"SELECT * FROM {S}.course_learning_settings WHERE course_id = :course"),
@@ -853,28 +1004,36 @@ def _draft_payload(kind: str, lesson_by_lang: dict[str, dict], score: int) -> di
         "en": f"Guided practice: {source.get('title', 'Review')}" if kind == "remedial" else f"Extension: {source.get('title', 'Challenge')}",
         "et": f"Juhendatud harjutus: {lesson_by_lang.get('et', source).get('title', 'Kordamine')}" if kind == "remedial" else f"Süvaülesanne: {lesson_by_lang.get('et', source).get('title', 'Väljakutse')}",
         "lt": f"Praktika su pagalba: {lesson_by_lang.get('lt', source).get('title', 'Kartojimas')}" if kind == "remedial" else f"Išplėstinė užduotis: {lesson_by_lang.get('lt', source).get('title', 'Iššūkis')}",
+        "es": f"Práctica guiada: {lesson_by_lang.get('es', source).get('title', 'Repaso')}" if kind == "remedial" else f"Ampliación: {lesson_by_lang.get('es', source).get('title', 'Desafío')}",
     }
     bodies = {
         "en": f"## Why this is recommended\n\nYour latest result was {score}%. Work through one smaller example, explain each step, then retry the assessment.",
         "et": f"## Miks see on soovitatud\n\nSinu viimane tulemus oli {score}%. Lahenda üks väiksem näide, selgita iga sammu ja proovi siis testi uuesti.",
         "lt": f"## Kodėl tai rekomenduojama\n\nNaujausias rezultatas – {score} %. Išnagrinėkite vieną paprastesnį pavyzdį, paaiškinkite kiekvieną žingsnį ir pakartokite testą.",
+        "es": f"## Por qué se recomienda\n\nTu último resultado fue del {score} %. Trabaja con un ejemplo más sencillo, explica cada paso y vuelve a intentar la evaluación.",
     }
     if kind == "extension":
         bodies = {
             "en": f"## Stretch your understanding\n\nYou have shown consistent mastery ({score}%). Apply the idea to a less familiar case and justify your choices.",
             "et": f"## Arenda arusaamist\n\nOled näidanud püsivat meisterlikkust ({score}%). Rakenda ideed vähem tuttavas olukorras ja põhjenda oma valikuid.",
             "lt": f"## Pagilinkite supratimą\n\nParodėte nuoseklų meistriškumą ({score} %). Pritaikykite idėją mažiau pažįstamoje situacijoje ir pagrįskite pasirinkimus.",
+            "es": f"## Amplía tu comprensión\n\nHas demostrado un dominio constante ({score} %). Aplica la idea a una situación menos familiar y justifica tus decisiones.",
         }
-    return {lang: {"title": titles[lang], "content_md": bodies[lang]} for lang in ("en", "et", "lt")}
+    return {lang: {"title": titles[lang], "content_md": bodies[lang]} for lang in ("en", "et", "lt", "es")}
 
 
 def _question_draft_payload(lesson_by_lang: dict[str, dict], difficulty_level: int = 2) -> dict:
     titles = {lang: (lesson_by_lang.get(lang) or lesson_by_lang.get("en") or {}).get("title", "the lesson")
-              for lang in ("en", "et", "lt")}
+              for lang in ("en", "et", "lt", "es")}
     qualifier = {
         1: {"en": "With the key idea in view, ", "et": "Põhiideed silmas pidades, ", "lt": "Atsižvelgiant į pagrindinę mintį, "},
         2: {"en": "For this lesson, ", "et": "Selle tunni puhul, ", "lt": "Šioje pamokoje, "},
         3: {"en": "In a new and unfamiliar situation, ", "et": "Uues ja võõras olukorras, ", "lt": "Naujoje ir nepažįstamoje situacijoje, "},
+    }[max(1, min(3, int(difficulty_level)))]
+    qualifier["es"] = {
+        1: "Con la idea principal a la vista, ",
+        2: "Para esta lección, ",
+        3: "En una situación nueva y desconocida, ",
     }[max(1, min(3, int(difficulty_level)))]
     return {
         "en": {
@@ -894,6 +1053,12 @@ def _question_draft_payload(lesson_by_lang: dict[str, dict], difficulty_level: i
             "options": ["Pritaikyti idėją ir paaiškinti kiekvieną žingsnį", "Nepaisyti pamokos konteksto", "Pasirinkti nepatikrinus", "Praleisti pagrindimą"],
             "correct_answer": "Pritaikyti idėją ir paaiškinti kiekvieną žingsnį",
             "explanation": "Idėjos pritaikymas ir aiškus samprotavimas parodo perkeliamą supratimą.",
+        },
+        "es": {
+            "question_text": f"{qualifier['es']}¿qué enfoque demuestra mejor la comprensión de «{titles['es']}»?",
+            "options": ["Aplicar la idea y explicar cada paso", "Ignorar el contexto de la lección", "Elegir sin comprobar", "Omitir el razonamiento"],
+            "correct_answer": "Aplicar la idea y explicar cada paso",
+            "explanation": "Aplicar la idea y hacer visible el razonamiento demuestra una comprensión transferible.",
         },
     }
 
@@ -957,7 +1122,7 @@ def update_adaptive_state(conn, *, user_id: int, quiz_id: int, score: int) -> di
             WHERE source_lesson_id = :lesson AND draft_type = :kind AND status = 'pending'
         """), {"lesson": target, "kind": kind}).scalar()
         if not existing:
-            lesson_by_lang = {lang: get_lesson(conn, target, lang=lang) or {} for lang in ("en", "et", "lt")}
+            lesson_by_lang = {lang: get_lesson(conn, target, lang=lang) or {} for lang in ("en", "et", "lt", "es")}
             payload = _draft_payload(kind, lesson_by_lang, score)
             module_id = lesson_by_lang["en"].get("module_id")
             conn.execute(sa.text(f"""
@@ -974,7 +1139,7 @@ def update_adaptive_state(conn, *, user_id: int, quiz_id: int, score: int) -> di
               AND difficulty_level = :level AND status = 'pending'
         """), {"lesson": target, "level": decision["difficulty_level"]}).scalar()
         if not question_exists:
-            lesson_by_lang = {lang: get_lesson(conn, target, lang=lang) or {} for lang in ("en", "et", "lt")}
+            lesson_by_lang = {lang: get_lesson(conn, target, lang=lang) or {} for lang in ("en", "et", "lt", "es")}
             conn.execute(sa.text(f"""
                 INSERT INTO {S}.content_drafts
                     (course_id, module_id, source_lesson_id, draft_type, difficulty_level, content, created_by)

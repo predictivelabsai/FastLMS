@@ -25,6 +25,7 @@ from starlette.responses import StreamingResponse
 load_dotenv()
 
 import db
+import language_learning as languages
 import school
 from components.layout import (
     app_shell,
@@ -36,6 +37,7 @@ from components.layout import (
 )
 from components.landing import landing_page
 from components.i18n import (
+    SUPPORTED_LANGS,
     get_lang,
     is_fastlearn_host,
     localize_record,
@@ -180,7 +182,7 @@ def fastlearn_reference(req):
 
 @app.get("/set-lang")
 def set_language(req, lang: str = "en", next: str = "/"):
-    lang = lang if lang in {"en", "et", "lt"} else "en"
+    lang = lang if lang in SUPPORTED_LANGS else "en"
     req.session["lang"] = lang
     response = RedirectResponse(safe_return_path(next), status_code=303)
     response.set_cookie("language", lang, max_age=365 * 24 * 3600, samesite="lax", secure=True)
@@ -653,6 +655,183 @@ async def activity_heartbeat(req):
     except (TypeError, ValueError, json.JSONDecodeError):
         return JSONResponse({"error": "invalid heartbeat"}, status_code=400)
     return JSONResponse({"ok": True, "course_id": course_id})
+
+
+# ---------------------------------------------------------------------------
+# Native-to-target language learning
+# ---------------------------------------------------------------------------
+
+def _language_options(codes, selected):
+    return [
+        Option(languages.language_label(code), value=code, selected=code == selected)
+        for code in codes
+    ]
+
+
+@app.get("/app/languages")
+def language_learning_page(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    lang = get_lang(req)
+    with db.connect() as conn:
+        profile = db.get_language_profile(conn, user["id"])
+        if not profile:
+            native, target = languages.default_language_pair(lang)
+            profile = {"native_language": native, "target_language": target, "daily_goal": 10}
+            reviews = []
+            stats = {"expressions_seen": 0, "mastered": 0, "due_now": 0, "reviewed_today": 0}
+        else:
+            reviews = db.get_language_reviews(
+                conn, user_id=user["id"], target_language=profile["target_language"]
+            )
+            stats = db.get_language_stats(
+                conn, user_id=user["id"], target_language=profile["target_language"]
+            )
+    cards = languages.build_session(
+        reviews,
+        native_language=profile["native_language"],
+        target_language=profile["target_language"],
+        limit=profile["daily_goal"],
+    )
+    target_meta = languages.LANGUAGE_META[profile["target_language"]]
+    practice = Div(P(t("all_caught_up", lang), cls="language-caught-up"), cls="language-practice")
+    if cards:
+        card = cards[0]
+        target = card["target"]
+        native = card["native"]
+        practice = Article(
+            Div(
+                Span(
+                    t("due_now", lang) if card.get("review") else t("new_expression", lang),
+                    cls="language-status due" if card.get("review") else "language-status new",
+                ),
+                Span(t("frequency_rank", lang, rank=card["rank"]), cls="language-rank"),
+                cls="language-card-meta",
+            ),
+            P(t("practice_prompt", lang, language=target_meta["autonym"]), cls="language-prompt"),
+            H2(
+                native["text"],
+                dir=languages.LANGUAGE_META[profile["native_language"]]["direction"],
+                cls="language-native",
+            ),
+            Details(
+                Summary(t("reveal_answer", lang), cls="btn btn-primary language-reveal"),
+                Div(
+                    H3(target["text"], dir=target_meta["direction"], cls="language-target"),
+                    P(target.get("romanization", ""), cls="language-romanization") if target.get("romanization") else "",
+                    Button(
+                        f"🔊 {t('listen', lang)}",
+                        type="button",
+                        cls="btn btn-secondary language-listen",
+                        data_speak=target["text"],
+                        data_voice=target_meta["voice"],
+                    ),
+                    Div(*[
+                        Form(
+                            Input(type="hidden", name="concept_id", value=card["id"]),
+                            Input(type="hidden", name="rating", value=rating),
+                            Button(t(label, lang), type="submit", cls=f"recall-button recall-{rating}"),
+                            method="post", action="/app/languages/review",
+                        )
+                        for rating, label in (("again", "recall_again"), ("hard", "recall_hard"), ("good", "recall_good"))
+                    ], cls="recall-actions"),
+                    cls="language-answer",
+                ),
+            ),
+            cls="language-card",
+        )
+    content = Div(
+        H1(t("language_learning_title", lang), cls="page-title"),
+        P(t("language_learning_subtitle", lang), cls="page-subtitle"),
+        (Div(t("language_pair_error", lang), cls="alert alert-error") if req.query_params.get("error") else ""),
+        Div(
+            Form(
+                Div(
+                    Label(t("native_language", lang), cls="form-label"),
+                    Select(*_language_options(languages.NATIVE_LANGUAGE_CODES, profile["native_language"]), name="native_language", cls="form-input"),
+                    cls="form-group",
+                ),
+                Div(
+                    Label(t("target_language", lang), cls="form-label"),
+                    Select(*_language_options(languages.TARGET_LANGUAGE_CODES, profile["target_language"]), name="target_language", cls="form-input"),
+                    cls="form-group",
+                ),
+                Div(
+                    Label(t("daily_goal", lang), cls="form-label"),
+                    Input(name="daily_goal", type="number", min=5, max=50, value=profile["daily_goal"], cls="form-input"),
+                    cls="form-group",
+                ),
+                Button(t("save_language_pair", lang), type="submit", cls="btn btn-primary"),
+                method="post", action="/app/languages/preferences", cls="language-settings-form",
+            ),
+            Div(
+                Div(Strong(str(stats["reviewed_today"])), Span(t("reviewed_today", lang)), cls="language-stat"),
+                Div(Strong(str(stats["expressions_seen"])), Span(t("language_progress", lang)), cls="language-stat"),
+                Div(Strong(str(stats["mastered"])), Span(t("mastered", lang)), cls="language-stat"),
+                cls="language-stats",
+            ),
+            cls="language-top",
+        ),
+        Div(
+            Div(H2(t("language_method_title", lang)), P(t("language_method_body", lang)), cls="language-method"),
+            practice,
+            cls="language-workspace",
+        ),
+        cls="page-content language-page",
+    )
+    return app_shell(
+        content, user=user, active="languages", title=t("language_learning", lang),
+        lang=lang, current_path="/app/languages",
+    )
+
+
+@app.post("/app/languages/preferences")
+async def save_language_preferences(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    form = await req.form()
+    try:
+        with db.begin() as conn:
+            db.save_language_profile(
+                conn,
+                user_id=user["id"],
+                native_language=str(form.get("native_language", "")),
+                target_language=str(form.get("target_language", "")),
+                daily_goal=int(form.get("daily_goal", 10)),
+            )
+    except (TypeError, ValueError):
+        return RedirectResponse("/app/languages?error=pair", status_code=303)
+    return RedirectResponse("/app/languages", status_code=303)
+
+
+@app.post("/app/languages/review")
+async def review_language_expression(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    form = await req.form()
+    try:
+        with db.begin() as conn:
+            profile = db.get_language_profile(conn, user["id"])
+            if not profile:
+                native, target = languages.default_language_pair(get_lang(req))
+                profile = db.save_language_profile(
+                    conn, user_id=user["id"], native_language=native,
+                    target_language=target, daily_goal=10,
+                )
+            db.record_language_review(
+                conn,
+                user_id=user["id"],
+                native_language=profile["native_language"],
+                target_language=profile["target_language"],
+                concept_id=str(form.get("concept_id", "")),
+                rating=str(form.get("rating", "")),
+            )
+    except ValueError:
+        return RedirectResponse("/app/languages?error=pair", status_code=303)
+    return RedirectResponse("/app/languages", status_code=303)
 
 
 # ---------------------------------------------------------------------------
@@ -2147,7 +2326,7 @@ async def generate_course_draft(req, course_id: int):
         actual_course = db.resource_course_id(conn, "lesson", lesson_id)
         if actual_course != course_id:
             return RedirectResponse("/app/manage", status_code=303)
-        lesson_by_lang = {code: db.get_lesson(conn, lesson_id, lang=code) for code in ("en", "et", "lt")}
+        lesson_by_lang = {code: db.get_lesson(conn, lesson_id, lang=code) for code in SUPPORTED_LANGS}
         payload = (db._question_draft_payload(lesson_by_lang, requested_level) if kind == "quiz_variant" else
                    db._draft_payload(kind, lesson_by_lang, 100 if kind == "extension" else 50))
         module_id = lesson_by_lang["en"]["module_id"]
@@ -2201,7 +2380,7 @@ async def review_course_draft(req, course_id: int):
                 """), {"quiz": quiz_id, "question": english["question_text"], "options": json.dumps(english["options"]),
                          "answer": english["correct_answer"], "explanation": english["explanation"],
                          "order_idx": order_idx, "level": draft["difficulty_level"]}).scalar()
-                for code in ("et", "lt"):
+                for code in ("et", "lt", "es"):
                     translated = payload[code]
                     conn.execute(sa.text(f"""
                         INSERT INTO {db.S}.content_translations
@@ -2221,7 +2400,7 @@ async def review_course_draft(req, course_id: int):
                          "order_idx": order_idx, "kind": "remedial" if draft["draft_type"] == "remedial" else "optional",
                          "level": draft["difficulty_level"]})
                 lesson_id = result.scalar()
-                for code in ("et", "lt"):
+                for code in ("et", "lt", "es"):
                     translated = payload[code]
                     conn.execute(sa.text(f"""
                         INSERT INTO {db.S}.content_translations (entity_type, entity_id, language, title, content_md)

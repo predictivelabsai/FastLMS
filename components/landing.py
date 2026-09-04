@@ -132,7 +132,7 @@ def fastlearn_landing(lang: str = "en"):
                 Section(Span(t("learn_eyebrow", lang), cls="eyebrow"), H1(t("learn_headline", lang)), P(t("learn_description", lang), cls="lede"),
                         Div(A(t("start_learning", lang), href="/auth/login", cls="button primary"), A(t("browse_courses", lang), href="#subjects", cls="button secondary"), cls="actions"),
                         id="overview", cls="hero"),
-                Section(Div(Strong("10"), Span(t("metric_courses", lang)), cls="metric"), Div(Strong("3"), Span(t("metric_languages", lang)), cls="metric"),
+                Section(Div(Strong("10"), Span(t("metric_courses", lang)), cls="metric"), Div(Strong("10"), Span(t("metric_languages", lang)), cls="metric"),
                         Div(Strong("7"), Span(t("metric_subjects", lang)), cls="metric"), Div(Strong("24/7"), Span(t("metric_tutor", lang)), cls="metric"), cls="metrics"),
                 Section(Div(Span(t("inside_eyebrow", lang), cls="eyebrow"), H2(t("inside_title", lang)), P(t("inside_body", lang), cls="section-lede"), cls="section-head"),
                         Div(Img(src="/static/fastlearn-demo.gif", alt="FastLearn product tour", loading="eager", width="1200", height="750"), cls="demo-frame"), cls="section preview"),

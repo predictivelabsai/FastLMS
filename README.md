@@ -16,6 +16,8 @@ Open-source learning management system built with [FastHTML](https://github.com/
 - **Team and assignments** — Postmark invitations, course grants, and visible Assigned tags
 - **Active-time reporting** — lesson, quiz, and AI Tutor time with visibility and inactivity controls
 - **Adaptive learning** — configurable thresholds, bounded difficulty changes, remediation, and extension drafts
+- **Language learning** — native-to-target practice across 10 major languages using a ranked frequency dictionary, browser pronunciation, anticipation, and graduated recall
+- **Multilingual demo** — complete catalogue and core UI in English, Estonian, Lithuanian, and Spanish
 
 ### Interactivity
 - **XP system** — earn points for completing lessons and passing quizzes
@@ -43,6 +45,7 @@ For schools/colleges, not just self-serve courses. Admin/teacher pages under **/
 - **Server-side rendering** — all UI generated in Python, HTMX for partial updates
 - **PostgreSQL** — full schema with courses, users, progress, interactivity, chat history
 - **Multi-provider AI** — pluggable LLM backend (X.AI Grok, OpenAI, Anthropic Claude)
+- **Language engine** — checked-in multilingual frequency data with deterministic spaced-recall scheduling and per-learner review state
 
 ## Quick start
 
@@ -139,6 +142,10 @@ All tables live in the `fastlms` PostgreSQL schema:
 | `learner_course_state` | Current bounded adaptive difficulty state |
 | `adaptive_recommendations` | Explainable remediation and extension decisions |
 | `content_drafts` | Multilingual teacher-approval queue |
+| `content_translations` | Approved and catalogue translations, including Spanish |
+| `language_profiles` | Native language, target language, and daily practice goal |
+| `language_reviews` | Per-expression graduated-recall state and next due time |
+| `language_attempts` | Immutable language-practice rating history |
 | `audit_log` | Role, invitation, assignment, strategy, and approval events |
 
 ## Interactivity details
@@ -213,6 +220,9 @@ The tutor receives lesson context automatically when accessed from a lesson page
 | `GET /app/reports` | Scoped progress, assessment, and active-time reporting |
 | `GET /app/course/{id}/strategy` | Configure adaptive learning and review generated drafts |
 | `POST /app/activity/heartbeat` | Record bounded active learning time |
+| `GET /app/languages` | Choose a native/target language pair and practise due expressions |
+| `POST /app/languages/preferences` | Save the learner's language pair and daily goal |
+| `POST /app/languages/review` | Schedule the next graduated-recall interval |
 | `GET /healthz` | Health check |
 
 ## Supported Courses
@@ -238,6 +248,23 @@ FastLMS ships with 10 ready-to-use courses:
 | Creative Writing | Creative Writing | Beginner | 2 (Storytelling, Poetry) | 4 |
 
 Run `python seed.py` for the 3 programming courses, then `python seed_subjects.py` for the 7 academic subjects.
+
+## Language learning
+
+FastLearn includes a generic native-to-target practice engine rather than one
+fixed language course. Learners can start from English, Spanish, French, German,
+Italian, Portuguese, Mandarin Chinese, Arabic, Japanese, Hindi, Estonian, or
+Lithuanian and choose one of ten major target languages: English, Spanish,
+French, German, Italian, Portuguese, Mandarin Chinese, Arabic, Japanese, or
+Hindi.
+
+The initial checked-in dictionary contains 30 frequency-informed words and
+functional expressions aligned across every supported native language. Sessions
+ask the learner to anticipate and say the target phrase, reveal and listen to
+the answer, then rate recall. A deterministic graduated-interval scheduler
+returns difficult material sooner and expands intervals after successful recall.
+This uses general audio-first and spaced-repetition principles; it does not copy
+proprietary course content.
 
 ## Design inspiration
 

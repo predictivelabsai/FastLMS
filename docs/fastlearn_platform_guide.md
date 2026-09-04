@@ -3,7 +3,8 @@
 **Published:** 2026-09-04  
 **Platform:** [https://fastlearn.fun](https://fastlearn.fun)  
 **Open-source foundation:** [FastLMS](https://lms.fastsme.com)  
-**Languages:** English, Estonian and Lithuanian
+**Interface and catalogue languages:** English, Estonian, Lithuanian and Spanish<br>
+**Language-learning targets:** English, Spanish, French, German, Italian, Portuguese, Mandarin Chinese, Arabic, Japanese and Hindi
 
 This guide explains how students, teachers and the administrator use FastLearn, including role-based access, learning-time reporting and configurable adaptive learning.
 
@@ -15,12 +16,13 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 
 ![FastLearn landing page](img/fastlearn-platform-guide/01-home.png)
 
-**Platform capabilities:**
+### Platform capabilities
 
 - Ten published courses across programming, mathematics, science, language, geography and creative writing.
 - Course modules, lessons, quizzes, XP, streaks, badges and a leaderboard.
 - An AI Tutor grounded in the lesson being studied.
-- English, Estonian and Lithuanian interface and course content.
+- English, Estonian, Lithuanian and Spanish interface and course content.
+- Native-to-target language practice across ten major languages.
 - Google OAuth and password authentication.
 - Enforced admin, teacher and student permissions.
 - Team invitations and teacher/course assignments.
@@ -150,6 +152,42 @@ The default rules are:
 
 FastLearn never changes by more than one difficulty level at a time and falls back to the nearest approved material when an exact match is unavailable.
 
+### 4.8 Learn another language
+
+Open **Language learning** in the left navigation. Choose the language the student already speaks, the target language and a daily practice goal.
+
+![Native-to-target language practice](img/fastlearn-platform-guide/13-language-learning.png)
+
+#### Supported language pairs
+
+The target-language engine currently supports:
+
+- English;
+- Spanish;
+- French;
+- German;
+- Italian;
+- Portuguese;
+- Mandarin Chinese;
+- Modern Standard Arabic;
+- Japanese;
+- Hindi.
+
+Estonian and Lithuanian are also available as native starting languages. This lets a student begin with familiar instructions even when the target language uses another script.
+
+#### How practice works
+
+Each practice turn follows an audio-first recall loop:
+
+1. Read the meaning in the native language.
+2. Anticipate and say the target expression aloud before revealing it.
+3. Reveal the target expression and its romanisation where appropriate.
+4. Listen to browser-generated pronunciation.
+5. Rate recall as **Again**, **Hard** or **Got it**.
+6. Let FastLearn schedule the next appearance.
+
+The initial dictionary contains 30 frequency-informed words and functional expressions aligned across every supported language. Difficult expressions return sooner. Successful recall expands from short in-session intervals to hours, days and months. This is a Pimsleur-style use of anticipation and graduated interval recall with original content; FastLearn does not reproduce proprietary Pimsleur lessons or recordings.
+
 ## 5. Teacher guide
 
 ### 5.1 Manage assigned courses
@@ -213,7 +251,7 @@ A teacher may request generated material for a selected lesson. FastLearn produc
 - answer options, correct answer and explanation;
 - remedial lesson drafts for common misconceptions;
 - extension lesson drafts for learners ready to move further;
-- English, Estonian and Lithuanian versions.
+- English, Estonian, Lithuanian and Spanish versions.
 
 Generated material always starts as **Pending**. Before approval, the teacher should verify factual accuracy, difficulty, age appropriateness, wording, translations and that the correct answer appears exactly among the answer options. Only approved variants become lessons or quiz questions.
 
@@ -267,9 +305,14 @@ Use the flag selector in the navigation to switch between:
 
 - English;
 - Eesti;
-- Lietuvių.
+- Lietuvių;
+- Español.
+
+![FastLearn landing page in Spanish](img/fastlearn-platform-guide/14-spanish-demo.png)
 
 The selected language applies to navigation, course and lesson content, quizzes, answer explanations, AI Tutor prompts and generated drafts. Difficulty changes must never silently switch the learner's language.
+
+The interface language and language-learning pair are independent. For example, a student can use the Spanish interface while learning Mandarin Chinese from English, or use the Estonian interface while learning Spanish from Estonian.
 
 ## 9. Data and audit records
 
@@ -282,6 +325,7 @@ FastLearn retains:
 - quiz attempts and individual responses;
 - adaptive difficulty, recommendations and their assessment evidence;
 - generated content versions and teacher approval decisions.
+- native and target language preferences, recall ratings and next-due intervals.
 
 Access follows least privilege: students see their own data, teachers see relevant assigned-course data, and administrators see platform-wide records. Passwords and OAuth tokens are never part of learning analytics.
 
@@ -295,6 +339,7 @@ Access follows least privilege: students see their own data, teachers see releva
 4. Complete its quiz.
 5. Use AI Tutor when an explanation is unclear.
 6. Review progress, active time and adaptive recommendations.
+7. Open **Language learning** to practise a chosen target language from the student's native language.
 
 ### Teacher
 

@@ -1,6 +1,11 @@
 {
   "courses": {
     "1": {
+      "es": {
+        "category": "Programación",
+        "description": "Domina los fundamentos de la programación en Python: variables, flujo de control, funciones, estructuras de datos y entrada/salida de archivos. Perfecto para principiantes absolutos.",
+        "title": "Fundamentos de Python"
+      },
       "et": {
         "category": "Programmeerimine",
         "description": "Omanda Pythoni programmeerimise põhialused — muutujad, juhtimisvoog, funktsioonid, andmestruktuurid ja faili I/O. Ideaalne absoluutsetele algajatele.",
@@ -14,6 +19,11 @@
       "source": "Python Fundamentals"
     },
     "10": {
+      "es": {
+        "category": "Escritura creativa",
+        "description": "Desarrolla tu voz como escritor: técnicas narrativas, desarrollo de personajes, construcción de mundos, formas poéticas y el arte de la revisión.",
+        "title": "Escritura creativa"
+      },
       "et": {
         "category": "Loovkirjutamine",
         "description": "Arenda oma kirjaniku häält — narratiivitehnikad, tegelaskujude arendus, maailmaehitus, luulevormid ja revisjoni kunst.",
@@ -27,6 +37,11 @@
       "source": "Creative Writing"
     },
     "2": {
+      "es": {
+        "category": "Ciencia de datos",
+        "description": "Aprendizaje automático práctico: desde la preparación de datos hasta la evaluación de modelos. Aprende clasificación, regresión y agrupamiento con scikit-learn.",
+        "title": "Aprendizaje automático con scikit-learn"
+      },
       "et": {
         "category": "Andmeteadus",
         "description": "Praktiline masinõpe — andmete ettevalmistamisest mudeli hindamiseni. Õppige klassifitseerimist, regressiooni ja klastrite moodustamist scikit-learniga.",
@@ -40,6 +55,11 @@
       "source": "Machine Learning with scikit-learn"
     },
     "3": {
+      "es": {
+        "category": "Desarrollo web",
+        "description": "Crea aplicaciones web modernas usando FastHTML: orientado a Python, impulsado por HTMX, sin necesidad de frameworks de JavaScript.",
+        "title": "Creación de aplicaciones web con FastHTML"
+      },
       "et": {
         "category": "Veebiarendus",
         "description": "Looge kaasaegseid veebirakendusi FastHTML-i abil — Python-esimene, HTMX-toega, JavaScripti raamistikku pole vaja.",
@@ -53,6 +73,11 @@
       "source": "Building Web Apps with FastHTML"
     },
     "4": {
+      "es": {
+        "category": "Matemáticas",
+        "description": "Construye una base sólida en matemáticas: álgebra, geometría, probabilidad y fundamentos de cálculo. De ecuaciones a demostraciones, gana confianza con los números.",
+        "title": "Fundamentos de matemáticas"
+      },
       "et": {
         "category": "Matemaatika",
         "description": "Looge kindel matemaatika alus — algebra, geomeetria, tõenäosus ja arvutuse põhialused. Võrranditest tõestusteni, saavutage kindlustunne numbritega.",
@@ -66,6 +91,11 @@
       "source": "Mathematics Foundations"
     },
     "5": {
+      "es": {
+        "category": "Física",
+        "description": "Comprende las leyes que rigen el universo: mecánica, energía, ondas y electricidad. Ejemplos prácticos y resolución de problemas a lo largo del curso.",
+        "title": "Fundamentos de física"
+      },
       "et": {
         "category": "Füüsika",
         "description": "Mõista universumit reguleerivaid seadusi — mehaanika, energia, lained ja elekter. Praktilised näited ja probleemide lahendamine läbivalt.",
@@ -79,6 +109,11 @@
       "source": "Physics Essentials"
     },
     "6": {
+      "es": {
+        "category": "Biología",
+        "description": "Explora los sistemas vivos: biología celular, genética, ecología y fisiología humana. Comprende cómo crecen, se reproducen e interactúan los organismos con su entorno.",
+        "title": "Biología: Ciencias de la vida"
+      },
       "et": {
         "category": "Bioloogia",
         "description": "Uurige elussüsteeme — rakubioloogia, geneetika, ökoloogia ja inimese füsioloogia. Mõistke, kuidas organismid kasvavad, paljunevad ja suhtlevad oma keskkonnaga.",
@@ -92,6 +127,11 @@
       "source": "Biology: Life Sciences"
     },
     "7": {
+      "es": {
+        "category": "Química",
+        "description": "Comprende la materia a nivel atómico: estructura atómica, enlaces, reacciones y la tabla periódica. De moléculas a estequiometría.",
+        "title": "Fundamentos de química"
+      },
       "et": {
         "category": "Keemia",
         "description": "Mõista ainet aatomitasandil — aatomistruktuur, sidemed, reaktsioonid ja perioodilisustabel. Molekulidest stöhhiomeetriani.",
@@ -105,6 +145,11 @@
       "source": "Chemistry Fundamentals"
     },
     "8": {
+      "es": {
+        "category": "Inglés",
+        "description": "Fortalece la comprensión lectora, la redacción de ensayos, el análisis literario y la gramática. Cubre ficción, no ficción, poesía y escritura persuasiva.",
+        "title": "Lengua y literatura inglesas"
+      },
       "et": {
         "category": "Inglise keel",
         "description": "Tugevdada lugemise mõistmist, esseekirjutamist, kirjandusanalüüsi ja grammatikat. Hõlmab ilukirjandust, aimekirjandust, luulet ja veenvat kirjutamist.",
@@ -118,6 +163,11 @@
       "source": "English Language & Literature"
     },
     "9": {
+      "es": {
+        "category": "Geografía",
+        "description": "Estudia los paisajes de la Tierra, los sistemas climáticos y la geografía humana: urbanización, globalización, gestión de recursos y sostenibilidad.",
+        "title": "Geografía: física y humana"
+      },
       "et": {
         "category": "Geograafia",
         "description": "Uurige Maa maastikke, kliimasüsteeme ja inimgeograafiat — linnastumine, globaliseerumine, ressursside haldamine ja jätkusuutlikkus.",
@@ -133,6 +183,10 @@
   },
   "lessons": {
     "1": {
+      "es": {
+        "content_md": "# ¿Qué es Python?\n\nPython es un lenguaje de programación de alto nivel e interpretado creado por Guido van Rossum en 1991. Es conocido por su sintaxis limpia y legibilidad.\n\n## ¿Por qué aprender Python?\n\n- **Fácil para principiantes**: Sintaxis limpia que se lee como inglés\n- **Versátil**: Desarrollo web, ciencia de datos, IA/ML, automatización, scripting\n- **Gran ecosistema**: Más de 400,000 paquetes en PyPI\n- **Muy demandado**: Una de las habilidades más solicitadas en tecnología\n\n## Tu primer programa\n\n```python\nprint(\"Hello, World!\")\n```\n\n¡Eso es todo! Sin boilerplate, sin ceremonias. Esto es lo que hace especial a Python.\n\n## Cómo se ejecuta Python\n\nPython es un lenguaje **interpretado**. Tu código se ejecuta línea por línea por el intérprete de Python, a diferencia de los lenguajes compilados (C, Java) que convierten todo a código máquina primero.\n\n> **Punto clave**: Python prioriza la productividad del desarrollador sobre la velocidad de ejecución pura. Para la mayoría de las aplicaciones, este es el equilibrio correcto.\n",
+        "title": "¿Qué es Python?"
+      },
       "et": {
         "content_md": "# Mis on Python?\n\nPython on kõrgetasemeline, interpreteeritud programmeerimiskeel, mille lõi Guido van Rossum 1991. aastal. See on tuntud oma puhta süntaksi ja loetavuse poolest.\n\n## Miks õppida Pythonit?\n\n- **Algajasõbralik**: Puhas süntaks, mis loetakse nagu inglise keel\n- **Mitmekülgne**: Veebiarendus, andmeteadus, AI/ML, automatiseerimine, skriptimine\n- **Suur ökosüsteem**: Üle 400 000 paketi PyPI-s\n- **Nõutud**: Üks enim nõutud oskusi tehnikavaldkonnas\n\n## Sinu esimene programm\n\n```python\nprint(\"Hello, World!\")\n```\n\nSee ongi kõik! Pole boilerplate'i, pole tseremooniat. See teeb Pythoni eriliseks.\n\n## Kuidas Python töötab\n\nPython on **interpreteeritud** keel. Sinu koodi täidetakse rida realt Pythoni interpretaator, erinevalt kompileeritud keeltest (C, Java), mis teisendavad kõik esmalt masinkoodiks.\n\n> **Põhiline järeldus**: Python seab arendaja tootlikkuse esikohale toore täitmise kiiruse asemel. Enamiku rakenduste jaoks on see õige kompromiss.\n",
         "title": "Mis on Python?"
@@ -144,6 +198,10 @@
       "source": "What is Python?"
     },
     "10": {
+      "es": {
+        "content_md": "# Resolución de ecuaciones lineales\n\n## La regla de oro\n\nTodo lo que hagas a un lado de la ecuación, debes hacerlo también al otro lado.\n\n## Ecuaciones de un paso\n\n```\nx + 5 = 12     →  x = 12 - 5  →  x = 7\n3x = 21         →  x = 21 / 3  →  x = 7\n```\n\n## Ecuaciones de dos pasos\n\n```\n2x + 3 = 11\n2x = 11 - 3    (resta 3 de ambos lados)\n2x = 8\nx = 4           (divide ambos lados entre 2)\n```\n\n## Ecuaciones con variables en ambos lados\n\n```\n5x - 3 = 2x + 9\n3x = 12          (resta 2x, suma 3)\nx = 4\n```\n\n## Comprobación de la respuesta\n\nSustituye siempre de nuevo: `5(4) - 3 = 17` y `2(4) + 9 = 17` ✓\n",
+        "title": "Resolución de ecuaciones lineales"
+      },
       "et": {
         "content_md": "# Lineaarvõrrandite lahendamine\n\n## Kuldreegel\n\nMida iganes teed võrrandi ühele poolele, pead tegema ka teisele poolele.\n\n## Üheastmelised võrrandid\n\n```\nx + 5 = 12     →  x = 12 - 5  →  x = 7\n3x = 21         →  x = 21 / 3  →  x = 7\n```\n\n## Kaheastmelised võrrandid\n\n```\n2x + 3 = 11\n2x = 11 - 3    (lahuta 3 mõlemalt poolt)\n2x = 8\nx = 4           (jaga mõlemad pooled 2-ga)\n```\n\n## Võrrandid muutujatega mõlemal pool\n\n```\n5x - 3 = 2x + 9\n3x = 12          (lahuta 2x, liida 3)\nx = 4\n```\n\n## Vastus kontrollimine\n\nAsenda alati tagasi: `5(4) - 3 = 17` ja `2(4) + 9 = 17` ✓\n",
         "title": "Lineaarvõrrandite lahendamine"
@@ -155,6 +213,10 @@
       "source": "Solving Linear Equations"
     },
     "11": {
+      "es": {
+        "content_md": "# Figuras, área y perímetro\n\n## Fórmulas clave\n\n| Figura | Área | Perímetro |\n|-------|------|-----------|\n| Rectángulo | `l x w` | `2(l + w)` |\n| Triángulo | `½ x b x h` | `a + b + c` |\n| Círculo | `π r²` | `2πr` |\n| Trapecio | `½(a + b) x h` | `a + b + c + d` |\n\n## Ejemplo resuelto\n\nUn rectángulo tiene longitud 8 cm y anchura 5 cm.\n\n- **Área** = 8 x 5 = 40 cm²\n- **Perímetro** = 2(8 + 5) = 2(13) = 26 cm\n\n## Teorema de Pitágoras\n\nPara triángulos rectángulos: **a² + b² = c²**\n\nSi dos lados miden 3 y 4:\n```\nc² = 3² + 4² = 9 + 16 = 25\nc = √25 = 5\n```\n\n> El triángulo 3-4-5 es la terna pitagórica más famosa. Otras incluyen 5-12-13 y 8-15-17.\n",
+        "title": "Figuras, área y perímetro"
+      },
       "et": {
         "content_md": "# Kujundid, pindala ja ümbermõõt\n\n## Põhivalemid\n\n| Kujund | Pindala | Ümbermõõt |\n|-------|------|-----------|\n| Ristkülik | `l x w` | `2(l + w)` |\n| Kolmnurk | `½ x b x h` | `a + b + c` |\n| Ring | `π r²` | `2πr` |\n| Trapets | `½(a + b) x h` | `a + b + c + d` |\n\n## Lahendatud näide\n\nRistkülikul on pikkus 8 cm ja laius 5 cm.\n\n- **Pindala** = 8 x 5 = 40 cm²\n- **Ümbermõõt** = 2(8 + 5) = 2(13) = 26 cm\n\n## Pythagorase teoreem\n\nTäisnurksete kolmnurkade jaoks: **a² + b² = c²**\n\nKui kaks külge on 3 ja 4:\n```\nc² = 3² + 4² = 9 + 16 = 25\nc = √25 = 5\n```\n\n> 3-4-5 kolmnurk on kõige kuulsam Pythagorase kolmik. Teised hõlmavad 5-12-13 ja 8-15-17.\n",
         "title": "Kujundid, pindala ja ümbermõõt"
@@ -166,6 +228,10 @@
       "source": "Shapes, Area, and Perimeter"
     },
     "12": {
+      "es": {
+        "content_md": "# Rapidez, velocidad y aceleración\n\n## Rapidez frente a velocidad\n\n- **Rapidez** = distancia / tiempo (escalar — solo magnitud)\n- **Velocidad** = desplazamiento / tiempo (vector — magnitud + dirección)\n\nUn automóvil que recorre 100 km alrededor de una pista circular en 1 hora tiene **rapidez = 100 km/h** pero **velocidad = 0** (regresa al punto de partida).\n\n## Aceleración\n\nTasa de cambio de la velocidad:\n\n```\na = (v - u) / t\n```\n\nDonde:\n- `u` = velocidad inicial\n- `v` = velocidad final\n- `t` = tiempo transcurrido\n\n## Ecuaciones SUVAT\n\nPara **aceleración uniforme** (constante `a`):\n\n| Ecuación | Falta |\n|----------|---------|\n| `v = u + at` | `s` |\n| `s = ut + ½at²` | `v` |\n| `v² = u² + 2as` | `t` |\n| `s = ½(u + v)t` | `a` |\n\n## Ejemplo resuelto\n\nUn automóvil acelera de 0 a 30 m/s en 6 segundos.\n\n```\na = (30 - 0) / 6 = 5 m/s²\ns = ½(0 + 30)(6) = 90 m\n```\n\n> **Caída libre**: En la Tierra, `g ≈ 9.81 m/s²`. Un objeto en caída (sin resistencia del aire) gana ~10 m/s de rapidez cada segundo.\n",
+        "title": "Rapidez, velocidad y aceleración"
+      },
       "et": {
         "content_md": "# Kiirus, kiirusvektor ja kiirendus\n\n## Kiirus vs kiirusvektor\n\n- **Kiirus** = vahemaa / aeg (skalaar — ainult suurus)\n- **Kiirusvektor** = nihe / aeg (vektor — suurus + suund)\n\nAuto, mis sõidab 100 km ringrajal 1 tunniga, omab **kiirus = 100 km/h**, kuid **kiirusvektor = 0** (see on tagasi alguskohas).\n\n## Kiirendus\n\nKiirusvektori muutumise kiirus:\n\n```\na = (v - u) / t\n```\n\nKus:\n- `u` = algkiirus\n- `v` = lõppkiirus\n- `t` = aeg\n\n## SUVAT võrrandid\n\n**Ühtlase kiirenduse** (püsiv `a`) korral:\n\n| Võrrand | Puudub |\n|----------|---------|\n| `v = u + at` | `s` |\n| `s = ut + ½at²` | `v` |\n| `v² = u² + 2as` | `t` |\n| `s = ½(u + v)t` | `a` |\n\n## Lahendatud näide\n\nAuto kiirendab 0-st 30 m/s-ni 6 sekundiga.\n\n```\na = (30 - 0) / 6 = 5 m/s²\ns = ½(0 + 30)(6) = 90 m\n```\n\n> **Vaba langemine**: Maal `g ≈ 9.81 m/s²`. Õhutakistust arvestamata langev objekt saab iga sekundi jooksul ~10 m/s kiirust juurde.\n",
         "title": "Kiirus, kiirusvektor ja kiirendus"
@@ -177,6 +243,10 @@
       "source": "Speed, Velocity, and Acceleration"
     },
     "13": {
+      "es": {
+        "content_md": "# Las leyes del movimiento de Newton\n\n## Primera ley (Inercia)\n\nUn objeto permanece en reposo o en movimiento uniforme a menos que actúe sobre él una fuerza externa.\n\n- Un libro sobre una mesa permanece quieto hasta que lo empujas\n- Una nave espacial en el espacio vacío sigue moviéndose para siempre (sin fricción)\n\n## Segunda ley (F = ma)\n\nLa fuerza es igual a la masa por la aceleración.\n\n```\nF = ma\n```\n\nUna caja de 10 kg empujada con 50 N de fuerza:\n```\na = F/m = 50/10 = 5 m/s²\n```\n\n## Tercera ley (Acción-Reacción)\n\nPara cada acción, hay una reacción igual y opuesta.\n\n- Cuando empujas una pared, la pared te empuja hacia atrás\n- Un cohete empuja el escape hacia abajo, el escape empuja el cohete hacia arriba\n- Empujas el suelo hacia atrás al caminar, el suelo te empuja hacia adelante\n\n## Peso vs Masa\n\n- **Masa** = cantidad de materia (kg) — constante en todas partes\n- **Peso** = fuerza gravitacional (N) — `W = mg`\n\nEn la Tierra: `W = 70 x 9.81 = 687 N`\nEn la Luna: `W = 70 x 1.62 = 113 N`\n",
+        "title": "Las leyes del movimiento de Newton"
+      },
       "et": {
         "content_md": "# Newtoni liikumisseadused\n\n## Esimene seadus (inerts)\n\nObjekt püsib paigal või ühtlases liikumises, kui sellele ei mõju väline jõud.\n\n- Raamat laual püsib paigal, kuni sa seda lükkad\n- Kosmoselaev tühjas ruumis liigub igavesti edasi (hõõrdumist pole)\n\n## Teine seadus (F = ma)\n\nJõud võrdub mass korda kiirendus.\n\n```\nF = ma\n```\n\n10 kg kasti lükates 50 N jõuga:\n```\na = F/m = 50/10 = 5 m/s²\n```\n\n## Kolmas seadus (toime-vastutoime)\n\nIga toime kohta on võrdne ja vastupidine vastutoime.\n\n- Kui sa lükkad seina, lükkab sein sind tagasi\n- Rakett lükkab heitgaase alla, heitgaasid lükkavad raketi üles\n- Kui kõnnid, lükkad maad tahapoole, maa lükkab sind edasi\n\n## Kaal vs mass\n\n- **Mass** = aine hulk (kg) — muutumatu kõikjal\n- **Kaal** = gravitatsioonijõud (N) — `W = mg`\n\nMaal: `W = 70 x 9.81 = 687 N`\nKuul: `W = 70 x 1.62 = 113 N`\n",
         "title": "Newtoni liikumisseadused"
@@ -188,6 +258,10 @@
       "source": "Newton's Laws of Motion"
     },
     "14": {
+      "es": {
+        "content_md": "# Estructura celular\n\nLas células son los bloques fundamentales de construcción de todos los organismos vivos.\n\n## Células animales vs vegetales\n\n| Característica | Célula animal | Célula vegetal |\n|---------|-------------|------------|\n| Pared celular | No | Sí (celulosa) |\n| Cloroplastos | No | Sí |\n| Vacuola | Pequeña, múltiple | Grande, central |\n| Forma | Irregular | Regular / rectangular |\n| Ambas tienen | Núcleo, mitocondrias, ribosomas, membrana celular, citoplasma |\n\n## Orgánulos clave\n\n- **Núcleo** — contiene ADN, controla las actividades celulares\n- **Mitocondrias** — \"central energética de la célula\", produce ATP mediante respiración aeróbica\n- **Ribosomas** — sintetizan proteínas a partir de aminoácidos\n- **Membrana celular** — barrera selectivamente permeable, controla lo que entra y sale\n- **Retículo endoplasmático (RE)** — el RE rugoso tiene ribosomas (transporte de proteínas), el RE liso produce lípidos\n- **Aparato de Golgi** — empaqueta y modifica proteínas para su secreción\n\n## Procariotas vs eucariotas\n\n| Característica | Procariota | Eucariota |\n|---------|------------|-----------|\n| Núcleo | No (nucleoide) | Sí |\n| Tamaño | 1-10 μm | 10-100 μm |\n| Ejemplos | Bacterias | Animales, plantas, hongos |\n| ADN | Circular | Cromosomas lineales |\n\n> **Escala**: Si una célula tuviera el tamaño de un campo de fútbol, una mitocondria sería del tamaño de una persona, y un ribosoma sería del tamaño de un balón de fútbol.\n",
+        "title": "Estructura celular"
+      },
       "et": {
         "content_md": "# Raku struktuur\n\nRakud on kõigi elusorganismide põhilised ehitusplokid.\n\n## Loomarakk vs taimerakk\n\n| Feature | Animal Cell | Plant Cell |\n|---------|-------------|------------|\n| Cell wall | No | Yes (cellulose) |\n| Chloroplasts | No | Yes |\n| Vacuole | Small, multiple | Large, central |\n| Shape | Irregular | Regular / rectangular |\n| Both have | Nucleus, mitochondria, ribosomes, cell membrane, cytoplasm |\n\n## Key Organelles\n\n- **Nucleus** — sisaldab DNA-d, kontrollib raku tegevusi\n- **Mitochondria** — \"raku jõujaam\", toodab ATP-d aeroobse hingamise kaudu\n- **Ribosomes** — sünteesivad valke aminohapetest\n- **Cell membrane** — selektiivselt läbilaskev barjäär, kontrollib, mis siseneb ja väljub\n- **Endoplasmic reticulum (ER)** — kare ER-l on ribosoomid (valkude transport), sile ER toodab lipiide\n- **Golgi apparatus** — pakib ja muudab valke sekretsiooniks\n\n## Prokaryotes vs Eukaryotes\n\n| Feature | Prokaryote | Eukaryote |\n|---------|------------|-----------|\n| Nucleus | No (nucleoid) | Yes |\n| Size | 1-10 μm | 10-100 μm |\n| Examples | Bacteria | Animals, plants, fungi |\n| DNA | Circular | Linear chromosomes |\n\n> **Scale**: Kui rakk oleks jalgpalliväljaku suurune, oleks mitokondrium inimese suurune ja ribosoom jalgpalli suurune.\n",
         "title": "Raku struktuur"
@@ -199,6 +273,10 @@
       "source": "Cell Structure"
     },
     "15": {
+      "es": {
+        "content_md": "# ADN y herencia\n\n## Estructura del ADN\n\nEl ADN (ácido desoxirribonucleico) es una doble hélice formada por nucleótidos. Cada nucleótido tiene:\n- Un grupo fosfato\n- Un azúcar desoxirribosa\n- Una base nitrogenada (A, T, C o G)\n\n**Reglas de apareamiento de bases**: A-T (2 enlaces de hidrógeno), C-G (3 enlaces de hidrógeno)\n\n## Genes y cromosomas\n\n- **Gen** — una sección de ADN que codifica una proteína específica\n- **Cromosoma** — una molécula larga de ADN envuelta alrededor de proteínas (histonas)\n- Los humanos tienen **46 cromosomas** (23 pares)\n- El par 23 = cromosomas sexuales: XX (mujer), XY (hombre)\n\n## Herencia\n\n- **Alelo** — una versión de un gen (p. ej., alelo de ojos marrones, alelo de ojos azules)\n- **Dominante** (B) — se expresa cuando hay una o dos copias presentes\n- **Recesivo** (b) — solo se expresa cuando hay dos copias presentes\n- **Genotipo** — los alelos que llevas (BB, Bb, bb)\n- **Fenotipo** — el rasgo observable (ojos marrones, ojos azules)\n\n## Cuadro de Punnett\n\nCruzamiento Bb x Bb:\n\n```\n        B       b\n  B    BB      Bb\n  b    Bb      bb\n```\n\nProporción: 3 dominante : 1 recesivo (75% : 25%)\n",
+        "title": "ADN y herencia"
+      },
       "et": {
         "content_md": "# DNA ja pärilikkus\n\n## DNA struktuur\n\nDNA (desoksüribonukleiinhape) on nukleotiididest koosnev topeltheeliks. Igal nukleotiidil on:\n- Fosfaatrühm\n- Desoksüriboosi suhkur\n- Lämmastikku sisaldav alus (A, T, C või G)\n\n**Aluste paaritumise reeglid**: A-T (2 vesiniksidet), C-G (3 vesiniksidet)\n\n## Geenid ja kromosoomid\n\n- **Geen** — DNA lõik, mis kodeerib kindlat valku\n- **Kromosoom** — pikk DNA molekul, mis on ümbritsetud valkudega (histoonid)\n- Inimestel on **46 kromosoomi** (23 paari)\n- Paar 23 = sugukromosoomid: XX (naine), XY (mees)\n\n## Pärilikkus\n\n- **Alleel** — geeni versioon (nt pruunide silmade alleel, siniste silmade alleel)\n- **Dominantne** (B) — avaldub ühe või kahe koopia olemasolul\n- **Retessiivne** (b) — avaldub ainult kahe koopia olemasolul\n- **Genotüüp** — alleelid, mida kannate (BB, Bb, bb)\n- **Fenotüüp** — vaadeldav tunnus (pruunid silmad, sinised silmad)\n\n## Punneti ruut\n\nRistamine Bb x Bb:\n\n```\n        B       b\n  B    BB      Bb\n  b    Bb      bb\n```\n\nSuhe: 3 dominantne : 1 retsessiivne (75% : 25%)\n",
         "title": "DNA ja pärilikkus"
@@ -210,6 +288,10 @@
       "source": "DNA and Inheritance"
     },
     "16": {
+      "es": {
+        "content_md": "# Átomos y la tabla periódica\n\n## Estructura de un átomo\n\n| Partícula | Carga | Masa | Ubicación |\n|----------|--------|------|----------|\n| Protón | +1 | 1 uma | Núcleo |\n| Neutrón | 0 | 1 uma | Núcleo |\n| Electrón | -1 | ~0 | Capas electrónicas |\n\n- **Número atómico** = número de protones (define el elemento)\n- **Número másico** = protones + neutrones\n- **Isótopos** = mismo elemento, diferente número de neutrones (p. ej., Carbono-12 vs Carbono-14)\n\n## Configuración electrónica\n\nLos electrones llenan las capas de adentro hacia afuera:\n- Capa 1: máximo 2 electrones\n- Capa 2: máximo 8 electrones\n- Capa 3: máximo 8 electrones (simplificado)\n\nEjemplo — Sodio (Na, número atómico 11): `2, 8, 1`\n\n## La tabla periódica\n\n- **Grupos** (columnas) = mismo número de electrones externos → propiedades químicas similares\n- **Períodos** (filas) = mismo número de capas electrónicas\n- **Metales** a la izquierda, **no metales** a la derecha\n- **Grupo 1** (metales alcalinos): reactivos, 1 electrón externo\n- **Grupo 7** (halógenos): reactivos, 7 electrones externos\n- **Grupo 0** (gases nobles): no reactivos, capa externa completa\n\n> **El genio de Mendeleiev**: Ordenó los elementos por masa atómica Y dejó espacios para elementos aún no descubiertos — y predijo correctamente sus propiedades.\n",
+        "title": "Átomos y la tabla periódica"
+      },
       "et": {
         "content_md": "# Aatomid ja perioodilisustabel\n\n## Aatomi struktuur\n\n| Osake | Laeng | Mass | Asukoht |\n|----------|--------|------|----------|\n| Prooton | +1 | 1 amu | Tuum |\n| Neutron | 0 | 1 amu | Tuum |\n| Elektron | -1 | ~0 | Elektronkestad |\n\n- **Aatomnumber** = prootonite arv (määrab elemendi)\n- **Massiarv** = prootonid + neutronid\n- **Isotoobid** = sama element, erinev arv neutroneid (nt süsinik-12 vs süsinik-14)\n\n## Elektronkonfiguratsioon\n\nElektronid täidavad kestad seestpoolt väljapoole:\n- Kest 1: max 2 elektroni\n- Kest 2: max 8 elektroni\n- Kest 3: max 8 elektroni (lihtsustatud)\n\nNäide — Naatrium (Na, aatomnumber 11): `2, 8, 1`\n\n## Perioodilisustabel\n\n- **Rühmad** (veerud) = sama arv väliselektrone → sarnased keemilised omadused\n- **Perioodid** (read) = sama arv elektronkestasid\n- **Metallid** vasakul, **mittemetallid** paremal\n- **Rühm 1** (leelismetallid): reaktsioonivõimelised, 1 väline elektron\n- **Rühm 7** (halogeenid): reaktsioonivõimelised, 7 välist elektroni\n- **Rühm 0** (väärisgaasid): passiivsed, täis väline kest\n\n> **Mendelejevi geenius**: Ta järjestas elemendid aatommassi järgi JA jättis tühikud avastamata elementidele — ning ennustas nende omadusi õigesti.\n",
         "title": "Aatomid ja perioodilisustabel"
@@ -221,6 +303,10 @@
       "source": "Atoms and the Periodic Table"
     },
     "17": {
+      "es": {
+        "content_md": "# Tipos de reacciones y balanceo de ecuaciones\n\n## Tipos de reacciones químicas\n\n1. **Combustión**: Combustible + O₂ → CO₂ + H₂O (+ energía)\n2. **Neutralización**: Ácido + Base → Sal + Agua\n3. **Descomposición**: AB → A + B (un compuesto se descompone)\n4. **Desplazamiento**: Un elemento más reactivo desplaza a uno menos reactivo\n5. **Síntesis**: A + B → AB (dos elementos se combinan)\n\n## Balanceo de ecuaciones\n\nÁtomos a la izquierda = átomos a la derecha (conservación de la masa).\n\n**Sin balancear**: `H₂ + O₂ → H₂O`\n\nConteo: A la izquierda hay 2H, 2O. A la derecha hay 2H, 1O. ¡No está balanceada!\n\n**Balanceada**: `2H₂ + O₂ → 2H₂O`\n\nConteo: A la izquierda 4H, 2O. A la derecha 4H, 2O. ✓\n\n## Exotérmica vs Endotérmica\n\n- **Exotérmica**: libera energía (combustión, neutralización). La temperatura aumenta.\n- **Endotérmica**: absorbe energía (fotosíntesis, descomposición térmica). La temperatura disminuye.\n\n## Velocidad de las reacciones\n\nLas reacciones son más rápidas con:\n- Mayor **temperatura** (las partículas se mueven más rápido)\n- Mayor **concentración** (más partículas por volumen)\n- Menor **área superficial** (más partículas expuestas)\n- Un **catalizador** (reduce la energía de activación, no se consume)\n",
+        "title": "Tipos de reacciones y balanceo de ecuaciones"
+      },
       "et": {
         "content_md": "# Reaktsioonitüübid ja võrrandite tasakaalustamine\n\n## Keemiliste reaktsioonide tüübid\n\n1. **Põlemine**: Kütus + O₂ → CO₂ + H₂O (+ energia)\n2. **Neutraliseerimine**: Hape + Alus → Sool + Vesi\n3. **Lagunemine**: AB → A + B (üks ühend laguneb)\n4. **Asendus**: Reaktiivsem element asendab vähem reaktiivse\n5. **Süntees**: A + B → AB (kaks elementi ühinevad)\n\n## Võrrandite tasakaalustamine\n\nAatomid sisse = aatomid välja (massi jäävus).\n\n**Tasakaalustamata**: `H₂ + O₂ → H₂O`\n\nLoendus: Vasakul 2H, 2O. Paremal 2H, 1O. Pole tasakaalus!\n\n**Tasakaalustatud**: `2H₂ + O₂ → 2H₂O`\n\nLoendus: Vasakul 4H, 2O. Paremal 4H, 2O. ✓\n\n## Eksotermiline vs endotermiline\n\n- **Eksotermiline**: vabastab energiat (põlemine, neutraliseerimine). Temperatuur tõuseb.\n- **Endotermiline**: neelab energiat (fotosüntees, termiline lagunemine). Temperatuur langeb.\n\n## Reaktsiooni kiirus\n\nReaktsioonid kulgevad kiiremini, kui:\n- Kõrgem **temperatuur** (osakesed liiguvad kiiremini)\n- Kõrgem **kontsentratsioon** (rohkem osakesi ruumala kohta)\n- Väiksem **pindala** (rohkem avatud osakesi)\n- **Katalüsaator** (alandab aktiveerimisenergiat, ei kulu)\n",
         "title": "Reaktsioonitüübid ja võrrandite tasakaalustamine"
@@ -232,6 +318,10 @@
       "source": "Types of Reactions and Balancing Equations"
     },
     "18": {
+      "es": {
+        "content_md": "# Análisis de textos\n\n## El marco PEE\n\nUsa **P**unto, **E**videncia, **E**xplicación para cada párrafo analítico:\n\n1. **Punto** — plantea tu argumento con claridad\n2. **Evidencia** — cita directamente del texto\n3. **Explicación** — analiza CÓMO la evidencia respalda tu punto\n\n### Ejemplo\n\n> **Punto**: Shakespeare presenta a Lady Macbeth como ambiciosa.\n> **Evidencia**: Ella invoca a los espíritus para que \"unsex me here\" y la llenen de \"direst cruelty\".\n> **Explicación**: El verbo imperativo \"unsex\" sugiere que quiere rechazar la feminidad, que en la época jacobea se asociaba con la gentileza, para buscar poder a través de la violencia.\n\n## Técnicas lingüísticas para identificar\n\n| Técnica | Definición | Efecto |\n|-----------|-----------|--------|\n| Metáfora | Comparación sin \"como\" | Crea una imagen vívida |\n| Símil | Comparación con \"como\" | Convierte ideas abstractas en concretas |\n| Personificación | Otorgar cualidades humanas a cosas no humanas | Crea empatía o amenaza |\n| Aliteración | Repetición de sonidos consonantes | Enfatiza, crea ritmo |\n| Falacia patética | El clima refleja el estado de ánimo | Establece la atmósfera |\n| Yuxtaposición | Colocar contrastes uno al lado del otro | Destaca las diferencias |\n\n## Estructura para analizar\n\n- **Apertura** — ¿cómo engancha el escritor al lector?\n- **Cambio** — ¿dónde cambia el tono o la perspectiva?\n- **Final** — ¿circular? ¿Abierto? ¿Resuelto? ¿Cuál es el efecto?\n\n> **Consejo clave**: No solo identifiques técnicas, siempre explica su **efecto** en el lector.\n",
+        "title": "Análisis de textos"
+      },
       "et": {
         "content_md": "# Tekstide analüüsimine\n\n## PEE raamistik\n\nKasuta **P**unkt, **T**õend, **S**elgitus iga analüütilise lõigu jaoks:\n\n1. **Punkt** — esita oma argument selgelt\n2. **Tõend** — tsiteeri otse tekstist\n3. **Selgitus** — analüüsi, KUIDAS tõend toetab sinu punkti\n\n### Näide\n\n> **Punkt**: Shakespeare esitleb leedi Macbethi ambitsioonikana.\n> **Tõend**: Ta kutsub vaime appi „unsex me here“ ja täitma teda „direst cruelty-ga.“\n> **Selgitus**: Imperatiivne verb „unsex“ viitab sellele, et ta soovib tagasi lükata naiselikkust, mida jakobiiinide ajastul seostati leebusega, et taotleda võimu vägivalla kaudu.\n\n## Keeletehnikad, mida märgata\n\n| Tehnika | Definitsioon | Mõju |\n|-----------|-----------|--------|\n| Metafoor | Võrdlemine ilma „nagu/nagu“ | Loob elava pildi |\n| Sarnasus | Võrdlemine „nagu/nagu“ abil | Muudab abstraktsed ideed konkreetseks |\n| Isikustamine | Inimlike omaduste andmine elututele asjadele | Loob empaatiat või ähvardust |\n| Alliteratsioon | Korduvad konsonandid | Rõhutab, loob rütmi |\n| Pateetiline eksitus | Ilm peegeldab meeleolu | Loob atmosfääri |\n| Vastandamine | Vastandite kõrvutamine | Tõstab esile erinevusi |\n\n## Struktuur, mida analüüsida\n\n- **Avamine** — kuidas kirjanik lugejat haakib?\n- **Nihe** — kus toon või perspektiiv muutub?\n- **Lõpp** — ringikujuline? Avatud? Lahendatud? Mis on mõju?\n\n> **Nõuanne**: Ära lihtsalt tuvasta tehnikaid — selgita alati nende **mõju** lugejale.\n",
         "title": "Tekstide analüüsimine"
@@ -243,6 +333,10 @@
       "source": "Analysing Texts"
     },
     "19": {
+      "es": {
+        "content_md": "# Estructura de ensayos y párrafos\n\n## El modelo de la hamburguesa\n\nTodo ensayo tiene tres partes:\n\n1. **Introducción** (pan superior) — gancho, contexto, tesis\n2. **Párrafos del cuerpo** (relleno) — 3-5 párrafos PEE, cada uno con un punto\n3. **Conclusión** (pan inferior) — resume, reflexiona, pensamiento final\n\n## Cómo escribir una introducción sólida\n\n```\nGancho → Contexto → Tesis\n\n\"Desde la primera línea, Orwell establece un mundo donde la verdad\nes maleable. Escrito en 1949 como advertencia contra el totalitarismo,\n1984 sigue siendo escalofriantemente relevante. Este ensayo sostiene que Orwell usa\nel lenguaje como la principal arma de opresión.\"\n```\n\n## Enlazar párrafos\n\nUsa **marcadores discursivos** para conectar ideas:\n- **Añadir**: Furthermore, Moreover, Additionally\n- **Contrastar**: However, On the other hand, Conversely\n- **Concluir**: Therefore, Ultimately, In conclusion\n- **Secuenciar**: Firstly, Subsequently, Finally\n\n## Errores gramaticales comunes\n\n- **Their / They're / There** — posesión / contracción / lugar\n- **Its / It's** — posesión / contracción (\"it is\")\n- **Affect / Effect** — verbo / sustantivo (generalmente)\n- **Comma splices** — no unir dos oraciones solo con una coma\n",
+        "title": "Estructura de ensayos y párrafos"
+      },
       "et": {
         "content_md": "# Essee struktuur ja lõikude jaotus\n\n## Hamburgeri mudel\n\nIgal esseel on kolm osa:\n\n1. **Sissejuhatus** (ülemine sai) — haak, kontekst, tees\n2. **Põhilõigud** (täidis) — 3-5 PEE lõiku, igaüks esitab ühe punkti\n3. **Kokkuvõte** (alumine sai) — kokkuvõte, refleksioon, lõppmõte\n\n## Tugeva sissejuhatuse kirjutamine\n\n```\nHaak → Kontekst → Tees\n\n\"Juba esimesest reast loob Orwell maailma, kus tõde\non paindlik. 1949. aastal kirjutatud hoiatusena totalitarismi vastu,\non 1984 endiselt hirmutavalt aktuaalne. See essee väidab, et Orwell kasutab\nkeelt kui peamist rõhumisrelva.\"\n```\n\n## Lõikude sidumine\n\nKasuta **diskursuse markereid** ideede ühendamiseks:\n- **Lisamine**: Lisaks, Pealegi, Lisaks sellele\n- **Vastandamine**: Siiski, Teisest küljest, Vastupidi\n- **Kokkuvõte**: Seetõttu, Lõppkokkuvõttes, Kokkuvõtteks\n- **Järjestamine**: Esiteks, Seejärel, Lõpuks\n\n## Levinud grammatikavead\n\n- **Their / They're / There** — omamine / lühend / koht\n- **Its / It's** — omamine / lühend (\"it is\")\n- **Affect / Effect** — tegusõna / nimisõna (tavaliselt)\n- **Komaga liitlaused** — ära ühenda kahte lauset ainult komaga\n",
         "title": "Essee struktuur ja lõikude jaotus"
@@ -254,6 +348,10 @@
       "source": "Essay Structure and Paragraphing"
     },
     "2": {
+      "es": {
+        "content_md": "# Instalación de Python\n\n## Comprobar si Python ya está instalado\n\n```bash\npython3 --version\n```\n\n## Instalación por plataforma\n\n### macOS\n```bash\nbrew install python\n```\n\n### Ubuntu / Debian\n```bash\nsudo apt update && sudo apt install python3 python3-pip python3-venv\n```\n\n### Windows\nDescarga desde [python.org](https://python.org) y ejecuta el instalador. **Marca \"Add Python to PATH\"**.\n\n## Entornos virtuales\n\nSiempre usa un entorno virtual para los proyectos:\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate   # macOS/Linux\n.venv\\Scripts\\activate     # Windows\n```\n\n## Verificar tu configuración\n\n```bash\npython3 -c \"import sys; print(f'Python {sys.version}')\"\n```\n\n> **Consejo**: Usa `python3` explícitamente en macOS/Linux para evitar usar accidentalmente Python 2.\n",
+        "title": "Instalación de Python"
+      },
       "et": {
         "content_md": "# Pythoni installimine\n\n## Kontrolli, kas Python on juba installitud\n\n```bash\npython3 --version\n```\n\n## Installimine platvormi järgi\n\n### macOS\n```bash\nbrew install python\n```\n\n### Ubuntu / Debian\n```bash\nsudo apt update && sudo apt install python3 python3-pip python3-venv\n```\n\n### Windows\nLaadi alla saidilt [python.org](https://python.org) ja käivita installer. **Märgi \"Add Python to PATH\"**.\n\n## Virtuaalsed keskkonnad\n\nKasuta alati projektide jaoks virtuaalset keskkonda:\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate   # macOS/Linux\n.venv\\Scripts\\activate     # Windows\n```\n\n## Kontrolli oma seadistust\n\n```bash\npython3 -c \"import sys; print(f'Python {sys.version}')\"\n```\n\n> **Nõuanne**: Kasuta macOS/Linuxis `python3` selgesõnaliselt, et vältida Python 2 juhuslikku kasutamist.\n",
         "title": "Pythoni installimine"
@@ -265,6 +363,10 @@
       "source": "Installing Python"
     },
     "20": {
+      "es": {
+        "content_md": "# Tectónica de placas y terremotos\n\n## La estructura de la Tierra\n\n- **Corteza** — capa exterior delgada (5-70 km). La corteza oceánica es más delgada y densa que la continental.\n- **Manto** — roca caliente y semilíquida. Las corrientes de convección impulsan el movimiento de las placas.\n- **Núcleo externo** — hierro y níquel líquidos (~5,000°C)\n- **Núcleo interno** — hierro y níquel sólidos (~6,000°C)\n\n## Límites de placas\n\n| Tipo | Movimiento | Características | Ejemplo |\n|------|----------|----------|---------|\n| **Constructivo** | Las placas se separan | Dorsales oceánicas, volcanes | Dorsal Mesoatlántica |\n| **Destructivo** | Las placas chocan | Fosas, montañas plegadas, volcanes | Andes, Japón |\n| **Conservativo** | Las placas se deslizan | Terremotos (sin volcanes) | Falla de San Andrés |\n\n## Terremotos\n\nCausados por la liberación súbita de energía en los límites de placas.\n\n- **Foco** — punto subterráneo donde se origina el terremoto\n- **Epicentro** — punto en la superficie directamente encima del foco\n- **Ondas sísmicas** — ondas P (las más rápidas, longitudinales), ondas S (transversales), ondas L (superficiales, las más destructivas)\n- **Escala de Richter** — mide la magnitud (logarítmica: cada paso = 10 veces más energía)\n\n## ¿Por qué vive gente cerca de volcanes?\n\n- Suelo volcánico fértil\n- Energía geotérmica\n- Turismo\n- Depósitos minerales\n- Raíces culturales/históricas\n\n> **Dato clave**: El 80% de los terremotos ocurren a lo largo del \"Cinturón de Fuego\" alrededor de la placa del Pacífico.\n",
+        "title": "Tectónica de placas y terremotos"
+      },
       "et": {
         "content_md": "# Laamtektoonika ja maavärinad\n\n## Maa struktuur\n\n- **Koorik** — õhuke välimine kiht (5-70 km). Ookeaniline koorik on õhem ja tihedam kui mandriline.\n- **Mantel** — kuum, poolvedel kivim. Konvektsioonivoolud juhivad laamade liikumist.\n- **Välimine tuum** — vedel raud ja nikkel (~5 000 °C)\n- **Sisemine tuum** — tahke raud ja nikkel (~6 000 °C)\n\n## Laamapiirid\n\n| Tüüp | Liikumine | Tunnusjooned | Näide |\n|------|----------|--------------|-------|\n| **Konstruktiivne** | Laamad liiguvad lahku | Keskookeani seljandikud, vulkaanid | Kesk-Atlandi seljandik |\n| **Destruktiivne** | Laamad põrkuvad | Süvikud, kurdmäestikud, vulkaanid | Andid, Jaapan |\n| **Konservatiivne** | Laamad libisevad mööda | Maavärinad (vulkaane ei ole) | San Andrease murrang |\n\n## Maavärinad\n\nPõhjustatud äkilisest energia vabanemisest laamapiiridel.\n\n- **Fookus** — punkt maa all, kus maavärin algab\n- **Epitsenter** — punkt pinnal otse fookuse kohal\n- **Seismilised lained** — P-lained (kiireimad, pikilained), S-lained (põikilained), L-lained (pinnalained, kõige hävitavamad)\n- **Richteri skaala** — mõõdab magnituudi (logaritmiline: iga samm = 10× rohkem energiat)\n\n## Miks inimesed elavad vulkaanide lähedal?\n\n- Viljakas vulkaaniline muld\n- Geotermiline energia\n- Turism\n- Mineraalide leiukohad\n- Kultuurilised/ajaloolised juured\n\n> **Põhistatistika**: 80% maavärinaid toimub Vaikse ookeani laama ümber \"Tulerõngas\".\n",
         "title": "Laamtektoonika ja maavärinad"
@@ -276,6 +378,10 @@
       "source": "Plate Tectonics and Earthquakes"
     },
     "21": {
+      "es": {
+        "content_md": "# Urbanización y megaciudades\n\n## ¿Qué es la urbanización?\n\nEl aumento del porcentaje de la población que vive en zonas urbanas. En 2025, alrededor del 56 % de la población mundial vive en ciudades. Para 2050, esta cifra alcanzará aproximadamente el 68 %.\n\n## Factores de expulsión y atracción\n\n| Factores de expulsión (campo → ciudad) | Factores de atracción (la ciudad atrae) |\n|---------------------|---------------------|\n| Falta de empleo | Oportunidades de empleo |\n| Servicios deficientes | Mejor atención sanitaria y educación |\n| Desastres naturales | Salarios más altos |\n| Conflictos | Entretenimiento y cultura |\n\n## Megaciudades\n\nUna megaciudad tiene una población de **10 millones o más**. En 2025 hay 33 megaciudades.\n\nLas cinco principales: Tokio (37 M), Delhi (32 M), Shanghái (29 M), São Paulo (22 M), Ciudad de México (22 M)\n\n## Desafíos urbanos\n\n- **Vivienda** — barrios marginales, asentamientos informales, personas sin hogar\n- **Transporte** — congestión, contaminación, sobrecarga de infraestructuras\n- **Servicios** — agua, saneamiento, electricidad para poblaciones en crecimiento\n- **Medio ambiente** — efecto isla de calor urbana, gestión de residuos, calidad del aire\n\n## Vida urbana sostenible\n\n- Espacios verdes y bosques urbanos\n- Transporte público e infraestructuras para bicicletas\n- Energía renovable en los edificios\n- Reciclaje de residuos y economía circular\n- Desarrollo de usos mixtos (reduce los desplazamientos)\n",
+        "title": "Urbanización y megaciudades"
+      },
       "et": {
         "content_md": "# Linnastumine ja megalinna\n\n## Mis on linnastumine?\n\nLinnastumine on linnaelanike osakaalu kasv kogu elanikkonnas. 2025. aastal elab linnades ~56% maailma elanikkonnast. 2050. aastaks jõuab see ~68%-ni.\n\n## Tõukavad ja tõmbavad tegurid\n\n| Tõukav (maa → linn) | Tõmbav (linn meelitab) |\n|---------------------|------------------------|\n| Tööpuudus | Töövõimalused |\n| Halvad teenused | Parem tervishoid, haridus |\n| Loodusõnnetused | Kõrgemad palgad |\n| Konfliktid | Meelelahutus, kultuur |\n\n## Megalinna\n\nMegalinnal on **10 miljonit+** elanikku. 2025. aastal on 33 megalinna.\n\nViis suurimat: Tokyo (37M), Delhi (32M), Shanghai (29M), São Paulo (22M), Mexico City (22M)\n\n## Linna väljakutsed\n\n- **Eluase** — slummid, mitteametlikud asulad, kodutus\n- **Transport** — ummikud, saaste, infrastruktuuri koormus\n- **Teenused** — vesi, kanalisatsioon, elekter kasvavale elanikkonnale\n- **Keskkond** — linna soojussaar, jäätmekäitlus, õhukvaliteet\n\n## Jätkusuutlik linnaelu\n\n- Rohealad ja linnametsad\n- Ühistransport ja jalgrattainfrastruktuur\n- Taastuvenergia hoonetes\n- Jäätmete ringlussevõtt ja ringmajandus\n- Segafunktsiooniga arendus (vähendab pendelrände)\n",
         "title": "Linnastumine ja megalinna"
@@ -287,6 +393,10 @@
       "source": "Urbanisation and Megacities"
     },
     "22": {
+      "es": {
+        "content_md": "# Mostrar, no contar\n\nLa regla más importante de la escritura creativa. En lugar de decir al lector qué debe sentir, muéstraselo mediante detalles concretos.\n\n## Contar frente a mostrar\n\n**Contar**: «Estaba enfadada».\n\n**Mostrar**: «Sus nudillos palidecieron al agarrar el borde de la mesa. Hablaba entre dientes apretados, cada palabra una frase separada».\n\n## Cómo mostrar\n\n1. **Usar detalles sensoriales** — vista, oído, olfato, tacto, gusto\n2. **Mostrar mediante la acción** — ¿qué hace el personaje?\n3. **Mostrar mediante el diálogo** — ¿qué dice (y cómo lo dice)?\n4. **Mostrar mediante la respuesta física** — lenguaje corporal, reacciones involuntarias\n\n## Práctica: reescribe estas frases\n\nIntenta reescribir estas frases que «cuentan» como si las «mostraras»:\n\n- «La casa era vieja y siniestra».\n- «Estaba muy cansado».\n- «Estaban enamorados».\n\n## Cuándo es aceptable contar\n\n- **Transiciones**: «Tres semanas después llegaron a París».\n- **Detalles menores**: «Pidió un café» (no es necesario mostrar el proceso de pedir)\n- **Ritmo**: A veces es necesario acelerar momentos menos importantes\n\n> **Consejo de Chéjov**: «No me digas que la luna brilla; muéstrame el destello de luz sobre el cristal roto».\n",
+        "title": "Mostrar, no contar"
+      },
       "et": {
         "content_md": "# Näita, ära ütle\n\nKõige olulisem reegel loovkirjutamises. Selle asemel, et lugejale öelda, mida tunda, näita seda konkreetsete detailide kaudu.\n\n## Ütle vs Näita\n\n**Ütle**: \"Ta oli vihane.\"\n\n**Näita**: \"Ta sõrmenukid valgenesid laua serva ümber. Ta rääkis läbi kokkusurutud hammaste, iga sõna eraldi lausena.\"\n\n## Kuidas näidata\n\n1. **Kasuta meelelisi detaile** — nägemine, kuulmine, lõhn, puudutus, maitse\n2. **Näita tegevuse kaudu** — mida tegelane teeb?\n3. **Näita dialoogi kaudu** — mida nad ütlevad (ja kuidas)?\n4. **Näita füüsilise reaktsiooni kaudu** — kehakeel, tahtmatud reaktsioonid\n\n## Harjutus: Kirjuta need ümber\n\nProovi kirjutada need \"ütlevad\" laused ümber \"näitavateks\":\n\n- \"Maja oli vana ja õudne.\"\n- \"Ta oli väga väsinud.\"\n- \"Nad olid armunud.\"\n\n## Millal on ütlemine OK\n\n- **Üleminekud**: \"Kolm nädalat hiljem jõudsid nad Pariisi.\"\n- **Väiksemad detailid**: \"Ta tellis kohvi\" (pole vaja näidata tellimisprotsessi)\n- **Tempo**: Mõnikord on vaja kiiremini mööda vähem olulistest hetkedest\n\n> **Tšehhovi nõuanne**: \"Ära ütle mulle, et kuu paistab; näita mulle valguse sära purunenud klaasil.\"\n",
         "title": "Näita, ära ütle"
@@ -298,6 +408,10 @@
       "source": "Show, Don't Tell"
     },
     "23": {
+      "es": {
+        "content_md": "# Creación de personajes\n\n## El iceberg del personaje\n\nLo que el lector ve (por encima del agua):\n- Nombre, aspecto, patrones de habla\n- Acciones y decisiones\n- Relaciones con los demás\n\nLo que impulsa al personaje (por debajo del agua):\n- Trasfondo, experiencias formativas\n- Miedos, deseos, contradicciones\n- Visión del mundo y valores\n\n## Personaje frente a caricatura\n\nUn **personaje** tiene:\n- Contradicciones («un avaro generoso»)\n- Conflicto interno\n- Capacidad de sorprender al lector\n- Crecimiento o cambio (arco)\n\nUna **caricatura** tiene:\n- Un rasgo definitorio\n- Comportamiento predecible\n- Sin vida interna\n\n## Diálogos que revelan al personaje\n\nUn buen diálogo cumple una doble función: hace avanzar la trama Y revela al personaje.\n\n```\n«No necesito la ayuda de nadie», dijo mientras ya extendía la mano hacia él.\n```\n\nEsta única línea nos dice más que un párrafo de descripción: es orgullosa pero solitaria.\n\n## Ejercicio: ficha de personaje\n\nPara tu próximo personaje, responde:\n1. ¿Qué desea más que nada?\n2. ¿De qué tiene miedo?\n3. ¿Cuál es la diferencia entre cómo se ve a sí mismo y cómo lo ven los demás?\n4. ¿Qué nunca haría? (Luego haz que lo haga en el clímax.)\n\n> **Fitzgerald**: «Empieza con un individuo y, antes de que te des cuenta, has creado un tipo; empieza con un tipo y no has creado nada».\n",
+        "title": "Creación de personajes"
+      },
       "et": {
         "content_md": "# Tegelaste loomine\n\n## Tegelase jäämägi\n\nMida lugeja näeb (vee kohal):\n- Nimi, välimus, kõnemaneerid\n- Teod ja otsused\n- Suhted teistega\n\nMis tegelast juhib (vee all):\n- Taustalugu, kujundavad kogemused\n- Hirmud, soovid, vastuolud\n- Maailmavaade ja väärtused\n\n## Tegelane vs karikatuur\n\n**Tegelasel** on:\n- Vastuolud (\"helde ihnuskoi\")\n- Sisemine konflikt\n- Võime lugejat üllatada\n- Kasv või muutus (kaare)\n\n**Karikatuuril** on:\n- Üks määrav omadus\n- Ennustatav käitumine\n- Sisemise elu puudumine\n\n## Dialoog, mis paljastab tegelast\n\nHea dialoog täidab topeltülesannet — see edendab süžeed JA paljastab tegelast.\n\n```\n\"Ma ei vaja kellegi abi,\" ütles ta, juba ulatades käe tema poole.\n```\n\nSee üks rida ütleb meile rohkem kui lõik kirjeldust: ta on uhke, kuid üksildane.\n\n## Harjutus: Tegelase kaart\n\nJärgmise tegelase jaoks vasta:\n1. Mida nad tahavad rohkem kui midagi muud?\n2. Mida nad kardavad?\n3. Mis on lõhe nende enesetaju ja teiste tajumise vahel?\n4. Mida nad kunagi ei teeks? (Siis pane nad seda tegema haripunktis.)\n\n> **Fitzgerald**: \"Alusta indiviidist, ja enne kui arugi saad, oled loonud tüübi; alusta tüübist, ja oled loonud — mitte midagi.\"\n",
         "title": "Tegelaste loomine"
@@ -309,6 +423,10 @@
       "source": "Creating Characters"
     },
     "24": {
+      "es": {
+        "content_md": "# Formas y verso libre\n\n## Por qué importan las formas\n\nLas formas poéticas son restricciones, y las restricciones fomentan la creatividad. Escribir un soneto obliga a comprimir, elegir y sorprender dentro de 14 versos.\n\n## Formas comunes\n\n### Haiku (3 versos: 5-7-5 sílabas)\n```\nUn viejo estanque silencioso\nUna rana salta al estanque—\n¡Splash! Silencio otra vez.\n    — Bashō (traducción)\n```\n\n### Soneto (14 versos, pentámetro yámbico)\n- **Shakesperiano**: ABAB CDCD EFEF GG (vuelta en el verso 13)\n- **Petrarquista**: ABBAABBA CDECDE (vuelta en el verso 9)\n\n### Villanela (19 versos, 2 estribillos repetidos)\n```\nNo entres dócil en esa buena noche,\nLa vejez debe arder y delirar al final del día;\nRabioso, rabioso contra la muerte de la luz.\n    — Dylan Thomas\n```\n\n## Verso libre\n\nSin rima, metro ni forma fijos, pero no es «vale todo». El verso libre sigue utilizando:\n- **Saltos de línea** para dar énfasis y ritmo\n- **Imágenes** y detalles concretos\n- **Sonido** (asonancia, consonancia, rima interna)\n- **Ritmo** (incluso sin metro, hay cadencia)\n\n## El salto de línea\n\nLa herramienta más poderosa de la poesía. Dónde se rompe el verso cambia el significado:\n\n```\nTe quiero más que\na nada\n```\n\nvs\n\n```\nTe quiero más\nque a nada\n```\n\n> **Mary Oliver**: «La poesía es una fuerza que valora la vida. Y requiere una visión —una fe, para usar un término anticuado. Sí, en efecto».\n",
+        "title": "Formas y verso libre"
+      },
       "et": {
         "content_md": "# Vormid ja vaba värss\n\n## Miks vormid on olulised\n\nLuulevormid on piirangud — ja piirangud soodustavad loovust. Soneti kirjutamine sunnib kokku suruma, valima ja üllatama 14 reaga.\n\n## Levinud vormid\n\n### Haiku (3 rida: 5-7-5 silpi)\n```\nVana vaikne tiik\nKonn hüppab tiiki—\nPlärts! Jälle vaikus.\n    — Basho (tõlgitud)\n```\n\n### Sonett (14 rida, jambiline pentameeter)\n- **Shakespeare'i**: ABAB CDCD EFEF GG (pööre real 13)\n- **Petrarca**: ABBAABBA CDECDE (pööre real 9)\n\n### Villanell (19 rida, 2 korduvat refrääni)\n```\nÄra mine õrnalt sellesse head öösse,\nVana iga peaks põlema ja raevutsema päeva lõpul;\nRaevu, raevu sureva valguse vastu.\n    — Dylan Thomas\n```\n\n## Vaba värss\n\nPuudub kindel riim, meeter või vorm — kuid mitte \"kõik on lubatud.\" Vaba värss kasutab siiski:\n- **Reavahetusi** rõhutamiseks ja tempo jaoks\n- **Kujundeid** ja konkreetseid detaile\n- **Heli** (assonants, konsonants, sisemine riim)\n- **Rütmi** (isegi ilma meetrita on kadents)\n\n## Reavahetus\n\nKõige võimsam tööriist luules. Kus sa reavahetuse teed, muudab tähendust:\n\n```\nMa armastan sind rohkem kui\nmidagi\n```\n\nvs\n\n```\nMa armastan sind rohkem\nkui midagi\n```\n\n> **Mary Oliver**: \"Luule on elu hellitav jõud. Ja see nõuab visiooni — usku, kasutades vanamoelist terminit. Jah, tõepoolest.\"\n",
         "title": "Vormid ja vaba värss"
@@ -320,6 +438,10 @@
       "source": "Forms and Free Verse"
     },
     "3": {
+      "es": {
+        "content_md": "# Variables y tipos de datos\n\n## Variables\n\nLas variables de Python no necesitan declaraciones de tipo:\n\n```python\nname = \"Alice\"       # str\nage = 30             # int\nheight = 1.75        # float\nis_student = True    # bool\n```\n\n## Tipos de datos comunes\n\n| Tipo | Ejemplo | Descripción |\n|------|---------|-------------|\n| `str` | `\"hello\"` | Texto |\n| `int` | `42` | Números enteros |\n| `float` | `3.14` | Números decimales |\n| `bool` | `True` / `False` | Booleanos |\n| `list` | `[1, 2, 3]` | Secuencia ordenada y mutable |\n| `dict` | `{\"key\": \"value\"}` | Mapeo clave-valor |\n| `tuple` | `(1, 2, 3)` | Secuencia ordenada e inmutable |\n| `set` | `{1, 2, 3}` | Elementos únicos no ordenados |\n\n## Comprobación de tipos\n\n```python\nx = 42\nprint(type(x))        # <class 'int'>\nprint(isinstance(x, int))  # True\n```\n\n## Conversión de tipos\n\n```python\nint(\"42\")      # 42\nstr(42)        # \"42\"\nfloat(\"3.14\")  # 3.14\nlist(\"abc\")    # ['a', 'b', 'c']\n```\n",
+        "title": "Variables y tipos de datos"
+      },
       "et": {
         "content_md": "# Muutujad ja andmetüübid\n\n## Muutujad\n\nPythoni muutujad ei vaja tüübideklaratsioone:\n\n```python\nname = \"Alice\"       # str\nage = 30             # int\nheight = 1.75        # float\nis_student = True    # bool\n```\n\n## Levinud andmetüübid\n\n| Tüüp | Näide | Kirjeldus |\n|------|---------|-------------|\n| `str` | `\"hello\"` | Tekst |\n| `int` | `42` | Täisarvud |\n| `float` | `3.14` | Kümnendarvud |\n| `bool` | `True` / `False` | Boole'i väärtus |\n| `list` | `[1, 2, 3]` | Järjestatud, muudetav jada |\n| `dict` | `{\"key\": \"value\"}` | Võti-väärtus vastendus |\n| `tuple` | `(1, 2, 3)` | Järjestatud, muutmatu jada |\n| `set` | `{1, 2, 3}` | Järjestamata unikaalsed elemendid |\n\n## Tüübi kontrollimine\n\n```python\nx = 42\nprint(type(x))        # <class 'int'>\nprint(isinstance(x, int))  # True\n```\n\n## Tüübi teisendamine\n\n```python\nint(\"42\")      # 42\nstr(42)        # \"42\"\nfloat(\"3.14\")  # 3.14\nlist(\"abc\")    # ['a', 'b', 'c']\n```\n",
         "title": "Muutujad ja andmetüübid"
@@ -331,6 +453,10 @@
       "source": "Variables and Data Types"
     },
     "4": {
+      "es": {
+        "content_md": "# Flujo de control\n\n## If / Elif / Else\n\n```python\ntemperature = 22\n\nif temperature > 30:\n    print(\"Hot!\")\nelif temperature > 20:\n    print(\"Nice weather\")\nelse:\n    print(\"A bit chilly\")\n```\n\n## Bucles For\n\n```python\n# Iterar sobre una lista\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit)\n\n# Range\nfor i in range(5):      # 0, 1, 2, 3, 4\n    print(i)\n\n# Enumerate (índice + valor)\nfor i, fruit in enumerate(fruits):\n    print(f\"{i}: {fruit}\")\n```\n\n## Bucles While\n\n```python\ncount = 0\nwhile count < 5:\n    print(count)\n    count += 1\n```\n\n## Comprensiones de listas\n\n```python\n# Tradicional\nsquares = []\nfor x in range(10):\n    squares.append(x ** 2)\n\n# Comprensión (Pythonic)\nsquares = [x ** 2 for x in range(10)]\n\n# Con filtro\nevens = [x for x in range(20) if x % 2 == 0]\n```\n\n> **Consejo de estilo**: Usa comprensiones para transformaciones simples y bucles normales para lógica compleja.\n",
+        "title": "Flujo de control"
+      },
       "et": {
         "content_md": "# Juhtimisvoog\n\n## If / Elif / Else\n\n```python\ntemperature = 22\n\nif temperature > 30:\n    print(\"Hot!\")\nelif temperature > 20:\n    print(\"Nice weather\")\nelse:\n    print(\"A bit chilly\")\n```\n\n## For-tsüklid\n\n```python\n# Iterate üle listi\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit)\n\n# Range\nfor i in range(5):      # 0, 1, 2, 3, 4\n    print(i)\n\n# Enumerate (indeks + väärtus)\nfor i, fruit in enumerate(fruits):\n    print(f\"{i}: {fruit}\")\n```\n\n## While-tsüklid\n\n```python\ncount = 0\nwhile count < 5:\n    print(count)\n    count += 1\n```\n\n## Listi comprehensions\n\n```python\n# Traditsiooniline\nsquares = []\nfor x in range(10):\n    squares.append(x ** 2)\n\n# Comprehension (Pythonic)\nsquares = [x ** 2 for x in range(10)]\n\n# Filtreerimisega\nevens = [x for x in range(20) if x % 2 == 0]\n```\n\n> **Stiilinõuanne**: Kasuta comprehensions lihtsate teisenduste jaoks, regulaarseid tsükleid keerukama loogika jaoks.\n",
         "title": "Juhtimisvoog"
@@ -342,6 +468,10 @@
       "source": "Control Flow"
     },
     "5": {
+      "es": {
+        "content_md": "# Funciones\n\n## Definición de funciones\n\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Alice\"))  # Hello, Alice!\n```\n\n## Argumentos predeterminados\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\ngreet(\"Bob\")              # Hello, Bob!\ngreet(\"Bob\", \"Hi there\")  # Hi there, Bob!\n```\n\n## *args y **kwargs\n\n```python\ndef flexible(*args, **kwargs):\n    print(f\"Args: {args}\")\n    print(f\"Kwargs: {kwargs}\")\n\nflexible(1, 2, 3, name=\"Alice\", age=30)\n# Args: (1, 2, 3)\n# Kwargs: {'name': 'Alice', 'age': 30}\n```\n\n## Funciones lambda\n\n```python\nsquare = lambda x: x ** 2\nprint(square(5))  # 25\n\n# Often used with sorted, map, filter\nnames = [\"Charlie\", \"Alice\", \"Bob\"]\nsorted(names, key=lambda n: len(n))  # ['Bob', 'Alice', 'Charlie']\n```\n\n## Indicaciones de tipo (Python 3.9+)\n\n```python\ndef add(a: int, b: int) -> int:\n    return a + b\n```\n\nLas indicaciones de tipo son opcionales y no se aplican en tiempo de ejecución, pero ayudan a la legibilidad y al soporte de IDE.\n",
+        "title": "Funciones"
+      },
       "et": {
         "content_md": "# Funktsioonid\n\n## Funktsioonide defineerimine\n\n```python\ndef greet(name):\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Alice\"))  # Hello, Alice!\n```\n\n## Vaikimisi argumendid\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\ngreet(\"Bob\")              # Hello, Bob!\ngreet(\"Bob\", \"Hi there\")  # Hi there, Bob!\n```\n\n## *args ja **kwargs\n\n```python\ndef flexible(*args, **kwargs):\n    print(f\"Args: {args}\")\n    print(f\"Kwargs: {kwargs}\")\n\nflexible(1, 2, 3, name=\"Alice\", age=30)\n# Args: (1, 2, 3)\n# Kwargs: {'name': 'Alice', 'age': 30}\n```\n\n## Lambda-funktsioonid\n\n```python\nsquare = lambda x: x ** 2\nprint(square(5))  # 25\n\n# Sageli kasutatakse koos sorted, map, filter\nnames = [\"Charlie\", \"Alice\", \"Bob\"]\nsorted(names, key=lambda n: len(n))  # ['Bob', 'Alice', 'Charlie']\n```\n\n## Tüüpi vihjed (Python 3.9+)\n\n```python\ndef add(a: int, b: int) -> int:\n    return a + b\n```\n\nTüüpi vihjed on valikulised ega ole runtime'is jõustatud, kuid aitavad loetavuse ja IDE toe juures.\n",
         "title": "Funktsioonid"
@@ -353,6 +483,10 @@
       "source": "Functions"
     },
     "6": {
+      "es": {
+        "content_md": "# ¿Qué es el aprendizaje automático?\n\nEl aprendizaje automático es un subconjunto de la IA donde los sistemas aprenden patrones a partir de datos en lugar de ser programados explícitamente.\n\n## Tres tipos de ML\n\n### 1. Aprendizaje supervisado\nEl modelo aprende a partir de ejemplos etiquetados (pares de entrada → salida).\n- **Clasificación**: Predecir una categoría (spam/no spam, gato/perro)\n- **Regresión**: Predecir un valor continuo (precio de una casa, temperatura)\n\n### 2. Aprendizaje no supervisado\nEl modelo encuentra patrones en datos sin etiquetar.\n- **Agrupamiento**: Agrupar elementos similares (segmentos de clientes)\n- **Reducción de dimensionalidad**: Comprimir características (PCA, t-SNE)\n\n### 3. Aprendizaje por refuerzo\nEl agente aprende interactuando con un entorno y recibiendo recompensas.\n- Juego (AlphaGo)\n- Robótica\n- Sistemas de recomendación\n\n## El flujo de trabajo de ML\n\n```\nData Collection → Preprocessing → Feature Engineering → Model Training → Evaluation → Deployment\n```\n\n## Cuándo usar ML\n\nUsa ML cuando:\n- El problema tiene patrones en los datos\n- Tienes suficientes ejemplos etiquetados (supervisado)\n- Las reglas son demasiado complejas para codificarlas manualmente\n- El patrón puede cambiar con el tiempo\n\nNo uses ML cuando:\n- Las reglas simples funcionan bien\n- No tienes suficientes datos\n- El costo de los errores es demasiado alto para un sistema probabilístico\n",
+        "title": "¿Qué es el aprendizaje automático?"
+      },
       "et": {
         "content_md": "# Mis on masinõpe?\n\nMasinõpe on tehisintellekti alamhulk, kus süsteemid õpivad andmetest mustreid selle asemel, et neid selgesõnaliselt programmeerida.\n\n## Masinõppe kolm tüüpi\n\n### 1. Juhendatud õpe\nMudel õpib märgistatud näidetest (sisend → väljund paarid).\n- **Klassifitseerimine**: Ennusta kategooriat (rämpspost/mitte rämpspost, kass/koer)\n- **Regressioon**: Ennusta pidevat väärtust (maja hind, temperatuur)\n\n### 2. Juhendamata õpe\nMudel leiab mustreid märgistamata andmetest.\n- **Klastrite moodustamine**: Rühmita sarnased üksused (kliendisegmendid)\n- **Dimensioonide vähendamine**: Tihenda tunnuseid (PCA, t-SNE)\n\n### 3. Tugevdusõpe\nAgent õpib keskkonnaga suhtlemise ja preemiate saamise kaudu.\n- Mängimine (AlphaGo)\n- Robootika\n- Soovitussüsteemid\n\n## Masinõppe töövoog\n\n```\nAndmete kogumine → Eeltöötlus → Tunnuste inseneeria → Mudeli treenimine → Hindamine → Juurutamine\n```\n\n## Millal kasutada masinõpet\n\nKasuta masinõpet, kui:\n- Probleemil on andmetes mustrid\n- Sul on piisavalt märgistatud näiteid (juhendatud õpe)\n- Reeglid on liiga keerulised käsitsi kodeerimiseks\n- Muster võib ajas muutuda\n\nÄra kasuta masinõpet, kui:\n- Lihtsad reeglid töötavad hästi\n- Sul pole piisavalt andmeid\n- Vigade hind on tõenäosusliku süsteemi jaoks liiga kõrge\n",
         "title": "Mis on masinõpe?"
@@ -364,6 +498,10 @@
       "source": "What is Machine Learning?"
     },
     "7": {
+      "es": {
+        "content_md": "# Configuración de scikit-learn\n\n## Instalación\n\n```bash\npip install scikit-learn pandas numpy matplotlib\n```\n\n## Tu primer modelo (5 líneas)\n\n```python\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\n# Load data\nX, y = load_iris(return_X_y=True)\n\n# Split into train/test\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Train model\nmodel = RandomForestClassifier(n_estimators=100, random_state=42)\nmodel.fit(X_train, y_train)\n\n# Evaluate\npredictions = model.predict(X_test)\nprint(f\"Accuracy: {accuracy_score(y_test, predictions):.2%}\")\n```\n\n## Conceptos clave\n\n- **Características (X)**: Variables de entrada (mediciones, atributos)\n- **Objetivo (y)**: Lo que estás prediciendo\n- **División entrenamiento/prueba**: Usa el 80 % para entrenamiento y el 20 % para evaluación\n- **Sobreajuste**: El modelo memoriza los datos de entrenamiento y falla con datos nuevos\n- **Subajuste**: El modelo es demasiado simple para capturar el patrón\n",
+        "title": "Configuración de scikit-learn"
+      },
       "et": {
         "content_md": "# scikit-learni seadistamine\n\n## Paigaldamine\n\n```bash\npip install scikit-learn pandas numpy matplotlib\n```\n\n## Sinu esimene mudel (5 rida)\n\n```python\nfrom sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import accuracy_score\n\n# Laadi andmed\nX, y = load_iris(return_X_y=True)\n\n# Jaga treening- ja testandmeteks\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n# Treeni mudel\nmodel = RandomForestClassifier(n_estimators=100, random_state=42)\nmodel.fit(X_train, y_train)\n\n# Hinda\npredictions = model.predict(X_test)\nprint(f\"Accuracy: {accuracy_score(y_test, predictions):.2%}\")\n```\n\n## Põhimõisted\n\n- **Tunnused (X)**: Sisendmuutujad (mõõtmised, atribuudid)\n- **Sihtmärk (y)**: See, mida ennustad\n- **Treening/testi jagamine**: Kasuta 80% treenimiseks, 20% hindamiseks\n- **Ülesobitamine**: Mudel jätab treeningandmed meelde, ebaõnnestub uutel andmetel\n- **Alasobitamine**: Mudel on liiga lihtne mustri tabamiseks\n",
         "title": "scikit-learni seadistamine"
@@ -375,6 +513,10 @@
       "source": "Setting Up scikit-learn"
     },
     "8": {
+      "es": {
+        "content_md": "# ¿Por qué FastHTML?\n\nFastHTML te permite crear aplicaciones web completas totalmente en Python. Sin React, sin Vue, sin npm.\n\n## El problema del desarrollo web moderno\n\nPila tradicional: backend en Python → API JSON → frontend en React/Vue/Svelte → npm, webpack, TypeScript, gestión de estado...\n\n**Pila de FastHTML**: backend en Python → respuestas HTML → HTMX para interactividad.\n\n## Ideas clave\n\n1. **HTML es la API**: El servidor devuelve fragmentos HTML, no JSON\n2. **HTMX gestiona la interactividad**: Clics, formularios y actualizaciones sin escribir JavaScript\n3. **Renderizado del lado del servidor**: Sin gestión de estado del lado del cliente\n4. **Python hasta el final**: Rutas, plantillas, lógica — todo en Python\n\n## Hola mundo\n\n```python\nfrom fasthtml.common import *\n\napp = FastHTML()\n\n@app.get(\"/\")\ndef home():\n    return H1(\"Hello, World!\")\n\nif __name__ == \"__main__\":\n    import uvicorn\n    uvicorn.run(app, host=\"0.0.0.0\", port=5001)\n```\n\n## Cuándo usar FastHTML\n\n- Herramientas internas y paneles de control\n- Aplicaciones de datos y paneles de administración\n- MVPs y prototipos\n- Cualquier aplicación donde quieras avanzar rápido sin un framework de JS\n",
+        "title": "¿Por qué FastHTML?"
+      },
       "et": {
         "content_md": "# Miks FastHTML?\n\nFastHTML võimaldab teil luua täisstacki veebirakendusi täielikult Pythonis. Ei Reacti, ei Vue'd, ei npm-i.\n\n## Kaasaegse veebiarenduse probleem\n\nTraditsiooniline stack: Pythoni backend → JSON API → React/Vue/Svelte frontend → npm, webpack, TypeScript, olekuhaldus...\n\n**FastHTML stack**: Pythoni backend → HTML vastused → HTMX interaktiivsuseks.\n\n## Põhiideed\n\n1. **HTML on API**: Server tagastab HTML fragmente, mitte JSONi\n2. **HTMX haldab interaktiivsust**: Klikid, vormid ja uuendused ilma JavaScripti kirjutamata\n3. **Serveripoolne renderdamine**: Ei kliendipoolset olekuhaldust\n4. **Python kõikjal**: Marsruudid, mallid, loogika — kõik Python\n\n## Tere maailm\n\n```python\nfrom fasthtml.common import *\n\napp = FastHTML()\n\n@app.get(\"/\")\ndef home():\n    return H1(\"Hello, World!\")\n\nif __name__ == \"__main__\":\n    import uvicorn\n    uvicorn.run(app, host=\"0.0.0.0\", port=5001)\n```\n\n## Millal kasutada FastHTML-i\n\n- Sisemised tööriistad ja armatuurlauad\n- Andmerakendused ja admin paneelid\n- MVP-d ja prototüübid\n- Iga rakendus, kus soovite kiiresti liikuda ilma JS raamistikuta\n",
         "title": "Miks FastHTML?"
@@ -386,6 +528,10 @@
       "source": "Why FastHTML?"
     },
     "9": {
+      "es": {
+        "content_md": "# Variables y expresiones\n\n## ¿Qué es el álgebra?\n\nEl álgebra es la rama de las matemáticas que utiliza letras (variables) para representar valores desconocidos y estudia las reglas para manipularlas.\n\n## Expresiones frente a ecuaciones\n\n- **Expresión**: una combinación de números, variables y operadores — `3x + 7`\n- **Ecuación**: una afirmación de que dos expresiones son iguales — `3x + 7 = 22`\n\n## Orden de las operaciones (BODMAS / PEMDAS)\n\n1. **B**rackets / **P**arentheses\n2. **O**rders / **E**xponents (potencias, raíces)\n3. **D**ivision and **M**ultiplication (de izquierda a derecha)\n4. **A**ddition and **S**ubtraction (de izquierda a derecha)\n\nEjemplo: `2 + 3 x 4 = 2 + 12 = 14` (¡no 20!)\n\n## Simplificación de expresiones\n\nCombina **términos semejantes** — términos con la misma variable y exponente:\n\n```\n5x + 3y - 2x + 7y = (5x - 2x) + (3y + 7y) = 3x + 10y\n```\n\n## Sustitución\n\nReemplaza las variables por valores:\n\nSi `x = 4`, entonces `2x + 5 = 2(4) + 5 = 13`\n\n> **Idea clave**: El álgebra es el lenguaje de los patrones. Una vez que puedas escribir un patrón como una expresión, podrás resolver problemas que nunca hayas visto antes.\n",
+        "title": "Variables y expresiones"
+      },
       "et": {
         "content_md": "# Muutujad ja avaldised\n\n## Mis on algebra?\n\nAlgebra on matemaatika haru, mis kasutab tähti (muutujaid) tundmatute väärtuste esitamiseks ja uurib nende manipuleerimise reegleid.\n\n## Avaldised vs võrrandid\n\n- **Avaldis**: numbrite, muutujate ja operaatorite kombinatsioon — `3x + 7`\n- **Võrrand**: väide, et kaks avaldist on võrdsed — `3x + 7 = 22`\n\n## Tehete järjekord (BODMAS / PEMDAS)\n\n1. **B**rackets / **P**arentheses\n2. **O**rders / **E**xponents (powers, roots)\n3. **D**ivision and **M**ultiplication (left to right)\n4. **A**ddition and **S**ubtraction (left to right)\n\nNäide: `2 + 3 x 4 = 2 + 12 = 14` (mitte 20!)\n\n## Avaldiste lihtsustamine\n\nKombineerige **sarnased liikmed** — liikmed sama muutuja ja astendajaga:\n\n```\n5x + 3y - 2x + 7y = (5x - 2x) + (3y + 7y) = 3x + 10y\n```\n\n## Asendamine\n\nAsendage muutujad väärtustega:\n\nKui `x = 4`, siis `2x + 5 = 2(4) + 5 = 13`\n\n> **Põhiline arusaam**: Algebra on mustrite keel. Kui suudad mustri avaldisena kirjutada, saad lahendada probleeme, mida pole varem näinud.\n",
         "title": "Muutujad ja avaldised"
@@ -399,6 +545,9 @@
   },
   "modules": {
     "1": {
+      "es": {
+        "title": "Primeros pasos"
+      },
       "et": {
         "description": "",
         "title": "Alustamine"
@@ -410,6 +559,9 @@
       "source": "Getting Started"
     },
     "10": {
+      "es": {
+        "title": "Estructura atómica"
+      },
       "et": {
         "description": "",
         "title": "Aatomistruktuur"
@@ -421,6 +573,9 @@
       "source": "Atomic Structure"
     },
     "11": {
+      "es": {
+        "title": "Reacciones químicas"
+      },
       "et": {
         "description": "",
         "title": "Keemilised reaktsioonid"
@@ -432,6 +587,9 @@
       "source": "Chemical Reactions"
     },
     "12": {
+      "es": {
+        "title": "Lectura y comprensión"
+      },
       "et": {
         "description": "",
         "title": "Lugemine ja mõistmine"
@@ -443,6 +601,9 @@
       "source": "Reading & Comprehension"
     },
     "13": {
+      "es": {
+        "title": "Habilidades de escritura"
+      },
       "et": {
         "description": "",
         "title": "Kirjutamisoskused"
@@ -454,6 +615,9 @@
       "source": "Writing Skills"
     },
     "14": {
+      "es": {
+        "title": "Geografía física"
+      },
       "et": {
         "description": "",
         "title": "Füüsiline geograafia"
@@ -465,6 +629,9 @@
       "source": "Physical Geography"
     },
     "15": {
+      "es": {
+        "title": "Geografía humana"
+      },
       "et": {
         "description": "",
         "title": "Inimgeograafia"
@@ -476,6 +643,9 @@
       "source": "Human Geography"
     },
     "16": {
+      "es": {
+        "title": "Fundamentos de narración"
+      },
       "et": {
         "description": "",
         "title": "Jutuvestmise alused"
@@ -487,6 +657,9 @@
       "source": "Storytelling Fundamentals"
     },
     "17": {
+      "es": {
+        "title": "Poesía"
+      },
       "et": {
         "description": "",
         "title": "Luule"
@@ -498,6 +671,9 @@
       "source": "Poetry"
     },
     "2": {
+      "es": {
+        "title": "Conceptos básicos"
+      },
       "et": {
         "description": "",
         "title": "Põhimõisted"
@@ -509,6 +685,9 @@
       "source": "Core Concepts"
     },
     "3": {
+      "es": {
+        "title": "Introducción al ML"
+      },
       "et": {
         "description": "",
         "title": "Sissejuhatus masinõppesse"
@@ -520,6 +699,9 @@
       "source": "Introduction to ML"
     },
     "4": {
+      "es": {
+        "title": "Fundamentos de FastHTML"
+      },
       "et": {
         "description": "",
         "title": "FastHTML-i põhialused"
@@ -531,6 +713,9 @@
       "source": "FastHTML Basics"
     },
     "5": {
+      "es": {
+        "title": "Álgebra"
+      },
       "et": {
         "description": "",
         "title": "Algebra"
@@ -542,6 +727,9 @@
       "source": "Algebra"
     },
     "6": {
+      "es": {
+        "title": "Geometría"
+      },
       "et": {
         "description": "",
         "title": "Geomeetria"
@@ -553,6 +741,9 @@
       "source": "Geometry"
     },
     "7": {
+      "es": {
+        "title": "Mecánica"
+      },
       "et": {
         "description": "",
         "title": "Mehaanika"
@@ -564,6 +755,9 @@
       "source": "Mechanics"
     },
     "8": {
+      "es": {
+        "title": "Biología celular"
+      },
       "et": {
         "description": "",
         "title": "Rakubioloogia"
@@ -575,6 +769,9 @@
       "source": "Cell Biology"
     },
     "9": {
+      "es": {
+        "title": "Genética"
+      },
       "et": {
         "description": "",
         "title": "Geneetika"
@@ -588,6 +785,17 @@
   },
   "quiz_questions": {
     "1": {
+      "es": {
+        "correct_answer": "float",
+        "explanation": "Los números con puntos decimales son `float` en Python.",
+        "options": [
+          "int",
+          "float",
+          "str",
+          "decimal"
+        ],
+        "question_text": "¿Cuál es el tipo de `x = 3.14`?"
+      },
       "et": {
         "correct_answer": "float",
         "explanation": "Kümnendpunktiga numbrid on Pythonis `float`.",
@@ -613,6 +821,17 @@
       "source": "What is the type of `x = 3.14`?"
     },
     "10": {
+      "es": {
+        "correct_answer": "La velocidad tiene dirección, la rapidez no",
+        "explanation": "La rapidez es escalar (solo magnitud), la velocidad es vectorial (magnitud + dirección).",
+        "options": [
+          "La rapidez tiene dirección, la velocidad no",
+          "La velocidad tiene dirección, la rapidez no",
+          "Son lo mismo",
+          "La rapidez siempre es más rápida"
+        ],
+        "question_text": "¿Cuál es la diferencia entre velocidad y rapidez?"
+      },
       "et": {
         "correct_answer": "Kiirusvektoril on suund, kiirusel ei ole",
         "explanation": "Kiirus on skalaar (ainult suurus), kiirusvektor on vektor (suurus + suund).",
@@ -638,6 +857,17 @@
       "source": "What is the difference between speed and velocity?"
     },
     "11": {
+      "es": {
+        "correct_answer": "Mitocondria",
+        "explanation": "Las mitocondrias producen ATP mediante respiración aeróbica.",
+        "options": [
+          "Núcleo",
+          "Ribosoma",
+          "Mitocondria",
+          "Aparato de Golgi"
+        ],
+        "question_text": "¿Qué orgánulo es la 'central energética de la célula'?"
+      },
       "et": {
         "correct_answer": "Mitokondrid",
         "explanation": "Mitokondrid toodavad ATP-d aeroobse hingamise kaudu.",
@@ -663,6 +893,17 @@
       "source": "Which organelle is the 'powerhouse of the cell'?"
     },
     "12": {
+      "es": {
+        "correct_answer": "Pared celular",
+        "explanation": "Las células vegetales tienen una pared celular rígida de celulosa fuera de la membrana celular.",
+        "options": [
+          "Núcleo",
+          "Membrana celular",
+          "Pared celular",
+          "Mitocondria"
+        ],
+        "question_text": "¿Qué característica tienen las células vegetales que no tienen las animales?"
+      },
       "et": {
         "correct_answer": "Rakusein",
         "explanation": "Taimerakkudel on jäik tselluloosist rakusein rakumembraani välisküljel.",
@@ -688,6 +929,17 @@
       "source": "Which feature do plant cells have that animal cells do not?"
     },
     "13": {
+      "es": {
+        "correct_answer": "No",
+        "explanation": "Los procariotas tienen una región nucleoide pero no un núcleo delimitado por membrana.",
+        "options": [
+          "Sí",
+          "No",
+          "Solo las bacterias lo tienen",
+          "Solo al dividirse"
+        ],
+        "question_text": "¿Los procariotas tienen núcleo?"
+      },
       "et": {
         "correct_answer": "Ei",
         "explanation": "Prokarüootidel on nukleoidne piirkond, kuid puudub membraaniga seotud tuum.",
@@ -713,6 +965,17 @@
       "source": "Do prokaryotes have a nucleus?"
     },
     "14": {
+      "es": {
+        "correct_answer": "Número de protones",
+        "explanation": "El número atómico (número de protones) define el elemento.",
+        "options": [
+          "Número de electrones",
+          "Número de neutrones",
+          "Número de protones",
+          "Su masa"
+        ],
+        "question_text": "¿Qué define a qué elemento pertenece un átomo?"
+      },
       "et": {
         "correct_answer": "Prootonite arv",
         "explanation": "Aatomnumber (prootonite arv) määrab elemendi.",
@@ -738,6 +1001,17 @@
       "source": "What defines which element an atom is?"
     },
     "15": {
+      "es": {
+        "correct_answer": "2, 6",
+        "explanation": "La capa 1 contiene 2 electrones, la capa 2 contiene los 6 restantes.",
+        "options": [
+          "2, 6",
+          "2, 8",
+          "8",
+          "2, 4, 2"
+        ],
+        "question_text": "¿Cuál es la configuración electrónica del oxígeno (número atómico 8)?"
+      },
       "et": {
         "correct_answer": "2, 6",
         "explanation": "Kest 1 mahutab 2 elektroni, kest 2 mahutab ülejäänud 6.",
@@ -763,6 +1037,17 @@
       "source": "What is the electron configuration of Oxygen (atomic number 8)?"
     },
     "16": {
+      "es": {
+        "correct_answer": "Punto, Evidencia, Explicación",
+        "explanation": "PEE = Punto, Evidencia, Explicación — el bloque básico de los párrafos analíticos.",
+        "options": [
+          "Punto, Ejemplo, Explicar",
+          "Punto, Evidencia, Explicación",
+          "Párrafo, Evidencia, Ejemplo",
+          "Punto, Evaluar, Extender"
+        ],
+        "question_text": "¿Qué significa PEE en la redacción de ensayos?"
+      },
       "et": {
         "correct_answer": "Punkt, Tõend, Selgitus",
         "explanation": "PEE = Punkt, Tõend, Selgitus — analüütiliste lõikude ehituskivi.",
@@ -788,6 +1073,17 @@
       "source": "What does PEE stand for in essay writing?"
     },
     "17": {
+      "es": {
+        "correct_answer": "El clima que refleja el estado de ánimo",
+        "explanation": "La falacia patética ocurre cuando el clima o el entorno refleja las emociones de un personaje.",
+        "options": [
+          "Un error lógico",
+          "El clima que refleja el estado de ánimo",
+          "Un tipo de metáfora",
+          "Un narrador poco fiable"
+        ],
+        "question_text": "¿Qué es la falacia patética?"
+      },
       "et": {
         "correct_answer": "Ilm meeleolu peegeldamas",
         "explanation": "Pateetiline eksitus on olukord, kus ilm või keskkond peegeldab tegelase emotsioone.",
@@ -813,6 +1109,17 @@
       "source": "What is pathetic fallacy?"
     },
     "18": {
+      "es": {
+        "correct_answer": "Constructivo",
+        "explanation": "En los límites constructivos, las placas divergen y se forma nueva corteza a partir del magma ascendente.",
+        "options": [
+          "Destructivo",
+          "Conservativo",
+          "Constructivo",
+          "Transformante"
+        ],
+        "question_text": "¿En qué tipo de límite de placas se separan las placas?"
+      },
       "et": {
         "correct_answer": "Konstruktiivne",
         "explanation": "Konstruktiivsetel piiridel laamad lahknevad ja uus koorik tekib tõusvast magmast.",
@@ -838,6 +1145,17 @@
       "source": "At which type of plate boundary do plates move apart?"
     },
     "19": {
+      "es": {
+        "correct_answer": "80%",
+        "explanation": "Aproximadamente el 80% de los terremotos del mundo ocurren a lo largo del Cinturón de Fuego del Pacífico.",
+        "options": [
+          "50%",
+          "65%",
+          "80%",
+          "95%"
+        ],
+        "question_text": "¿Qué porcentaje de terremotos ocurre a lo largo del Cinturón de Fuego?"
+      },
       "et": {
         "correct_answer": "80%",
         "explanation": "Ligikaudu 80% maailma maavärinaid toimub Vaikse ookeani Tulerõnga ääres.",
@@ -863,6 +1181,17 @@
       "source": "What percentage of earthquakes occur along the Ring of Fire?"
     },
     "2": {
+      "es": {
+        "correct_answer": "dict",
+        "explanation": "Los diccionarios (`dict`) almacenan pares clave-valor como `{'name': 'Alice'}`.",
+        "options": [
+          "list",
+          "tuple",
+          "dict",
+          "set"
+        ],
+        "question_text": "¿Qué estructura de datos utiliza pares clave-valor?"
+      },
       "et": {
         "correct_answer": "dict",
         "explanation": "Sõnastikud (`dict`) salvestavad võti-väärtus paare nagu `{'name': 'Alice'}`.",
@@ -888,6 +1217,17 @@
       "source": "Which data structure uses key-value pairs?"
     },
     "20": {
+      "es": {
+        "correct_answer": "Las lágrimas corrían por sus mejillas mientras miraba la silla vacía",
+        "explanation": "Esto usa detalles sensoriales concretos y acción en lugar de nombrar la emoción directamente.",
+        "options": [
+          "Ella estaba triste",
+          "Las lágrimas corrían por sus mejillas mientras miraba la silla vacía",
+          "El clima estaba malo",
+          "Él se sentía feliz"
+        ],
+        "question_text": "¿Cuál es un ejemplo de 'mostrar' en lugar de 'decir'?"
+      },
       "et": {
         "correct_answer": "Pisarad voolasid mööda tema põski, kui ta tühja tooli vahtis",
         "explanation": "See kasutab konkreetseid meelelisi detaile ja tegevust, selle asemel et emotsiooni otse nimetada.",
@@ -913,6 +1253,17 @@
       "source": "Which is an example of 'showing' rather than 'telling'?"
     },
     "21": {
+      "es": {
+        "correct_answer": "Para transiciones y detalles menores",
+        "explanation": "Decir está bien para transiciones ('Tres semanas después...') y detalles sin importancia para mantener el ritmo.",
+        "options": [
+          "Nunca",
+          "Para transiciones y detalles menores",
+          "Solo en textos no ficticios",
+          "Siempre"
+        ],
+        "question_text": "¿Cuándo es aceptable 'decir' en la escritura creativa?"
+      },
       "et": {
         "correct_answer": "Üleminekute ja väiksemate detailide jaoks",
         "explanation": "Ütlemine sobib üleminekute ('Kolm nädalat hiljem...') ja ebaoluliste detailide jaoks, et hoida tempot.",
@@ -938,6 +1289,17 @@
       "source": "When is 'telling' acceptable in creative writing?"
     },
     "3": {
+      "es": {
+        "correct_answer": "<class 'bool'>",
+        "explanation": "`True` y `False` son de tipo `bool` en Python.",
+        "options": [
+          "<class 'str'>",
+          "<class 'int'>",
+          "<class 'bool'>",
+          "<class 'true'>"
+        ],
+        "question_text": "¿Qué devuelve `type(True)`?"
+      },
       "et": {
         "correct_answer": "<class 'bool'>",
         "explanation": "`True` ja `False` on Pythonis `bool` tüüp.",
@@ -963,6 +1325,17 @@
       "source": "What does `type(True)` return?"
     },
     "4": {
+      "es": {
+        "correct_answer": "def",
+        "explanation": "Python usa `def` para definir funciones.",
+        "options": [
+          "func",
+          "function",
+          "def",
+          "fn"
+        ],
+        "question_text": "¿Qué palabra clave define una función en Python?"
+      },
       "et": {
         "correct_answer": "def",
         "explanation": "Python kasutab funktsioonide defineerimiseks `def`.",
@@ -988,6 +1361,17 @@
       "source": "What keyword defines a function in Python?"
     },
     "5": {
+      "es": {
+        "correct_answer": "Argumentos posicionales como una tupla",
+        "explanation": "`*args` recoge los argumentos posicionales adicionales en una tupla.",
+        "options": [
+          "Argumentos de palabra clave",
+          "Argumentos posicionales como una tupla",
+          "Una lista",
+          "Un diccionario"
+        ],
+        "question_text": "¿Qué recoge `*args`?"
+      },
       "et": {
         "correct_answer": "Positional arguments as a tuple",
         "explanation": "`*args` kogub lisa positsioonilised argumendid tuple'iks.",
@@ -1013,6 +1397,17 @@
       "source": "What does `*args` collect?"
     },
     "6": {
+      "es": {
+        "correct_answer": "14",
+        "explanation": "Multiplicación antes que suma: 3 x 4 = 12, luego 2 + 12 = 14.",
+        "options": [
+          "20",
+          "14",
+          "24",
+          "18"
+        ],
+        "question_text": "¿Qué es 2 + 3 x 4 usando el orden correcto de operaciones?"
+      },
       "et": {
         "correct_answer": "14",
         "explanation": "Korrutamine enne liitmist: 3 x 4 = 12, seejärel 2 + 12 = 14.",
@@ -1038,6 +1433,17 @@
       "source": "What is 2 + 3 x 4 using correct order of operations?"
     },
     "7": {
+      "es": {
+        "correct_answer": "8x",
+        "explanation": "Los términos semejantes con la misma variable se suman: 5x + 3x = 8x.",
+        "options": [
+          "8x",
+          "15x",
+          "8x^2",
+          "53x"
+        ],
+        "question_text": "Simplifica: 5x + 3x"
+      },
       "et": {
         "correct_answer": "8x",
         "explanation": "Sarnased liikmed sama muutujaga liidetakse: 5x + 3x = 8x.",
@@ -1063,6 +1469,17 @@
       "source": "Simplify: 5x + 3x"
     },
     "8": {
+      "es": {
+        "correct_answer": "10",
+        "explanation": "Sustituye x = 3: 4(3) - 2 = 12 - 2 = 10.",
+        "options": [
+          "10",
+          "12",
+          "6",
+          "14"
+        ],
+        "question_text": "Si x = 3, ¿qué es 4x - 2?"
+      },
       "et": {
         "correct_answer": "10",
         "explanation": "Asenda x = 3: 4(3) - 2 = 12 - 2 = 10.",
@@ -1088,6 +1505,17 @@
       "source": "If x = 3, what is 4x - 2?"
     },
     "9": {
+      "es": {
+        "correct_answer": "5 m/s^2",
+        "explanation": "a = (v - u) / t = (20 - 0) / 4 = 5 m/s^2.",
+        "options": [
+          "5 m/s^2",
+          "80 m/s^2",
+          "4 m/s^2",
+          "10 m/s^2"
+        ],
+        "question_text": "¿Cuál es la aceleración si un auto pasa de 0 a 20 m/s en 4 segundos?"
+      },
       "et": {
         "correct_answer": "5 m/s^2",
         "explanation": "a = (v - u) / t = (20 - 0) / 4 = 5 m/s^2.",
@@ -1115,6 +1543,9 @@
   },
   "quizzes": {
     "1": {
+      "es": {
+        "title": "Cuestionario de Variables y Tipos"
+      },
       "et": {
         "title": "Muutujate ja tüüpide viktoriin"
       },
@@ -1124,6 +1555,9 @@
       "source": "Variables & Types Quiz"
     },
     "2": {
+      "es": {
+        "title": "Cuestionario de Funciones"
+      },
       "et": {
         "title": "Funktsioonide viktoriin"
       },
@@ -1133,6 +1567,9 @@
       "source": "Functions Quiz"
     },
     "3": {
+      "es": {
+        "title": "Cuestionario de Fundamentos de Álgebra"
+      },
       "et": {
         "title": "Algebra põhialuste viktoriin"
       },
@@ -1142,6 +1579,9 @@
       "source": "Algebra Basics Quiz"
     },
     "4": {
+      "es": {
+        "title": "Cuestionario de Mecánica"
+      },
       "et": {
         "title": "Mehaanika test"
       },
@@ -1151,6 +1591,9 @@
       "source": "Mechanics Quiz"
     },
     "5": {
+      "es": {
+        "title": "Cuestionario de Estructura Celular"
+      },
       "et": {
         "title": "Raku struktuuri viktoriin"
       },
@@ -1160,6 +1603,9 @@
       "source": "Cell Structure Quiz"
     },
     "6": {
+      "es": {
+        "title": "Cuestionario de Átomos"
+      },
       "et": {
         "title": "Aatomite viktoriin"
       },
@@ -1169,6 +1615,9 @@
       "source": "Atoms Quiz"
     },
     "7": {
+      "es": {
+        "title": "Cuestionario de Análisis de Textos"
+      },
       "et": {
         "title": "Tekstianalüüsi viktoriin"
       },
@@ -1178,6 +1627,9 @@
       "source": "Text Analysis Quiz"
     },
     "8": {
+      "es": {
+        "title": "Cuestionario de Tectónica de Placas"
+      },
       "et": {
         "title": "Laamtektoonika viktoriin"
       },
@@ -1187,6 +1639,9 @@
       "source": "Plate Tectonics Quiz"
     },
     "9": {
+      "es": {
+        "title": "Cuestionario de Mostrar, no contar"
+      },
       "et": {
         "title": "Näita, ära ütle viktoriin"
       },

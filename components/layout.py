@@ -24,6 +24,7 @@ def page_head(title="FastLearn", lang="en"):
         Script(src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"),
         Script(src="/static/chat.js", defer=True),
         Script(src="/static/activity.js", defer=True),
+        Script(src="/static/language.js", defer=True),
     )
 
 
@@ -43,6 +44,7 @@ def left_pane(user=None, active=None, lang="en", current_path="/app"):
     nav_items = [
         ("dashboard", t("dashboard", lang), "/app"),
         ("courses", t("courses", lang), "/app/courses"),
+        ("languages", t("language_learning", lang), "/app/languages"),
         ("leaderboard", t("leaderboard", lang), "/app/leaderboard"),
     ]
 
