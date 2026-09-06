@@ -24,6 +24,8 @@ def test_release_version_is_visible_in_subdued_ui_labels():
     assert 'class="app-version"' in sidebar
     assert f">v{APP_VERSION}<" in landing
     assert 'class="site-version"' in landing
+    assert ">14<" in landing
+    assert "art and music" in landing
 
 
 def test_authenticated_app_head_uses_the_product_favicon():
