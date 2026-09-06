@@ -73,6 +73,7 @@ def test_database_keeps_public_and_private_exercise_payloads_apart():
     assert "answer_payload" in source
     assert 'item.pop("answer_payload", None)' in source
     assert "exercise_attempts" in source
+    assert all(";" not in line for line in source.splitlines() if line.lstrip().startswith("--"))
 
 
 def test_api_protects_learner_data_and_exposes_answer_safe_exercises():

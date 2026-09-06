@@ -140,4 +140,3 @@ def shortest_route_length(fen: str, goal: str) -> int:
                 seen.add(destination)
                 queue.append((destination, distance + 1))
     return 0
-

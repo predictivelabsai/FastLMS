@@ -327,8 +327,8 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.content_translations (
     PRIMARY KEY (entity_type, entity_id, language)
 );
 
--- Course-neutral interactive exercise library.  The browser receives only
--- public_payload; answer_payload remains server-side for authoritative grading.
+-- Course-neutral interactive exercise library. The browser receives only
+-- public_payload while answer_payload remains server-side for grading.
 CREATE TABLE IF NOT EXISTS {SCHEMA}.interactive_exercises (
     id                  BIGSERIAL PRIMARY KEY,
     source_key          TEXT UNIQUE NOT NULL,
