@@ -1,8 +1,10 @@
 # FastLMS
 
-Current release: `v1.1.0`
+Current release: `v1.2.0`
 
-Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, AI tutor chat with SSE streaming, and Duolingo-style interactive elements (XP, streaks, badges, leaderboards, levels).
+Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, a New Chat workspace with SSE streaming, and Duolingo-style learner elements (XP, streaks, badges, leaderboards, levels).
+
+FastLearn 1.2 adds role-specific chat-first workspaces: students learn through streamed course and quiz conversations, teachers start from a complete catalogue and operational dashboard, and administrators maintain a protected default catalogue. Teachers may assign defaults as-is or clone one into an editable teacher-owned draft; their reports remain scoped to students they assigned.
 
 ![FastLMS Demo](docs/fastlms-demo.gif)
 
@@ -54,7 +56,7 @@ For schools/colleges, not just self-serve courses. Admin/teacher pages under **/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/predictivelabs/FastLMS.git
+git clone https://github.com/predictivelabsai/FastLMS.git
 cd FastLMS
 python3 -m venv .venv
 source .venv/bin/activate
@@ -124,7 +126,7 @@ All tables live in the `fastlms` PostgreSQL schema:
 | Table | Purpose |
 |-------|---------|
 | `users` | Auth, XP, level, streak, role (student/teacher/admin) |
-| `courses` | Title, slug, category, difficulty, publish state |
+| `courses` | Title, slug, category, difficulty, publish/default state and owner |
 | `modules` | Ordered sections within a course |
 | `lessons` | Markdown content, video URL, XP reward, duration |
 | `quizzes` | Per-lesson, pass threshold, XP reward |
@@ -208,6 +210,7 @@ Students land in chat after signing in. Course, lesson, adaptive quiz, and langu
 | `GET /app/dashboard` | Optional progress dashboard (courses, stats, badges) |
 | `GET /app/courses` | Browse all published courses |
 | `GET /app/course/{slug}` | Course detail with module/lesson sidebar |
+| `POST /app/course/{id}/clone` | Clone a protected admin default into a teacher-owned draft |
 | `POST /app/course/{slug}/enrol` | Enrol in a course |
 | `GET /app/lesson/{id}` | Lesson view (markdown, video, actions) |
 | `POST /app/lesson/{id}/complete` | Mark lesson complete, award XP |

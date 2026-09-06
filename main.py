@@ -354,6 +354,41 @@ def dashboard(req):
         return redir
     lang = get_lang(req)
 
+    if user.get("role") in {"teacher", "instructor", "admin"}:
+        with db.connect() as conn:
+            metrics = db.get_role_metrics(conn, user)
+            owned = db.get_managed_courses(conn, user, lang=lang)
+        role = "admin" if user.get("role") == "admin" else "teacher"
+        labels = {
+            "en": ("Users" if role == "admin" else "Students", "Published courses" if role == "admin" else "Active courses", "Pending approvals"),
+            "et": ("Kasutajad" if role == "admin" else "Õpilased", "Avaldatud kursused" if role == "admin" else "Aktiivsed kursused", "Ootel kinnitused"),
+            "lt": ("Naudotojai" if role == "admin" else "Mokiniai", "Paskelbti kursai" if role == "admin" else "Aktyvūs kursai", "Laukiantys patvirtinimai"),
+            "es": ("Usuarios" if role == "admin" else "Estudiantes", "Cursos publicados" if role == "admin" else "Cursos activos", "Aprobaciones pendientes"),
+        }.get(lang)
+        actions = [
+            (t("complete_catalogue", lang), "/app/courses"), (t("create_course_action", lang), "/app/configure"),
+            (t("assign_manage_action", lang), "/app/team"),
+            (t("review_drafts_action", lang), "/app/manage"),
+            (t("reports_action", lang), "/app/reports"),
+            (t("preview_student_action", lang), "/app/chat/new?preview=student"),
+        ]
+        content = Div(
+            H1(t("admin_dashboard" if role == "admin" else "teacher_dashboard", lang), cls="page-title"),
+            P(t("staff_dashboard_help", lang), cls="page-subtitle"),
+            Div(*[
+                Div(Div(str(value), cls="dashboard-card-value"), Div(label, cls="dashboard-card-label"), cls="dashboard-card")
+                for value, label in zip((metrics["people"], metrics["courses"], metrics["approvals"]), labels)
+            ], cls="dashboard-grid staff-dashboard-grid"),
+            Div(*[
+                A(H3(label), Span(t("open_action", lang)), href=href, cls="staff-action-card") for label, href in actions
+            ], cls="staff-action-grid"),
+            (Div(H2(t("manage_courses", lang)), Div(*[
+                course_card(course, lang=lang, href=f"/app/course/{course['slug']}") for course in owned[:6]
+            ], cls="courses-grid"), cls="staff-owned-courses") if owned else ""),
+            cls="page-content",
+        )
+        return app_shell(content, user=user, active="dashboard", lang=lang, current_path="/app/dashboard")
+
     with db.connect() as conn:
         courses = db.get_courses(conn, lang=lang)
         import sqlalchemy as sa
@@ -435,11 +470,20 @@ def courses_page(req):
         cards = []
         for c in courses:
             prog = db.get_user_course_progress(conn, user["id"], c["id"]) if c["id"] in enrolled_ids else None
-            cards.append(course_card(c, prog, lang, assigned=c["id"] in assigned_ids))
+            href = f"/app/course/{c['slug']}" if user.get("role") in {"teacher", "instructor", "admin"} else None
+            cards.append(course_card(c, prog, lang, assigned=c["id"] in assigned_ids, href=href))
 
+    catalogue_subtitle = t("browse_all_courses", lang)
+    if user.get("role") in {"teacher", "instructor", "admin"}:
+        catalogue_subtitle = {
+            "en": "Browse the complete catalogue. Assign admin defaults as-is or clone an editable copy.",
+            "et": "Sirvi kogu kataloogi. Määra administraatori vaikekursus või klooni muudetav koopia.",
+            "lt": "Naršyk visą katalogą. Priskirk administratoriaus kursą arba klonuok redaguojamą kopiją.",
+            "es": "Explora el catálogo completo. Asigna los cursos predeterminados o clona una copia editable.",
+        }.get(lang, "Browse the complete catalogue. Assign admin defaults as-is or clone an editable copy.")
     content = Div(
         H1(t("courses", lang), cls="page-title"),
-        P(t("browse_all_courses", lang), cls="page-subtitle"),
+        P(catalogue_subtitle, cls="page-subtitle"),
         Div(*cards, cls="courses-grid") if cards else Div(
             Div(t("no_courses", lang), cls="empty-state-text"),
             cls="empty-state",
@@ -476,6 +520,7 @@ def course_detail(req, slug: str):
         ).scalar()
         prog = db.get_user_course_progress(conn, user["id"], course["id"])
         assigned = course["id"] in db.get_assigned_course_ids(conn, user["id"])
+        can_edit = db.can_manage_course(conn, user, course["id"])
         learning_path = db.get_learning_path(conn, user_id=user["id"], course_id=course["id"], lang=lang)
         recommendations = conn.execute(sa.text(f"""
             SELECT * FROM {db.S}.adaptive_recommendations
@@ -508,6 +553,15 @@ def course_detail(req, slug: str):
                 )
             )
 
+    staff_actions = Div(
+        (A(t("edit_course", lang), href=f"/app/configure?step=2&course_id={course['id']}", cls="btn btn-primary") if can_edit else ""),
+        (Form(
+            Button(t("clone_course", lang), type="submit", cls="btn btn-secondary"),
+            method="post", action=f"/app/course/{course['id']}/clone",
+        ) if course.get("is_default") and not can_edit and user.get("role") in {"teacher", "instructor"} else ""),
+        A(t("assign_course", lang), href=f"/app/team?course_id={course['id']}", cls="btn btn-secondary"),
+        cls="course-staff-actions",
+    )
     hero = Div(
         Div(
             H1(course["title"]),
@@ -516,13 +570,10 @@ def course_detail(req, slug: str):
                 Span(f"{t('difficulty', lang)}: {t(course.get('difficulty', 'beginner'), lang)}"),
                 Span(f"{t('progress', lang)}: {prog['percent']}%"),
                 (Span(t("assigned", lang), cls="course-assigned") if assigned else ""),
+                (Span(t("default_course", lang), cls="course-default") if course.get("is_default") else ""),
                 cls="course-hero-meta",
             ),
-            (Form(
-                Button(t("enrol", lang), cls="btn btn-primary", type="submit", style="margin-top:16px;"),
-                method="post",
-                action=f"/app/course/{slug}/enrol",
-            ) if not enrolled else ""),
+            staff_actions,
             cls="course-hero-inner",
         ),
         cls="course-hero",
@@ -550,6 +601,25 @@ def course_detail(req, slug: str):
 
     content = Div(hero, body)
     return app_shell(content, user=user, active="courses", title=course["title"], lang=lang, current_path=f"/app/course/{slug}")
+
+
+@app.post("/app/course/{course_id:int}/clone")
+async def clone_course(req, course_id: int):
+    user, redir = _require_teacher(req)
+    if redir:
+        return redir
+    with db.begin() as conn:
+        if not db.can_clone_course(conn, user, course_id):
+            return RedirectResponse("/app/courses?error=Clone+not+allowed", status_code=303)
+        clone = db.clone_course(conn, source_course_id=course_id, owner_id=user["id"])
+        db.audit(
+            conn, actor_id=user["id"], action="course.cloned", target_type="course",
+            target_id=clone["id"], details={"source_course_id": course_id},
+        )
+    return RedirectResponse(
+        f"/app/configure?step=2&course_id={clone['id']}&msg=Editable+copy+created",
+        status_code=303,
+    )
 
 
 @app.post("/app/course/{slug}/enrol")
@@ -1272,6 +1342,7 @@ def new_chat(req):
             course_slug=req.query_params.get("course", ""),
             lesson_id=_query_int(req, "lesson_id"),
             quiz_id=_query_int(req, "quiz_id"),
+            role="student" if req.query_params.get("preview") == "student" else user.get("role", "student"),
         )
         session = db.create_chat_session(
             conn, user["id"], title=initial["title"], context=initial["context"]
@@ -1316,6 +1387,8 @@ def chat_workspace(req):
         elif message["role"] == "user":
             message_elements.append(Div(message["content"], cls="msg msg-user"))
 
+    chat_role = (session.get("context") or {}).get("role", "student")
+    placeholder_key = "admin_chat_placeholder" if chat_role == "admin" else "teacher_chat_placeholder" if chat_role == "teacher" else "ask_placeholder"
     content = Div(
         Div(
             Span(session.get("title") or t("new_chat", lang)),
@@ -1326,7 +1399,7 @@ def chat_workspace(req):
         Div(
             Form(
                 Div(
-                    Textarea(placeholder=t("ask_placeholder", lang), id="chat-input", cls="chat-input", rows=1),
+                    Textarea(placeholder=t(placeholder_key, lang), id="chat-input", cls="chat-input", rows=1),
                     Button(t("send", lang), cls="chat-send", type="submit"), cls="chat-input-row",
                 ),
                 id="chat-form", data_chat_id=chat_id, data_thinking=t("thinking", lang),
@@ -1380,13 +1453,14 @@ async def chat_stream_workspace(req):
         async def generate_guided():
             rendered = render_chat_markdown(guided["content"])
             yield f"data: {json.dumps({'html': rendered})}\n\n"
-            yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'lesson_id': guided.get('lesson_id')})}\n\n"
+            yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'lesson_id': guided.get('lesson_id'), 'redirect_url': guided.get('redirect_url')})}\n\n"
         return StreamingResponse(generate_guided(), media_type="text/event-stream", headers=stream_headers)
 
     with db.connect() as conn:
         session = db.get_chat_session(conn, user["id"], chat_id)
         history = db.get_chat_history(conn, user["id"], limit=20, session_id=chat_id)
-        lesson_id = (session.get("context") or {}).get("lesson_id")
+        session_context = session.get("context") or {}
+        lesson_id = session_context.get("lesson_id")
         lesson = db.get_lesson(conn, int(lesson_id), lang=lang) if lesson_id else None
 
     lesson_context = ""
@@ -1397,8 +1471,16 @@ async def chat_stream_workspace(req):
         try:
             provider = os.environ.get("MODEL_PROVIDER", "xai")
             model = os.environ.get("DEFAULT_MODEL", "grok-4-1-fast-reasoning")
-            system_prompt = f"""You are FastLearn, a multilingual conversational tutor.
-Help the student understand material and move forward through dialogue. Be encouraging, clear, and concise.
+            audience = session_context.get("role", "student")
+            role_direction = (
+                "Help this teacher choose curriculum and guide them to FastLearn's course, team, draft-review, and reporting tools."
+                if audience == "teacher" else
+                "Help this administrator manage the catalogue, users, teachers, approvals, and reports."
+                if audience == "admin" else
+                "Help the student understand material and move forward through dialogue."
+            )
+            system_prompt = f"""You are FastLearn, a multilingual conversational assistant.
+{role_direction} Be encouraging, clear, and concise.
 When useful, offer a small set of lettered choices that the learner can answer by typing the letter.
 Format responses in Markdown.
 {prompt_language_directive(lang)}{lesson_context}"""
@@ -1534,6 +1616,24 @@ def profile_page(req):
         return redir
 
     lang = get_lang(req)
+    if user.get("role") in {"teacher", "instructor", "admin"}:
+        with db.connect() as conn:
+            metrics = db.get_role_metrics(conn, user)
+        is_admin = user.get("role") == "admin"
+        content = Div(
+            H1(user["display_name"], cls="page-title"),
+            P(f"{user['email']} · {t('admin' if is_admin else 'teacher', lang)}", cls="page-subtitle"),
+            Div(
+                Div(Div(str(metrics["people"]), cls="dashboard-card-value"), Div(t("staff_users" if is_admin else "staff_students", lang), cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(str(metrics["courses"]), cls="dashboard-card-value"), Div(t("staff_published" if is_admin else "staff_courses", lang), cls="dashboard-card-label"), cls="dashboard-card"),
+                Div(Div(str(metrics["approvals"]), cls="dashboard-card-value"), Div(t("staff_approvals", lang), cls="dashboard-card-label"), cls="dashboard-card"),
+                cls="dashboard-grid staff-dashboard-grid",
+            ),
+            P(t("staff_profile_help", lang), cls="staff-profile-note"),
+            cls="page-content",
+        )
+        return app_shell(content, user=user, active=None, lang=lang, current_path="/app/profile")
+
     with db.connect() as conn:
         badges = db.get_user_badges(conn, user["id"], lang=lang)
         import sqlalchemy as sa
@@ -2278,8 +2378,7 @@ def team_page(req):
                 WHERE i.invited_by = :user AND i.consumed_at IS NULL AND i.revoked_at IS NULL
                 ORDER BY i.created_at DESC
             """), {"user": user["id"]}).mappings().all()
-        courses = db.get_managed_courses(conn, user, lang=lang)
-        managed_ids = [course["id"] for course in courses]
+        courses = db.get_assignable_courses(conn, user, lang=lang)
         if user["role"] == "admin":
             assignments = conn.execute(sa.text(f"""
                 SELECT ca.user_id, ca.course_id, c.title FROM {db.S}.course_assignments ca
@@ -2289,14 +2388,12 @@ def team_page(req):
                 SELECT a.teacher_id AS user_id, a.course_id, c.title FROM {db.S}.teacher_course_access a
                 JOIN {db.S}.courses c ON c.id = a.course_id
             """)).mappings().all()
-        elif managed_ids:
+        else:
             assignments = conn.execute(sa.text(f"""
                 SELECT ca.user_id, ca.course_id, c.title FROM {db.S}.course_assignments ca
-                JOIN {db.S}.courses c ON c.id = ca.course_id WHERE ca.course_id = ANY(:courses)
-            """), {"courses": managed_ids}).mappings().all()
+                JOIN {db.S}.courses c ON c.id = ca.course_id WHERE ca.assigned_by = :teacher
+            """), {"teacher": user["id"]}).mappings().all()
             teacher_access = []
-        else:
-            assignments, teacher_access = [], []
     assigned_by_user = {}
     for assignment in [*assignments, *teacher_access]:
         assigned_by_user.setdefault(assignment["user_id"], []).append(dict(assignment))
@@ -2448,7 +2545,7 @@ async def assign_team_course(req):
     import sqlalchemy as sa
     with db.begin() as conn:
         target = db.get_user(conn, target_id)
-        if not target or not db.can_manage_course(conn, user, course_id):
+        if not target or not db.can_assign_course(conn, user, course_id):
             return RedirectResponse("/app/team?error=Assignment+not+allowed", status_code=303)
         if target["role"] == "student":
             db.assign_course(conn, user_id=target_id, course_id=course_id, assigned_by=user["id"])
@@ -2474,14 +2571,29 @@ async def unassign_team_course(req):
     import sqlalchemy as sa
     with db.begin() as conn:
         target = db.get_user(conn, target_id)
-        if not target or not db.can_manage_course(conn, user, course_id):
+        if not target:
             return RedirectResponse("/app/team?error=Removal+not+allowed", status_code=303)
         if target["role"] == "student":
+            assignment = conn.execute(sa.text(f"""
+                SELECT assigned_by FROM {db.S}.course_assignments
+                WHERE user_id = :user AND course_id = :course
+            """), {"user": target_id, "course": course_id}).mappings().first()
+            can_remove = bool(assignment and (user["role"] == "admin" or assignment["assigned_by"] == user["id"]))
+            if not can_remove:
+                return RedirectResponse("/app/team?error=Removal+not+allowed", status_code=303)
             db.unassign_course(conn, user_id=target_id, course_id=course_id)
-        elif user["role"] == "admin":
+        elif target["role"] in ("teacher", "instructor") and user["role"] == "admin":
+            access_exists = conn.execute(sa.text(f"""
+                SELECT 1 FROM {db.S}.teacher_course_access
+                WHERE teacher_id = :teacher AND course_id = :course
+            """), {"teacher": target_id, "course": course_id}).scalar()
+            if not access_exists:
+                return RedirectResponse("/app/team?error=Removal+not+allowed", status_code=303)
             conn.execute(sa.text(f"""
                 DELETE FROM {db.S}.teacher_course_access WHERE teacher_id = :teacher AND course_id = :course
             """), {"teacher": target_id, "course": course_id})
+        else:
+            return RedirectResponse("/app/team?error=Removal+not+allowed", status_code=303)
         db.audit(conn, actor_id=user["id"], action="course.unassigned", target_type="user",
                  target_id=target_id, details={"course_id": course_id})
     return RedirectResponse("/app/team?msg=Course+assignment+removed", status_code=303)
@@ -2494,8 +2606,10 @@ def learning_reports(req):
         return redir
     lang = get_lang(req)
     with db.connect() as conn:
-        courses = db.get_managed_courses(conn, user, lang=lang)
-        report = db.learning_time_report(conn, None if user["role"] == "admin" else [c["id"] for c in courses])
+        report = db.learning_time_report(
+            conn,
+            assigned_by=None if user["role"] == "admin" else user["id"],
+        )
     rows = [Tr(
         Td(row["display_name"], Br(), Small(row["email"])), Td(row.get("course_title") or "AI Tutor"),
         Td(f"{row['completed_lessons']}/{row['total_lessons']}"),

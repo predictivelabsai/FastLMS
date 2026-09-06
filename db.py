@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.courses (
     thumbnail_url   TEXT,
     instructor_id   INTEGER REFERENCES {SCHEMA}.users(id),
     is_published    BOOLEAN NOT NULL DEFAULT false,
+    is_default      BOOLEAN NOT NULL DEFAULT false,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -382,6 +383,22 @@ ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS lesson_kind TEXT NOT NULL 
 ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS difficulty_level INTEGER NOT NULL DEFAULT 2;
 ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS prerequisite_lesson_id INTEGER REFERENCES {SCHEMA}.lessons(id) ON DELETE SET NULL;
 ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS difficulty_level INTEGER NOT NULL DEFAULT 2;
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS is_default BOOLEAN NOT NULL DEFAULT false;
+
+-- The checked-in demonstration catalogue is administrator-owned reference
+-- material. Teachers may assign or clone it, but never edit it in place.
+UPDATE {SCHEMA}.courses SET is_default = true WHERE slug IN (
+    'python-fundamentals', 'ml-sklearn', 'fasthtml-web-apps',
+    'mathematics-foundations', 'physics-essentials', 'biology-life-sciences',
+    'chemistry-fundamentals', 'english-language-literature',
+    'geography-physical-human', 'creative-writing', 'art-history',
+    'music-history', 'art-principles', 'music-principles'
+);
+UPDATE {SCHEMA}.courses SET instructor_id = (
+    SELECT id FROM {SCHEMA}.users WHERE lower(email) = 'kaljuvee@gmail.com' LIMIT 1
+) WHERE is_default = true AND EXISTS (
+    SELECT 1 FROM {SCHEMA}.users WHERE lower(email) = 'kaljuvee@gmail.com'
+);
 
 -- Discussions (per-lesson threaded comments)
 CREATE TABLE IF NOT EXISTS {SCHEMA}.discussions (
@@ -851,35 +868,232 @@ def audit(conn, *, actor_id: int | None, action: str, target_type: str,
              "details": json.dumps(details or {})})
 
 
-def can_manage_course(conn, user: dict, course_id: int) -> bool:
+def course_is_editable_by(user: dict, course: dict | None) -> bool:
+    if not course:
+        return False
     if user.get("role") == "admin":
         return True
-    if user.get("role") != "teacher":
-        return False
-    return bool(conn.execute(
-        sa.text(f"""
-            SELECT 1 FROM {S}.courses c
-            WHERE c.id = :course AND (
-                c.instructor_id = :teacher OR EXISTS (
-                    SELECT 1 FROM {S}.teacher_course_access a
-                    WHERE a.course_id = c.id AND a.teacher_id = :teacher
-                )
-            )
-        """),
-        {"course": course_id, "teacher": user["id"]},
-    ).scalar())
+    return user.get("role") in {"teacher", "instructor"} and (
+        course.get("instructor_id") == user.get("id") and not course.get("is_default", False)
+    )
+
+
+def can_manage_course(conn, user: dict, course_id: int) -> bool:
+    row = conn.execute(sa.text(f"""
+        SELECT id, instructor_id, is_default FROM {S}.courses WHERE id = :course
+    """), {"course": course_id}).mappings().first()
+    return course_is_editable_by(user, dict(row) if row else None)
 
 
 def get_managed_courses(conn, user: dict, lang: str = "en") -> list[dict]:
     if user.get("role") == "admin":
         return get_courses(conn, published_only=False, lang=lang)
     rows = conn.execute(sa.text(f"""
-        SELECT DISTINCT c.* FROM {S}.courses c
-        LEFT JOIN {S}.teacher_course_access a ON a.course_id = c.id
-        WHERE c.instructor_id = :teacher OR a.teacher_id = :teacher
+        SELECT c.* FROM {S}.courses c
+        WHERE c.instructor_id = :teacher AND COALESCE(c.is_default, false) = false
         ORDER BY c.created_at DESC
     """), {"teacher": user["id"]}).mappings().all()
     return _localized(rows, "courses", lang, conn)
+
+
+def get_assignable_courses(conn, user: dict, lang: str = "en") -> list[dict]:
+    """Return the catalogue a staff member may assign without granting edit rights."""
+    if user.get("role") == "admin":
+        return get_courses(conn, published_only=False, lang=lang)
+    rows = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.courses
+        WHERE is_published = true OR instructor_id = :teacher
+        ORDER BY is_default DESC, title
+    """), {"teacher": user["id"]}).mappings().all()
+    return _localized(rows, "courses", lang, conn)
+
+
+def can_assign_course(conn, user: dict, course_id: int) -> bool:
+    if user.get("role") == "admin":
+        return bool(conn.execute(sa.text(f"SELECT 1 FROM {S}.courses WHERE id = :course"), {"course": course_id}).scalar())
+    if user.get("role") not in {"teacher", "instructor"}:
+        return False
+    return bool(conn.execute(sa.text(f"""
+        SELECT 1 FROM {S}.courses
+        WHERE id = :course AND (is_published = true OR instructor_id = :teacher)
+    """), {"course": course_id, "teacher": user["id"]}).scalar())
+
+
+def can_clone_course(conn, user: dict, course_id: int) -> bool:
+    """Only staff may fork a published, administrator-curated default."""
+    if user.get("role") not in {"teacher", "instructor", "admin"}:
+        return False
+    return bool(conn.execute(sa.text(f"""
+        SELECT 1 FROM {S}.courses
+        WHERE id = :course AND is_default = true AND is_published = true
+    """), {"course": course_id}).scalar())
+
+
+def get_role_metrics(conn, user: dict) -> dict:
+    """Return meaningful sidebar/dashboard metrics for staff roles."""
+    if user.get("role") == "admin":
+        row = conn.execute(sa.text(f"""
+            SELECT
+                (SELECT count(*) FROM {S}.users) AS people,
+                (SELECT count(*) FROM {S}.courses WHERE is_published = true) AS courses,
+                (SELECT count(*) FROM {S}.content_drafts WHERE status = 'pending') AS approvals
+        """)).mappings().one()
+    else:
+        row = conn.execute(sa.text(f"""
+            SELECT
+                (SELECT count(DISTINCT u.id) FROM {S}.users u
+                 WHERE u.role = 'student' AND (
+                    EXISTS (SELECT 1 FROM {S}.course_assignments ca
+                            WHERE ca.user_id = u.id AND ca.assigned_by = :teacher)
+                    OR EXISTS (SELECT 1 FROM {S}.invitations i
+                               WHERE i.invited_by = :teacher AND i.revoked_at IS NULL
+                                 AND lower(i.email) = lower(u.email))
+                 )) AS people,
+                (SELECT count(DISTINCT c.id) FROM {S}.courses c
+                 LEFT JOIN {S}.course_assignments ca
+                    ON ca.course_id = c.id AND ca.assigned_by = :teacher
+                 WHERE (c.instructor_id = :teacher AND c.is_published = true
+                        AND COALESCE(c.is_default, false) = false)
+                    OR ca.id IS NOT NULL) AS courses,
+                (SELECT count(*) FROM {S}.content_drafts d
+                 JOIN {S}.courses c ON c.id = d.course_id
+                 WHERE c.instructor_id = :teacher AND d.status = 'pending'
+                   AND COALESCE(c.is_default, false) = false) AS approvals
+        """), {"teacher": user["id"]}).mappings().one()
+    return {key: int(value or 0) for key, value in dict(row).items()}
+
+
+def clone_course(conn, *, source_course_id: int, owner_id: int) -> dict:
+    """Clone an assignable course and all authored content into an editable draft."""
+    source = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.courses WHERE id = :course
+    """), {"course": source_course_id}).mappings().first()
+    if not source:
+        raise ValueError("course not found")
+
+    base_slug = f"{source['slug']}-copy"
+    slug = base_slug
+    suffix = 2
+    while conn.execute(sa.text(f"SELECT 1 FROM {S}.courses WHERE slug = :slug"), {"slug": slug}).scalar():
+        slug = f"{base_slug}-{suffix}"
+        suffix += 1
+    clone = conn.execute(sa.text(f"""
+        INSERT INTO {S}.courses
+            (title, slug, description, category, difficulty, thumbnail_url,
+             instructor_id, is_published, is_default)
+        VALUES (:title, :slug, :description, :category, :difficulty, :thumbnail,
+                :owner, false, false)
+        RETURNING *
+    """), {
+        "title": f"{source['title']} (Copy)", "slug": slug,
+        "description": source.get("description"), "category": source.get("category"),
+        "difficulty": source.get("difficulty") or "beginner",
+        "thumbnail": source.get("thumbnail_url"), "owner": owner_id,
+    }).mappings().one()
+
+    def copy_translations(entity: str, old_id: int, new_id: int) -> None:
+        conn.execute(sa.text(f"""
+            INSERT INTO {S}.content_translations
+                (entity_type, entity_id, language, title, description, content_md,
+                 question_text, options, correct_answer, explanation)
+            SELECT entity_type, :new_id, language, title, description, content_md,
+                   question_text, options, correct_answer, explanation
+            FROM {S}.content_translations
+            WHERE entity_type = :entity AND entity_id = :old_id
+            ON CONFLICT DO NOTHING
+        """), {"entity": entity, "old_id": old_id, "new_id": new_id})
+
+    copy_translations("courses", source_course_id, clone["id"])
+    lesson_ids: dict[int, int] = {}
+    for module in conn.execute(sa.text(f"""
+        SELECT * FROM {S}.modules WHERE course_id = :course ORDER BY order_idx
+    """), {"course": source_course_id}).mappings().all():
+        new_module_id = conn.execute(sa.text(f"""
+            INSERT INTO {S}.modules (course_id, title, description, order_idx)
+            VALUES (:course, :title, :description, :order_idx) RETURNING id
+        """), {
+            "course": clone["id"], "title": module["title"],
+            "description": module.get("description"), "order_idx": module["order_idx"],
+        }).scalar_one()
+        copy_translations("modules", module["id"], new_module_id)
+        for lesson in conn.execute(sa.text(f"""
+            SELECT * FROM {S}.lessons WHERE module_id = :module ORDER BY order_idx
+        """), {"module": module["id"]}).mappings().all():
+            new_lesson_id = conn.execute(sa.text(f"""
+                INSERT INTO {S}.lessons
+                    (module_id, title, content_md, content_type, video_url, duration_min,
+                     xp_reward, order_idx, lesson_kind, difficulty_level)
+                VALUES (:module, :title, :content, :content_type, :video, :duration,
+                        :xp, :order_idx, :kind, :level) RETURNING id
+            """), {
+                "module": new_module_id, "title": lesson["title"],
+                "content": lesson.get("content_md"), "content_type": lesson.get("content_type") or "text",
+                "video": lesson.get("video_url"), "duration": lesson.get("duration_min"),
+                "xp": lesson.get("xp_reward") or 25, "order_idx": lesson["order_idx"],
+                "kind": lesson.get("lesson_kind") or "core",
+                "level": lesson.get("difficulty_level") or 2,
+            }).scalar_one()
+            lesson_ids[lesson["id"]] = new_lesson_id
+            copy_translations("lessons", lesson["id"], new_lesson_id)
+            quiz = conn.execute(sa.text(f"""
+                SELECT * FROM {S}.quizzes WHERE lesson_id = :lesson
+            """), {"lesson": lesson["id"]}).mappings().first()
+            if not quiz:
+                continue
+            new_quiz_id = conn.execute(sa.text(f"""
+                INSERT INTO {S}.quizzes
+                    (lesson_id, title, pass_threshold, xp_reward, time_limit_min)
+                VALUES (:lesson, :title, :threshold, :xp, :time_limit) RETURNING id
+            """), {
+                "lesson": new_lesson_id, "title": quiz["title"],
+                "threshold": quiz["pass_threshold"], "xp": quiz["xp_reward"],
+                "time_limit": quiz.get("time_limit_min"),
+            }).scalar_one()
+            copy_translations("quizzes", quiz["id"], new_quiz_id)
+            questions = conn.execute(sa.text(f"""
+                SELECT * FROM {S}.quiz_questions WHERE quiz_id = :quiz ORDER BY order_idx
+            """), {"quiz": quiz["id"]}).mappings().all()
+            for question in questions:
+                new_question_id = conn.execute(sa.text(f"""
+                    INSERT INTO {S}.quiz_questions
+                        (quiz_id, question_text, question_type, options, correct_answer,
+                         explanation, order_idx, difficulty_level)
+                    VALUES (:quiz, :question, :type, :options, :answer,
+                            :explanation, :order_idx, :level) RETURNING id
+                """), {
+                    "quiz": new_quiz_id, "question": question["question_text"],
+                    "type": question.get("question_type") or "multiple_choice",
+                    "options": json.dumps(question.get("options") or []),
+                    "answer": question["correct_answer"], "explanation": question.get("explanation"),
+                    "order_idx": question["order_idx"], "level": question.get("difficulty_level") or 2,
+                }).scalar_one()
+                copy_translations("quiz_questions", question["id"], new_question_id)
+
+    for old_id, new_id in lesson_ids.items():
+        prerequisite = conn.execute(sa.text(f"""
+            SELECT prerequisite_lesson_id FROM {S}.lessons WHERE id = :lesson
+        """), {"lesson": old_id}).scalar()
+        if prerequisite in lesson_ids:
+            conn.execute(sa.text(f"""
+                UPDATE {S}.lessons SET prerequisite_lesson_id = :prerequisite WHERE id = :lesson
+            """), {"lesson": new_id, "prerequisite": lesson_ids[prerequisite]})
+
+    settings = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.course_learning_settings WHERE course_id = :course
+    """), {"course": source_course_id}).mappings().first()
+    if settings:
+        conn.execute(sa.text(f"""
+            INSERT INTO {S}.course_learning_settings
+                (course_id, strategy, low_threshold, high_threshold, high_streak,
+                 allow_reorder, allow_remedial, updated_by)
+            VALUES (:course, :strategy, :low, :high, :streak, :reorder, :remedial, :owner)
+        """), {
+            "course": clone["id"], "strategy": settings["strategy"],
+            "low": settings["low_threshold"], "high": settings["high_threshold"],
+            "streak": settings["high_streak"], "reorder": settings["allow_reorder"],
+            "remedial": settings["allow_remedial"], "owner": owner_id,
+        })
+    return dict(clone)
 
 
 def get_assigned_course_ids(conn, user_id: int) -> set[int]:
@@ -1293,14 +1507,26 @@ def get_learning_path(conn, *, user_id: int, course_id: int, lang: str = "en") -
     return ordered
 
 
-def learning_time_report(conn, course_ids: list[int] | None = None) -> list[dict]:
-    where = ""
+def learning_time_report(
+    conn,
+    course_ids: list[int] | None = None,
+    assigned_by: int | None = None,
+) -> list[dict]:
+    conditions = []
     params = {}
     if course_ids is not None:
         if not course_ids:
             return []
-        where = "WHERE lt.course_id = ANY(:courses)"
+        conditions.append("lt.course_id = ANY(:courses)")
         params["courses"] = course_ids
+    if assigned_by is not None:
+        conditions.append(f"""EXISTS (
+            SELECT 1 FROM {S}.course_assignments ca
+            WHERE ca.user_id = lt.user_id AND ca.course_id = lt.course_id
+              AND ca.assigned_by = :assigned_by
+        )""")
+        params["assigned_by"] = assigned_by
+    where = "WHERE " + " AND ".join(conditions) if conditions else ""
     rows = conn.execute(sa.text(f"""
         WITH times AS (
             SELECT lt.user_id, lt.course_id,

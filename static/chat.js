@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                     form.dataset.lessonId = String(data.lesson_id);
                                 }
                                 addChoices(assistantDiv, data.choices || []);
+                                if (data.redirect_url) {
+                                    window.setTimeout(() => window.location.assign(data.redirect_url), 450);
+                                }
                             } else if (data.error) {
                                 content.textContent = 'Error: ' + data.error;
                             }

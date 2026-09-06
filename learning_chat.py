@@ -32,6 +32,12 @@ COPY = {
         "again": "Again",
         "hard": "Hard",
         "good": "Got it",
+        "teacher_welcome": "What would you like your students to learn? Choose from the complete catalogue, or open a teacher tool.",
+        "admin_welcome": "What would you like to manage? Choose a catalogue course or an administration tool.",
+        "create_course": "Create a new course", "assign_courses": "Assign courses to students",
+        "manage_students": "Invite or manage students", "review_drafts": "Review adaptive-learning drafts",
+        "view_reports": "View student progress and learning time", "preview_student": "Preview the student experience",
+        "opening": "Opening **{label}**…",
     },
     "et": {
         "welcome": "Mida soovid õppida? Vali allpool kursus või küsi minult midagi.",
@@ -46,6 +52,12 @@ COPY = {
         "speak": "Ütle tõlge valjusti enne vastuse näitamist.",
         "reveal": "Näita vastust", "change": "Vali teine sihtkeel",
         "again": "Uuesti", "hard": "Raske", "good": "Selge",
+        "teacher_welcome": "Mida soovid oma õpilastele õpetada? Vali kogu kataloogist või ava õpetaja tööriist.",
+        "admin_welcome": "Mida soovid hallata? Vali kataloogikursus või administraatori tööriist.",
+        "create_course": "Loo uus kursus", "assign_courses": "Määra õpilastele kursusi",
+        "manage_students": "Kutsu või halda õpilasi", "review_drafts": "Vaata üle kohanduva õppe mustandid",
+        "view_reports": "Vaata õpilaste edenemist ja õppeaega", "preview_student": "Eelvaade õpilase vaatest",
+        "opening": "Avan **{label}**…",
     },
     "lt": {
         "welcome": "Ko norėtum mokytis? Pasirink kursą arba klausk manęs bet ko.",
@@ -60,6 +72,12 @@ COPY = {
         "speak": "Prieš parodydamas atsakymą pasakyk vertimą garsiai.",
         "reveal": "Rodyti atsakymą", "change": "Pasirinkti kitą kalbą",
         "again": "Dar kartą", "hard": "Sunku", "good": "Moku",
+        "teacher_welcome": "Ko norėtum mokyti savo mokinius? Pasirink iš viso katalogo arba atverk mokytojo įrankį.",
+        "admin_welcome": "Ką norėtum valdyti? Pasirink katalogo kursą arba administravimo įrankį.",
+        "create_course": "Sukurti naują kursą", "assign_courses": "Priskirti kursus mokiniams",
+        "manage_students": "Pakviesti arba valdyti mokinius", "review_drafts": "Peržiūrėti adaptyvaus mokymosi juodraščius",
+        "view_reports": "Peržiūrėti pažangą ir mokymosi laiką", "preview_student": "Peržiūrėti mokinio patirtį",
+        "opening": "Atveriama **{label}**…",
     },
     "es": {
         "welcome": "¿Qué quieres aprender? Elige un curso o pregúntame lo que quieras.",
@@ -74,6 +92,12 @@ COPY = {
         "speak": "Di la traducción en voz alta antes de mostrarla.",
         "reveal": "Mostrar la respuesta", "change": "Elegir otro idioma",
         "again": "Otra vez", "hard": "Difícil", "good": "Lo sé",
+        "teacher_welcome": "¿Qué te gustaría que aprendieran tus estudiantes? Elige del catálogo completo o abre una herramienta docente.",
+        "admin_welcome": "¿Qué te gustaría gestionar? Elige un curso del catálogo o una herramienta administrativa.",
+        "create_course": "Crear un curso nuevo", "assign_courses": "Asignar cursos a estudiantes",
+        "manage_students": "Invitar o gestionar estudiantes", "review_drafts": "Revisar borradores de aprendizaje adaptativo",
+        "view_reports": "Ver el progreso y el tiempo de aprendizaje", "preview_student": "Previsualizar la experiencia del estudiante",
+        "opening": "Abriendo **{label}**…",
     },
 }
 
@@ -82,11 +106,19 @@ def _copy(lang: str) -> dict:
     return COPY.get(lang, COPY["en"])
 
 
+def _choice_key(index: int) -> str:
+    key = ""
+    number = index + 1
+    while number:
+        number, remainder = divmod(number - 1, len(ascii_uppercase))
+        key = ascii_uppercase[remainder] + key
+    return key
+
+
 def _choices(items) -> list[dict]:
     return [
-        {"key": ascii_uppercase[index], "label": str(label), "value": value}
+        {"key": _choice_key(index), "label": str(label), "value": value}
         for index, (label, value) in enumerate(items)
-        if index < len(ascii_uppercase)
     ]
 
 
@@ -123,6 +155,26 @@ def _course_picker(conn, lang: str) -> dict:
     context = {"phase": "course_picker", "choices": choices}
     return {"title": "New Chat", "context": context,
             "content": f"{_copy(lang)['welcome']}\n\n{_choice_markdown(choices)}"}
+
+
+def _staff_picker(conn, lang: str, role: str) -> dict:
+    courses = db.get_courses(conn, lang=lang)
+    destinations = [(course["title"], f"/app/course/{course['slug']}") for course in courses]
+    destinations.extend([
+        (_copy(lang)["create_course"], "/app/configure"),
+        (_copy(lang)["assign_courses"], "/app/team"),
+        (_copy(lang)["manage_students"], "/app/team"),
+        (_copy(lang)["review_drafts"], "/app/manage"),
+        (_copy(lang)["view_reports"], "/app/reports"),
+        (_copy(lang)["preview_student"], "/app/chat/new?preview=student"),
+    ])
+    choices = _choices(destinations)
+    welcome = _copy(lang)["admin_welcome" if role == "admin" else "teacher_welcome"]
+    return {
+        "title": "Admin workspace" if role == "admin" else "Teacher workspace",
+        "context": {"phase": "staff_picker", "role": role, "choices": choices},
+        "content": f"{welcome}\n\n{_choice_markdown(choices)}",
+    }
 
 
 def _show_course(conn, user_id: int, course_id: int, lang: str) -> dict:
@@ -287,8 +339,10 @@ def _language_card(conn, user_id: int, context: dict, lang: str, lead: str = "")
 
 def initial_response(
     conn, user_id: int, lang: str, *, mode: str = "courses", course_slug: str = "",
-    lesson_id: int | None = None, quiz_id: int | None = None,
+    lesson_id: int | None = None, quiz_id: int | None = None, role: str = "student",
 ) -> dict:
+    if role in {"teacher", "instructor", "admin"} and mode == "courses" and not any((course_slug, lesson_id, quiz_id)):
+        return _staff_picker(conn, lang, "teacher" if role == "instructor" else role)
     if mode == "language":
         return _language_picker(lang)
     if quiz_id:
@@ -308,6 +362,13 @@ def handle_guided_message(conn, user_id: int, context: dict, message: str, lang:
         return None
     phase = context.get("phase")
     value = choice["value"]
+    if phase == "staff_picker":
+        return {
+            "title": context.get("role", "teacher").title() + " workspace",
+            "context": {**context, "choices": []},
+            "content": _copy(lang)["opening"].format(label=choice["label"]),
+            "redirect_url": str(value),
+        }
     if phase == "course_picker":
         return _show_course(conn, user_id, int(value), lang)
     if phase == "lesson_picker":

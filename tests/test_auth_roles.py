@@ -86,6 +86,18 @@ def test_navigation_profile_shows_effective_role_next_to_name():
         assert f"user-role-{role}" in markup
 
 
+def test_staff_sidebar_uses_operational_metrics_not_student_gamification():
+    markup = to_xml(left_pane(
+        user={"id": 99999999, "display_name": "Teacher", "role": "teacher", "xp": 0, "streak_days": 0},
+        lang="en",
+    ))
+    assert "Students" in markup
+    assert "Active courses" in markup
+    assert "Approvals" in markup
+    assert " XP" not in markup
+    assert "Streak" not in markup
+
+
 def test_google_start_preserves_only_a_safe_signup_role(monkeypatch):
     import main
 

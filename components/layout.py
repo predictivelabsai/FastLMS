@@ -19,6 +19,7 @@ def page_head(title="FastLearn", lang="en"):
         Title(title if "FastLearn" in title else f"{title} · FastLearn"),
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
+        Link(rel="icon", type="image/svg+xml", href="/static/favicon.svg"),
         Link(rel="stylesheet", href="/static/app.css"),
         Script(src="https://unpkg.com/htmx.org@2.0.4"),
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"),
@@ -105,7 +106,24 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
         school_nav = Div(Div("SCHOOL", cls="nav-section-label"), *links, cls="nav-section")
 
     stats = []
-    if user:
+    role = "teacher" if user and user.get("role") == "instructor" else (user.get("role", "student") if user else "student")
+    if user and role in {"teacher", "admin"}:
+        try:
+            import db
+            with db.connect() as conn:
+                metrics = db.get_role_metrics(conn, user)
+        except Exception:
+            metrics = {"people": 0, "courses": 0, "approvals": 0}
+        labels = (
+            ("people", "staff_users" if role == "admin" else "staff_students"),
+            ("courses", "staff_published" if role == "admin" else "staff_courses"),
+            ("approvals", "staff_approvals"),
+        )
+        stats = Div(*[
+            Div(Span(str(metrics[key]), cls="stat-value"), Span(t(label, lang), cls="stat-label"), cls="stat-box")
+            for key, label in labels
+        ], cls="stats-grid role-stats")
+    elif user:
         stats = Div(
             Div(
                 Span(f"{user.get('xp', 0)} XP", cls="stat-value"),
@@ -120,7 +138,6 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
             cls="stats-grid",
         )
 
-    role = "teacher" if user and user.get("role") == "instructor" else (user.get("role", "student") if user else "student")
     role_label = "Admin" if role == "admin" and lang == "en" else t(role, lang)
 
     return Div(
@@ -230,7 +247,7 @@ def xp_popup(xp, message="XP earned!"):
     )
 
 
-def course_card(course, progress=None, lang="en", assigned=False):
+def course_card(course, progress=None, lang="en", assigned=False, href=None):
     prog = progress_bar(progress["percent"], f"{progress['completed']}/{progress['total']}") if progress else ""
     difficulty_cls = f"difficulty-{course.get('difficulty', 'beginner')}"
     return A(
@@ -239,6 +256,7 @@ def course_card(course, progress=None, lang="en", assigned=False):
                 Span(course.get("category", "General"), cls="course-category"),
                 Span(t(course.get("difficulty", "beginner"), lang), cls=f"course-difficulty {difficulty_cls}"),
                 (Span(t("assigned", lang), cls="course-assigned") if assigned else ""),
+                (Span(t("default_course", lang), cls="course-default") if course.get("is_default") else ""),
                 cls="course-meta",
             ),
             H3(course["title"], cls="course-title"),
@@ -246,6 +264,6 @@ def course_card(course, progress=None, lang="en", assigned=False):
             prog,
             cls="course-card-body",
         ),
-        href=f"/app/chat/new?course={course['slug']}",
+        href=href or f"/app/chat/new?course={course['slug']}",
         cls="course-card",
     )

@@ -13,6 +13,37 @@ def test_only_named_account_can_be_administrator():
     assert db.role_for_email("someone@example.com", "admin") == "student"
 
 
+def test_default_courses_are_admin_editable_but_teacher_clone_only():
+    admin = {"id": 1, "role": "admin"}
+    teacher = {"id": 2, "role": "teacher"}
+    own = {"id": 10, "instructor_id": 2, "is_default": False}
+    admin_default = {"id": 11, "instructor_id": 1, "is_default": True}
+    legacy_default = {"id": 12, "instructor_id": 2, "is_default": True}
+    assert db.course_is_editable_by(admin, admin_default)
+    assert db.course_is_editable_by(teacher, own)
+    assert not db.course_is_editable_by(teacher, admin_default)
+    assert not db.course_is_editable_by(teacher, legacy_default)
+    assert not db.course_is_editable_by({"id": 3, "role": "student"}, own)
+
+
+def test_default_catalogue_migration_and_clone_engine_are_complete():
+    assert "ADD COLUMN IF NOT EXISTS is_default" in db.SCHEMA_SQL
+    assert "'art-history'" in db.SCHEMA_SQL
+    source = Path("db.py").read_text(encoding="utf-8")
+    for authored_entity in ("modules", "lessons", "quizzes", "quiz_questions", "content_translations"):
+        assert authored_entity in source[source.index("def clone_course"):]
+    assert "is_default = true AND is_published = true" in source[source.index("def can_clone_course"):]
+
+
+def test_teacher_reports_are_scoped_to_their_own_assignments():
+    source = Path("db.py").read_text(encoding="utf-8")
+    report_source = source[source.index("def learning_time_report"):]
+    assert "ca.assigned_by = :assigned_by" in report_source
+    main_source = Path("main.py").read_text(encoding="utf-8")
+    route_source = main_source[main_source.index("def learning_reports"):]
+    assert 'assigned_by=None if user["role"] == "admin" else user["id"]' in route_source
+
+
 def test_adaptive_support_is_bounded_to_one_level():
     decision = db.adaptive_transition(3, 1, 40)
     assert decision == {

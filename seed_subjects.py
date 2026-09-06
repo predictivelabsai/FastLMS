@@ -940,16 +940,19 @@ def seed_subjects():
         if not instructor:
             print("ERROR: Run seed.py first to create demo instructor account")
             return
+        default_owner = db.get_user_by_email(conn, db.ADMIN_EMAIL) or instructor
 
         for course_data in COURSES:
             modules = course_data.pop("modules", [])
-            course_data["instructor_id"] = instructor["id"]
+            course_data["instructor_id"] = default_owner["id"]
+            course_data["is_default"] = True
             conn.execute(
                 sa.text(f"""
-                    INSERT INTO {S}.courses (title, slug, description, category, difficulty, is_published, instructor_id)
-                    VALUES (:title, :slug, :description, :category, :difficulty, :is_published, :instructor_id)
+                    INSERT INTO {S}.courses (title, slug, description, category, difficulty, is_published, instructor_id, is_default)
+                    VALUES (:title, :slug, :description, :category, :difficulty, :is_published, :instructor_id, :is_default)
                     ON CONFLICT (slug) DO UPDATE SET title = :title, description = :description,
-                        category = :category, difficulty = :difficulty, is_published = :is_published
+                        category = :category, difficulty = :difficulty, is_published = :is_published,
+                        instructor_id = :instructor_id, is_default = true
                 """),
                 course_data,
             )
