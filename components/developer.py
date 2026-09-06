@@ -1,4 +1,4 @@
-"""Public and in-app developer documentation for FastLMS."""
+"""Public and in-app developer documentation for FastLearn/FastLMS."""
 from fasthtml.common import *
 
 from .api import RESOURCES
@@ -7,7 +7,7 @@ from .seo import seo_meta
 
 ACCENT = "#7c3aed"
 TINT = "#f5f3ff"
-BASE_URL = "https://lms.fastsme.com"
+BASE_URL = "https://fastlearn.fun"
 REPOSITORY = "https://github.com/predictivelabsai/FastLMS"
 
 DEVELOPER_CSS = """
@@ -42,7 +42,7 @@ def developer_content():
         Div(
             Span("Developer platform · API v1", cls="dev-eyebrow"),
             H1("Build with the FastLMS API."),
-            P("Read the live demo database through a typed, versioned API. Selected integration writes are implemented behind bearer-token authentication.", cls="dev-lede"),
+            P("Build with localized curriculum, guided exercises, assignments, progress, and chat history through a typed, versioned API.", cls="dev-lede"),
             Div(
                 A("Open Swagger UI", href="/api/docs", cls="dev-btn primary"),
                 A("Open ReDoc", href="/api/redoc", cls="dev-btn"),
@@ -52,13 +52,17 @@ def developer_content():
             ),
             Div(
                 Strong("Public preview access. "),
-                "GET endpoints require no authentication. Writes return 503 until FASTSME_API_TOKEN is configured; enabled clients send Authorization: Bearer <token>.",
+                "Published curriculum and answer-safe exercises are public. Learner, assignment, progress, attempt, and chat data require Authorization: Bearer <token>.",
                 cls="dev-note",
             ),
             H3("Resources"),
             Div(*cards, cls="dev-grid"),
             H3("Quick start"),
-            Pre(Code(f"""curl "{BASE_URL}/api/v1/{RESOURCES[0].slug}?limit=20"
+            Pre(Code(f"""curl "{BASE_URL}/api/v1/{RESOURCES[0].slug}?limit=20&lang=es"
+
+curl "{BASE_URL}/api/v1/exercises/1/check" \\
+  -H "Content-Type: application/json" \\
+  -d '{{"answer":{{"answer":0}}}}'
 
 python - <<'PY'
 import requests

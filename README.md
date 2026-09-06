@@ -1,10 +1,10 @@
 # FastLMS
 
-Current release: `v1.2.0`
+Current release: `v1.3.0`
 
 Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, a New Chat workspace with SSE streaming, and Duolingo-style learner elements (XP, streaks, badges, leaderboards, levels).
 
-FastLearn 1.2 adds role-specific chat-first workspaces: students learn through streamed course and quiz conversations, teachers start from a complete catalogue and operational dashboard, and administrators maintain a protected default catalogue. Teachers may assign defaults as-is or clone one into an editable teacher-owned draft; their reports remain scoped to students they assigned.
+FastLearn 1.3 adds Chess Foundations I for children aged 3–12, with original multilingual lessons, guided chessboards, private server-side grading, adaptive practice records, and API access. Role-specific chat keeps students, teachers, and administrators on their own paths even when older conversations exist.
 
 ![FastLMS Demo](docs/fastlms-demo.gif)
 
@@ -22,6 +22,8 @@ FastLearn 1.2 adds role-specific chat-first workspaces: students learn through s
 - **Adaptive learning** — configurable thresholds, bounded difficulty changes, remediation, and extension drafts
 - **Language learning** — native-to-target practice across 10 major languages using a ranked frequency dictionary, browser pronunciation, anticipation, and graduated recall
 - **Multilingual demo** — complete catalogue and core UI in English, Estonian, Lithuanian, and Spanish
+- **Guided chess** — 10 original beginner lessons and 20 interactive board exercises covering coordinates, rooks, bishops, queens, and knights
+- **Integration API** — public localized curriculum and answer-safe exercises, plus bearer-protected assignments, progress, attempts, learners, and chat history
 
 ### Interactivity
 - **XP system** — earn points for completing lessons and passing quizzes
@@ -83,7 +85,7 @@ XAI_API_KEY=xai-...
 python seed.py
 ```
 
-This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), 11 badges, and two accounts:
+This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), the protected Chess Foundations course, 11 badges, and two accounts:
 - **Teacher**: `instructor@fastlms.dev` / `admin`
 - **Student**: `student@fastlms.dev` / `admin`
 
@@ -107,6 +109,8 @@ Open [http://localhost:5001](http://localhost:5001).
 FastLMS/
 ├── main.py                  # FastHTML app — all routes
 ├── db.py                    # PostgreSQL schema, queries, interactivity logic
+├── chess_course.py          # Original four-language chess curriculum and exercise seed
+├── chess_engine.py          # Private server-side chess grading
 ├── seed.py                  # Demo data seeder (courses, badges, users)
 ├── seed_subjects.py         # Academic and creative subjects seeder (11 courses with lessons + quizzes)
 ├── components/
@@ -147,6 +151,10 @@ All tables live in the `fastlms` PostgreSQL schema:
 | `adaptive_recommendations` | Explainable remediation and extension decisions |
 | `content_drafts` | Multilingual teacher-approval queue |
 | `content_translations` | Approved and catalogue translations, including Spanish |
+| `interactive_exercises` | Answer-safe exercise presentation plus private grading payload |
+| `exercise_translations` | Localized prompts and public interaction labels |
+| `lesson_exercises` | Ordered lesson-to-exercise links |
+| `exercise_attempts` | Graded attempts, active duration, difficulty, chat and learner context |
 | `language_profiles` | Native language, target language, and daily practice goal |
 | `language_reviews` | Per-expression graduated-recall state and next due time |
 | `language_attempts` | Immutable language-practice rating history |
@@ -219,6 +227,7 @@ Students land in chat after signing in. Course, lesson, adaptive quiz, and langu
 | `GET /app/chat/new` | Create a contextual course, lesson, quiz, or language chat |
 | `GET /app/chat` | Persistent chat workspace and history |
 | `GET /app/chat/stream` | SSE streaming endpoint |
+| `POST /app/chat/exercise/stream` | Grade a rich board answer and stream feedback into chat |
 | `GET /app/leaderboard` | XP leaderboard |
 | `GET /app/profile` | User profile, badges, progress to next level |
 | `GET /app/manage` | Teacher course management |
@@ -234,7 +243,7 @@ Students land in chat after signing in. Course, lesson, adaptive quiz, and langu
 
 ## Supported Courses
 
-FastLMS ships with 14 ready-to-use courses:
+FastLMS ships with 15 ready-to-use courses:
 
 ### Programming & Technology
 | Course | Category | Difficulty | Modules | Lessons |
@@ -262,7 +271,18 @@ FastLMS ships with 14 ready-to-use courses:
 | Art | Art | Beginner | 1 (Visual Language) | 2 |
 | Music | Music | Beginner | 1 (How Music Works) | 2 |
 
+### Chess
+| Course | Category | Difficulty | Modules | Lessons |
+|--------|----------|------------|---------|---------|
+| Chess Foundations I | Chess | Beginner | 3 | 10 |
+
+Chess Foundations I is installed idempotently during schema bootstrap. Its 20 guided exercises cover multiple choice, square selection, piece placement, route planning, and capture sequences. Learner-facing text is original FastLearn material available in English, Estonian, Lithuanian, and Spanish; the board engine keeps expected answers on the server.
+
 Run `python seed.py` for the 3 programming courses, then `python seed_subjects.py` for the 11 academic and creative subjects.
+
+## Integration API
+
+Open Swagger at `https://fastlearn.fun/api/docs`, ReDoc at `/api/redoc`, or the developer overview at `/developers`. Published courses, modules, lessons, and answer-safe exercises are public. Set `FASTSME_API_TOKEN` and send it as a bearer token for learners, assignments, enrolments, progress, recorded exercise attempts, and chat history.
 
 ## Language learning
 

@@ -23,7 +23,12 @@ reviewable drafts. Nothing enters the learning path without human approval.
 📚 **Useful subjects already included** — Python, machine learning, FastHTML,
 mathematics, physics, biology, chemistry, English language and literature,
 geography, creative writing, art history, music history, visual-art principles,
-and music principles.
+music principles, and a child-focused Chess Foundations course.
+
+♞ **Chess is learned on the board, inside the conversation** — children aged
+3–12 meet coordinates, rooks, bishops, queens, and knights through guided
+selection, placement, route, and capture puzzles. Grading stays server-side;
+mistakes bring a gentler retry while success advances the lesson.
 
 🗣️ **Language learning from your native language** — choose among ten targets:
 English, Spanish, French, German, Italian, Portuguese, Mandarin Chinese, Arabic,
@@ -37,13 +42,19 @@ material are available in English, Estonian, Lithuanian, and Spanish.
 ⏱️ **Measure active learning, not an open tab** — lesson, quiz, and AI Tutor time
 uses visibility checks, 30-second heartbeats, and a 90-second inactivity pause.
 
-💬 **A tutor that knows the lesson** — the AI Tutor receives the current lesson
+💬 **A tutor that knows the lesson** — New Chat receives the current lesson
 as context and supports multiple model providers.
+
+🔌 **An API for families, schools, and builders** — localized published
+curriculum and answer-safe exercises are public; bearer-protected endpoints
+cover assignments, enrolment, progress, recorded practice, and chat history.
+Swagger and ReDoc are included with the live deployment.
 
 The stack (open source and self-hostable):
 
 • FastHTML + HTMX — Python-first, server-rendered UI
 • PostgreSQL — courses, progress, adaptive state, learning time, and audit data  
+• python-chess — authoritative guided-board validation without exposing answers
 • Multi-provider AI — Grok, OpenAI, or Claude through one configuration  
 • Google SSO + Postmark — familiar sign-in and platform invitations  
 • Docker + Coolify — automatic deployment from GitHub

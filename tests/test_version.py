@@ -9,7 +9,7 @@ from components.layout import left_pane, page_head
 
 
 def test_release_version_is_bumped_and_used_by_api():
-    assert APP_VERSION == "1.2.0"
+    assert APP_VERSION == "1.3.0"
     assert api.version == APP_VERSION
     assert health()["version"] == APP_VERSION
 
@@ -24,8 +24,9 @@ def test_release_version_is_visible_in_subdued_ui_labels():
     assert 'class="app-version"' in sidebar
     assert f">v{APP_VERSION}<" in landing
     assert 'class="site-version"' in landing
-    assert ">14<" in landing
+    assert ">15<" in landing
     assert "art and music" in landing
+    assert "chess" in landing.lower()
 
 
 def test_authenticated_app_head_uses_the_product_favicon():

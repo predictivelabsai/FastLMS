@@ -327,6 +327,54 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.content_translations (
     PRIMARY KEY (entity_type, entity_id, language)
 );
 
+-- Course-neutral interactive exercise library.  The browser receives only
+-- public_payload; answer_payload remains server-side for authoritative grading.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.interactive_exercises (
+    id                  BIGSERIAL PRIMARY KEY,
+    source_key          TEXT UNIQUE NOT NULL,
+    engine              TEXT NOT NULL,
+    exercise_type       TEXT NOT NULL,
+    fen                 TEXT,
+    prompt              TEXT NOT NULL,
+    concepts            JSONB NOT NULL DEFAULT '[]'::jsonb,
+    difficulty_band     INTEGER NOT NULL DEFAULT 1 CHECK (difficulty_band BETWEEN 1 AND 5),
+    cognitive_layer     TEXT NOT NULL DEFAULT 'skill' CHECK (cognitive_layer IN ('skill','knowledge','wisdom')),
+    public_payload      JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    answer_payload      JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.exercise_translations (
+    exercise_id         BIGINT NOT NULL REFERENCES {SCHEMA}.interactive_exercises(id) ON DELETE CASCADE,
+    language            TEXT NOT NULL,
+    prompt              TEXT NOT NULL,
+    public_payload      JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    PRIMARY KEY (exercise_id, language)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.lesson_exercises (
+    lesson_id           INTEGER NOT NULL REFERENCES {SCHEMA}.lessons(id) ON DELETE CASCADE,
+    exercise_id         BIGINT NOT NULL REFERENCES {SCHEMA}.interactive_exercises(id) ON DELETE CASCADE,
+    order_idx           INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (lesson_id, exercise_id)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.exercise_attempts (
+    id                  BIGSERIAL PRIMARY KEY,
+    user_id             INTEGER NOT NULL REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
+    course_id           INTEGER NOT NULL REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    lesson_id           INTEGER NOT NULL REFERENCES {SCHEMA}.lessons(id) ON DELETE CASCADE,
+    exercise_id         BIGINT NOT NULL REFERENCES {SCHEMA}.interactive_exercises(id) ON DELETE CASCADE,
+    chat_session_id     VARCHAR(36),
+    answer              JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    correct             BOOLEAN NOT NULL,
+    completed           BOOLEAN,
+    optimal             BOOLEAN,
+    duration_seconds    INTEGER NOT NULL DEFAULT 0 CHECK (duration_seconds BETWEEN 0 AND 5400),
+    difficulty_band     INTEGER NOT NULL,
+    attempted_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Native-to-target language practice preferences and graduated recall state.
 CREATE TABLE IF NOT EXISTS {SCHEMA}.language_profiles (
     user_id          INTEGER PRIMARY KEY REFERENCES {SCHEMA}.users(id) ON DELETE CASCADE,
@@ -392,7 +440,8 @@ UPDATE {SCHEMA}.courses SET is_default = true WHERE slug IN (
     'mathematics-foundations', 'physics-essentials', 'biology-life-sciences',
     'chemistry-fundamentals', 'english-language-literature',
     'geography-physical-human', 'creative-writing', 'art-history',
-    'music-history', 'art-principles', 'music-principles'
+    'music-history', 'art-principles', 'music-principles',
+    'chess-foundations'
 );
 UPDATE {SCHEMA}.courses SET instructor_id = (
     SELECT id FROM {SCHEMA}.users WHERE lower(email) = 'kaljuvee@gmail.com' LIMIT 1
@@ -450,6 +499,9 @@ CREATE INDEX IF NOT EXISTS idx_drafts_course_status ON {SCHEMA}.content_drafts(c
 CREATE INDEX IF NOT EXISTS idx_audit_created ON {SCHEMA}.audit_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_language_reviews_due ON {SCHEMA}.language_reviews(user_id, target_language, next_due_at);
 CREATE INDEX IF NOT EXISTS idx_language_attempts_user ON {SCHEMA}.language_attempts(user_id, attempted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_lesson_exercises_order ON {SCHEMA}.lesson_exercises(lesson_id, order_idx);
+CREATE INDEX IF NOT EXISTS idx_exercise_attempts_user ON {SCHEMA}.exercise_attempts(user_id, attempted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_exercise_attempts_lesson ON {SCHEMA}.exercise_attempts(lesson_id, user_id);
 
 -- Normalise the legacy role name and keep one deliberately scoped administrator.
 UPDATE {SCHEMA}.users SET role = 'teacher' WHERE role = 'instructor';
@@ -467,6 +519,10 @@ def bootstrap_schema():
         # school-administration layer (students/programs/gradebook/attendance/fees)
         import school
         school.bootstrap(conn)
+        # The small protected reference course is installed with the schema so
+        # existing deployments receive it without a destructive catalogue reset.
+        from chess_course import seed_chess_course
+        seed_chess_course(conn, SCHEMA)
 
 
 # ---------------------------------------------------------------------------
@@ -538,6 +594,182 @@ def get_lessons(conn, module_id: int, lang="en") -> list[dict]:
 def get_lesson(conn, lesson_id: int, lang="en") -> dict | None:
     row = conn.execute(sa.text(f"SELECT * FROM {S}.lessons WHERE id = :id"), {"id": lesson_id}).mappings().first()
     return _localized([row], "lessons", lang, conn)[0] if row else None
+
+
+def _json_object(value) -> dict:
+    if isinstance(value, dict):
+        return dict(value)
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            return dict(parsed) if isinstance(parsed, dict) else {}
+        except json.JSONDecodeError:
+            return {}
+    return {}
+
+
+def get_interactive_exercise(conn, exercise_id: int, lang: str = "en", *, include_answer: bool = False) -> dict | None:
+    """Return one localized exercise; private answers are opt-in for graders."""
+    row = conn.execute(sa.text(f"""
+        SELECT e.*, et.prompt AS translated_prompt,
+               et.public_payload AS translated_public_payload
+        FROM {S}.interactive_exercises e
+        LEFT JOIN {S}.exercise_translations et
+          ON et.exercise_id=e.id AND et.language=:language
+        WHERE e.id=:exercise
+    """), {"exercise": exercise_id, "language": lang}).mappings().first()
+    if not row:
+        return None
+    item = dict(row)
+    public = _json_object(item.pop("public_payload", {}))
+    translated = _json_object(item.pop("translated_public_payload", {}))
+    public.update(translated)
+    item["prompt"] = item.pop("translated_prompt") or item["prompt"]
+    if not include_answer:
+        item.pop("answer_payload", None)
+    else:
+        item["answer_payload"] = _json_object(item.get("answer_payload"))
+    item.update(public)
+    return item
+
+
+def get_lesson_exercises(conn, lesson_id: int, lang: str = "en", *, user_id: int | None = None) -> list[dict]:
+    rows = conn.execute(sa.text(f"""
+        SELECT le.exercise_id, le.order_idx,
+               CASE WHEN CAST(:user_id AS INTEGER) IS NULL THEN false ELSE EXISTS (
+                   SELECT 1 FROM {S}.exercise_attempts ea
+                   WHERE ea.user_id=:user_id AND ea.exercise_id=le.exercise_id AND ea.correct=true
+               ) END AS solved
+        FROM {S}.lesson_exercises le
+        WHERE le.lesson_id=:lesson ORDER BY le.order_idx, le.exercise_id
+    """), {"lesson": lesson_id, "user_id": user_id}).mappings().all()
+    result = []
+    for row in rows:
+        exercise = get_interactive_exercise(conn, row["exercise_id"], lang)
+        if exercise:
+            exercise["order_idx"] = row["order_idx"]
+            exercise["solved"] = bool(row["solved"])
+            result.append(exercise)
+    return result
+
+
+def get_next_lesson_exercise(conn, lesson_id: int, user_id: int, lang: str = "en") -> dict | None:
+    exercises = get_lesson_exercises(conn, lesson_id, lang, user_id=user_id)
+    return next((exercise for exercise in exercises if not exercise["solved"]), None)
+
+
+def exercise_context(conn, exercise_id: int) -> dict | None:
+    row = conn.execute(sa.text(f"""
+        SELECT e.id AS exercise_id, le.lesson_id, m.course_id
+        FROM {S}.interactive_exercises e
+        JOIN {S}.lesson_exercises le ON le.exercise_id=e.id
+        JOIN {S}.lessons l ON l.id=le.lesson_id
+        JOIN {S}.modules m ON m.id=l.module_id
+        WHERE e.id=:exercise ORDER BY le.lesson_id LIMIT 1
+    """), {"exercise": exercise_id}).mappings().first()
+    return dict(row) if row else None
+
+
+def update_exercise_adaptive_state(conn, *, user_id: int, course_id: int, correct: bool) -> dict:
+    """Adjust practice difficulty while leaving lesson order linear."""
+    settings = get_course_learning_settings(conn, course_id)
+    state = conn.execute(sa.text(f"""
+        SELECT * FROM {S}.learner_course_state WHERE user_id=:user AND course_id=:course
+    """), {"user": user_id, "course": course_id}).mappings().first()
+    decision = adaptive_transition(
+        state["difficulty_level"] if state else 2,
+        state["consecutive_high"] if state else 0,
+        100 if correct else 0,
+        low_threshold=settings["low_threshold"], high_threshold=settings["high_threshold"],
+        high_streak=settings["high_streak"],
+    )
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.learner_course_state
+            (user_id, course_id, difficulty_level, consecutive_high, consecutive_low, last_score)
+        VALUES (:user, :course, :level, :high, :low, :score)
+        ON CONFLICT (user_id, course_id) DO UPDATE SET
+            difficulty_level=EXCLUDED.difficulty_level,
+            consecutive_high=EXCLUDED.consecutive_high,
+            consecutive_low=CASE
+                WHEN EXCLUDED.last_score < :low_threshold THEN {S}.learner_course_state.consecutive_low + 1
+                ELSE 0 END,
+            last_score=EXCLUDED.last_score, updated_at=now()
+    """), {
+        "user": user_id, "course": course_id, "level": decision["difficulty_level"],
+        "high": decision["consecutive_high"], "low": decision["consecutive_low"],
+        "score": 100 if correct else 0, "low_threshold": settings["low_threshold"],
+    })
+    return decision
+
+
+def record_exercise_attempt(
+    conn, *, user_id: int, exercise_id: int, lesson_id: int, chat_session_id: str | None,
+    answer: dict, verdict: dict, duration_seconds: int = 0,
+) -> dict:
+    exercise = get_interactive_exercise(conn, exercise_id, include_answer=True)
+    context = exercise_context(conn, exercise_id)
+    if not exercise or not context or int(context["lesson_id"]) != int(lesson_id):
+        raise ValueError("Exercise does not belong to this lesson")
+    row = conn.execute(sa.text(f"""
+        INSERT INTO {S}.exercise_attempts
+            (user_id, course_id, lesson_id, exercise_id, chat_session_id, answer,
+             correct, completed, optimal, duration_seconds, difficulty_band)
+        VALUES (:user, :course, :lesson, :exercise, :chat, CAST(:answer AS jsonb),
+                :correct, :completed, :optimal, :duration, :band)
+        RETURNING *
+    """), {
+        "user": user_id, "course": context["course_id"], "lesson": lesson_id,
+        "exercise": exercise_id, "chat": chat_session_id, "answer": json.dumps(answer),
+        "correct": bool(verdict.get("correct")), "completed": verdict.get("completed"),
+        "optimal": verdict.get("optimal"), "duration": max(0, min(int(duration_seconds or 0), 5400)),
+        "band": exercise["difficulty_band"],
+    }).mappings().one()
+    update_exercise_adaptive_state(conn, user_id=user_id, course_id=context["course_id"], correct=bool(verdict.get("correct")))
+    return dict(row)
+
+
+def exercise_mastery(conn, *, user_id: int, course_id: int) -> list[dict]:
+    """Summarise concept/SKW coverage without conflating it with difficulty."""
+    rows = conn.execute(sa.text(f"""
+        WITH available AS (
+            SELECT DISTINCT e.id, concept.value #>> '{{}}' AS concept, e.cognitive_layer
+            FROM {S}.interactive_exercises e
+            JOIN {S}.lesson_exercises le ON le.exercise_id=e.id
+            JOIN {S}.lessons l ON l.id=le.lesson_id
+            JOIN {S}.modules m ON m.id=l.module_id
+            CROSS JOIN LATERAL jsonb_array_elements(e.concepts) concept(value)
+            WHERE m.course_id=:course
+        ), attempts AS (
+            SELECT exercise_id, count(*) AS attempts,
+                   count(*) FILTER (WHERE correct) AS correct_attempts,
+                   bool_or(correct) AS solved
+            FROM {S}.exercise_attempts WHERE user_id=:user AND course_id=:course
+            GROUP BY exercise_id
+        )
+        SELECT a.concept, a.cognitive_layer,
+               count(*) AS available,
+               count(*) FILTER (WHERE COALESCE(t.solved, false)) AS solved,
+               COALESCE(sum(t.attempts), 0) AS attempts,
+               COALESCE(sum(t.correct_attempts), 0) AS correct_attempts
+        FROM available a LEFT JOIN attempts t ON t.exercise_id=a.id
+        GROUP BY a.concept, a.cognitive_layer ORDER BY a.concept, a.cognitive_layer
+    """), {"user": user_id, "course": course_id}).mappings().all()
+    result = []
+    for row in rows:
+        item = dict(row)
+        required = max(1, round(int(item["available"]) * 0.6))
+        rate = int(item["correct_attempts"]) / int(item["attempts"]) if item["attempts"] else 0
+        if int(item["solved"]) >= required:
+            status = "mastered"
+        elif int(item["attempts"]) >= 4 and rate < 0.34:
+            status = "stuck"
+        elif item["attempts"]:
+            status = "in_progress"
+        else:
+            status = "not_started"
+        item["status"] = status
+        result.append(item)
+    return result
 
 
 def get_quiz_for_lesson(conn, lesson_id: int, lang="en") -> dict | None:
@@ -1077,6 +1309,14 @@ def clone_course(conn, *, source_course_id: int, owner_id: int) -> dict:
             conn.execute(sa.text(f"""
                 UPDATE {S}.lessons SET prerequisite_lesson_id = :prerequisite WHERE id = :lesson
             """), {"lesson": new_id, "prerequisite": lesson_ids[prerequisite]})
+        # Reference exercises are immutable.  Clones share them until a future
+        # teacher-authored exercise is created, avoiding answer-key duplication.
+        conn.execute(sa.text(f"""
+            INSERT INTO {S}.lesson_exercises (lesson_id, exercise_id, order_idx)
+            SELECT :new_lesson, exercise_id, order_idx
+            FROM {S}.lesson_exercises WHERE lesson_id=:old_lesson
+            ON CONFLICT DO NOTHING
+        """), {"new_lesson": new_id, "old_lesson": old_id})
 
     settings = conn.execute(sa.text(f"""
         SELECT * FROM {S}.course_learning_settings WHERE course_id = :course
@@ -1138,6 +1378,9 @@ def resource_course_id(conn, resource_type: str, resource_id: int | None) -> int
             JOIN {S}.lessons l ON l.id = q.lesson_id
             JOIN {S}.modules m ON m.id = l.module_id WHERE q.id = :id
         """), {"id": resource_id}).scalar()
+    if resource_type == "exercise" and resource_id:
+        context = exercise_context(conn, resource_id)
+        return context["course_id"] if context else None
     return None
 
 
@@ -1145,7 +1388,7 @@ def record_learning_time(
     conn, *, user_id: int, resource_type: str, resource_id: int | None, seconds: int
 ) -> int | None:
     """Accumulate a bounded active heartbeat and return its course id."""
-    if resource_type not in {"lesson", "quiz", "tutor"}:
+    if resource_type not in {"lesson", "quiz", "tutor", "exercise"}:
         raise ValueError("unsupported resource type")
     seconds = max(1, min(int(seconds), 30))
     resource_id = int(resource_id) if resource_id else None

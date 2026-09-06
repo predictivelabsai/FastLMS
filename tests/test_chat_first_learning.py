@@ -105,3 +105,16 @@ def test_admin_and_student_openings_remain_role_specific(monkeypatch):
     student = learning_chat.initial_response(object(), 2, "en", role="student")
     assert teacher["content"].startswith("What would you like to manage?")
     assert student["content"].startswith("What would you like to learn?")
+
+
+def test_default_chat_does_not_reopen_student_thread_for_teacher():
+    from main import _latest_session_for_role
+
+    sessions = [
+        {"id": "student-old", "context": {"phase": "course_picker"}},
+        {"id": "teacher-current", "context": {"phase": "staff_picker", "role": "teacher"}},
+    ]
+    assert _latest_session_for_role(sessions, "teacher")["id"] == "teacher-current"
+    assert _latest_session_for_role(sessions, "instructor")["id"] == "teacher-current"
+    assert _latest_session_for_role(sessions, "student")["id"] == "student-old"
+    assert _latest_session_for_role([sessions[0]], "teacher") is None

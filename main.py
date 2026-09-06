@@ -1329,6 +1329,28 @@ def _choice_buttons(choices):
     ], cls="chat-choices") if choices else ""
 
 
+def _interactive_card(exercise):
+    if not exercise:
+        return ""
+    return Div(
+        data_exercise=json.dumps(exercise, separators=(",", ":")),
+        cls="chat-interactive",
+        role="group",
+        aria_label=exercise.get("prompt", "Interactive exercise"),
+    )
+
+
+def _latest_session_for_role(sessions: list[dict], role: str) -> dict | None:
+    """Do not reopen a student-preview thread as a teacher's home chat."""
+    normalized = "teacher" if role == "instructor" else role
+    staff_roles = {"teacher", "admin"}
+    return next((item for item in sessions if (
+        (item.get("context") or {}).get("role") == normalized
+        if normalized in staff_roles
+        else (item.get("context") or {}).get("role") not in staff_roles
+    )), None)
+
+
 @app.get("/app/chat/new")
 def new_chat(req):
     user, redir = _require_login(req)
@@ -1366,10 +1388,11 @@ def chat_workspace(req):
     chat_id = req.query_params.get("chat", "")
     with db.connect() as conn:
         if not chat_id:
-            sessions = db.list_chat_sessions(conn, user["id"], limit=1)
-            if not sessions:
+            sessions = db.list_chat_sessions(conn, user["id"], limit=50)
+            session = _latest_session_for_role(sessions, user.get("role", "student"))
+            if not session:
                 return RedirectResponse("/app/chat/new", status_code=303)
-            chat_id = sessions[0]["id"]
+            chat_id = session["id"]
         session = db.get_chat_session(conn, user["id"], chat_id)
         if not session:
             return RedirectResponse("/app/chat/new", status_code=303)
@@ -1379,10 +1402,11 @@ def chat_workspace(req):
     for index, message in enumerate(history):
         if message["role"] == "assistant":
             choices = session.get("context", {}).get("choices", []) if index == len(history) - 1 else []
+            interactive = session.get("context", {}).get("interactive") if index == len(history) - 1 else None
             message_elements.append(Div(
                 Div(Span("FastLearn"), cls="msg-header"),
                 Div(NotStr(render_chat_markdown(message["content"])), cls="msg-content"),
-                _choice_buttons(choices), cls="msg msg-assistant",
+                _interactive_card(interactive), _choice_buttons(choices), cls="msg msg-assistant",
             ))
         elif message["role"] == "user":
             message_elements.append(Div(message["content"], cls="msg msg-user"))
@@ -1438,7 +1462,9 @@ async def chat_stream_workspace(req):
             conn, user_id=user["id"], session_id=chat_id, role="user",
             content=message, lesson_id=lesson_id,
         )
-        guided = learning_chat.handle_guided_message(conn, user["id"], context, message, lang)
+        guided = learning_chat.handle_guided_message(
+            conn, user["id"], context, message, lang, chat_session_id=chat_id
+        )
         if guided:
             db.update_chat_session(
                 conn, user["id"], chat_id, title=guided.get("title"), context=guided["context"]
@@ -1453,7 +1479,7 @@ async def chat_stream_workspace(req):
         async def generate_guided():
             rendered = render_chat_markdown(guided["content"])
             yield f"data: {json.dumps({'html': rendered})}\n\n"
-            yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'lesson_id': guided.get('lesson_id'), 'redirect_url': guided.get('redirect_url')})}\n\n"
+            yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'interactive': guided.get('interactive'), 'lesson_id': guided.get('lesson_id'), 'redirect_url': guided.get('redirect_url')})}\n\n"
         return StreamingResponse(generate_guided(), media_type="text/event-stream", headers=stream_headers)
 
     with db.connect() as conn:
@@ -1564,6 +1590,61 @@ Format responses in Markdown.
             yield f"data: {json.dumps({'error': str(exc)})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream", headers=stream_headers)
+
+
+@app.post("/app/chat/exercise/stream")
+async def chat_exercise_stream(req):
+    """Grade a rich chat exercise and stream the next assistant state."""
+    user = _get_session_user(req)
+    if not user:
+        return Response("Unauthorized", status_code=401)
+    try:
+        payload = await req.json()
+        chat_id = str(payload.get("chat") or "").strip()
+        exercise_id = int(payload.get("exercise_id") or 0)
+        answer = payload.get("answer")
+        duration_seconds = int(payload.get("duration_seconds") or 0)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JSONResponse({"error": {"code": "invalid_request", "message": "Invalid exercise submission."}}, status_code=422)
+    if not chat_id or not exercise_id or not isinstance(answer, dict):
+        return JSONResponse({"error": {"code": "invalid_request", "message": "Chat, exercise, and answer are required."}}, status_code=422)
+
+    lang = get_lang(req)
+    with db.begin() as conn:
+        session = db.get_chat_session(conn, user["id"], chat_id)
+        if not session:
+            return Response("Chat not found", status_code=404)
+        context = dict(session.get("context") or {})
+        if context.get("phase") != "exercise" or int(context.get("exercise_id") or 0) != exercise_id:
+            return JSONResponse({"error": {"code": "stale_exercise", "message": "This exercise is no longer active."}}, status_code=409)
+        answer_summary = json.dumps(answer, ensure_ascii=False, separators=(",", ":"))[:500]
+        db.add_chat_message(
+            conn, user_id=user["id"], session_id=chat_id, role="user",
+            content=f"Board answer: {answer_summary}", lesson_id=context.get("lesson_id"),
+        )
+        try:
+            guided = learning_chat.submit_exercise(
+                conn, user_id=user["id"], context=context, answer=answer, lang=lang,
+                chat_session_id=chat_id, duration_seconds=duration_seconds,
+            )
+        except ValueError as exc:
+            return JSONResponse({"error": {"code": "invalid_answer", "message": str(exc)}}, status_code=422)
+        db.update_chat_session(
+            conn, user["id"], chat_id, title=guided.get("title"), context=guided["context"]
+        )
+        db.add_chat_message(
+            conn, user_id=user["id"], session_id=chat_id, role="assistant",
+            content=guided["content"], lesson_id=guided.get("lesson_id"),
+        )
+
+    headers = {"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"}
+
+    async def generate_exercise_result():
+        rendered = render_chat_markdown(guided["content"])
+        yield f"data: {json.dumps({'html': rendered})}\n\n"
+        yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'interactive': guided.get('interactive'), 'lesson_id': guided.get('lesson_id'), 'verdict': guided.get('verdict')})}\n\n"
+
+    return StreamingResponse(generate_exercise_result(), media_type="text/event-stream", headers=headers)
 
 
 # ---------------------------------------------------------------------------

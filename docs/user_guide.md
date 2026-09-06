@@ -170,6 +170,7 @@ FastLMS ships with 10 ready-to-use courses covering programming and academic sub
 - **Chemistry Fundamentals** — Atomic structure (elements, periodic table) and Chemical reactions (balancing, types) (Intermediate)
 - **English Language & Literature** — Reading comprehension, essay writing, literary analysis, grammar (Beginner)
 - **Geography: Physical & Human** — Landscapes, climate, urbanisation, globalisation, resource management (Beginner)
+- **Chess Foundations I** — Child-friendly coordinates and guided rook, bishop, queen, and knight puzzles (Beginner)
 - **Creative Writing** — Narrative techniques, character development, world-building, poetry forms (Beginner)
 
 Each course includes multiple modules with rich markdown lessons and multiple-choice quizzes.

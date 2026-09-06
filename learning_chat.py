@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+import re
 from string import ascii_uppercase
 
 import sqlalchemy as sa
 
 import db
 import language_learning as languages
+from chess_engine import grade as grade_chess
 
 
 COPY = {
@@ -38,6 +40,12 @@ COPY = {
         "manage_students": "Invite or manage students", "review_drafts": "Review adaptive-learning drafts",
         "view_reports": "View student progress and learning time", "preview_student": "Preview the student experience",
         "opening": "Opening **{label}**…",
+        "practice": "Practise on the chessboard",
+        "exercise_ready": "Your turn. Use the board below, then check your answer. You can also type square names or moves in the chat.",
+        "exercise_correct": "Wonderful thinking — **that is correct!**",
+        "exercise_retry": "Good try. Look at the piece again and trace its route slowly. Nothing is lost; have another go.",
+        "exercise_done": "You solved every guided exercise in this lesson and earned **{xp} XP**.",
+        "next_exercise": "Try the next exercise", "retry_exercise": "Try this exercise again",
     },
     "et": {
         "welcome": "Mida soovid õppida? Vali allpool kursus või küsi minult midagi.",
@@ -58,6 +66,9 @@ COPY = {
         "manage_students": "Kutsu või halda õpilasi", "review_drafts": "Vaata üle kohanduva õppe mustandid",
         "view_reports": "Vaata õpilaste edenemist ja õppeaega", "preview_student": "Eelvaade õpilase vaatest",
         "opening": "Avan **{label}**…",
+        "practice": "Harjuta malelaual", "exercise_ready": "Sinu kord. Kasuta allolevat lauda ja kontrolli vastust. Võid käigud või ruudud ka vestlusse kirjutada.",
+        "exercise_correct": "Suurepärane mõtlemine — **see on õige!**", "exercise_retry": "Tubli katse. Vaata malendit uuesti ja jälgi selle teed aeglaselt. Proovi veel kord.",
+        "exercise_done": "Lahendasid kõik selle tunni ülesanded ja teenisid **{xp} XP**.", "next_exercise": "Proovi järgmist ülesannet", "retry_exercise": "Proovi seda ülesannet uuesti",
     },
     "lt": {
         "welcome": "Ko norėtum mokytis? Pasirink kursą arba klausk manęs bet ko.",
@@ -78,6 +89,9 @@ COPY = {
         "manage_students": "Pakviesti arba valdyti mokinius", "review_drafts": "Peržiūrėti adaptyvaus mokymosi juodraščius",
         "view_reports": "Peržiūrėti pažangą ir mokymosi laiką", "preview_student": "Peržiūrėti mokinio patirtį",
         "opening": "Atveriama **{label}**…",
+        "practice": "Treniruotis šachmatų lentoje", "exercise_ready": "Tavo eilė. Naudok lentą ir patikrink atsakymą. Langelius ar ėjimus gali įrašyti ir pokalbyje.",
+        "exercise_correct": "Puikiai pagalvota — **teisingai!**", "exercise_retry": "Geras bandymas. Dar kartą pažvelk į figūrą ir lėtai sek jos kelią. Bandyk dar sykį.",
+        "exercise_done": "Išsprendei visas šios pamokos užduotis ir gavai **{xp} XP**.", "next_exercise": "Bandyti kitą užduotį", "retry_exercise": "Bandyti šią užduotį dar kartą",
     },
     "es": {
         "welcome": "¿Qué quieres aprender? Elige un curso o pregúntame lo que quieras.",
@@ -98,6 +112,9 @@ COPY = {
         "manage_students": "Invitar o gestionar estudiantes", "review_drafts": "Revisar borradores de aprendizaje adaptativo",
         "view_reports": "Ver el progreso y el tiempo de aprendizaje", "preview_student": "Previsualizar la experiencia del estudiante",
         "opening": "Abriendo **{label}**…",
+        "practice": "Practicar en el tablero", "exercise_ready": "Es tu turno. Usa el tablero y comprueba tu respuesta. También puedes escribir casillas o movimientos en el chat.",
+        "exercise_correct": "¡Muy bien pensado: **es correcto**!", "exercise_retry": "Buen intento. Mira la pieza otra vez y sigue su ruta despacio. Inténtalo de nuevo.",
+        "exercise_done": "Resolviste todos los ejercicios de esta lección y ganaste **{xp} XP**.", "next_exercise": "Probar el siguiente ejercicio", "retry_exercise": "Intentar este ejercicio de nuevo",
     },
 }
 
@@ -202,6 +219,8 @@ def _show_lesson(conn, user_id: int, lesson_id: int, lang: str) -> dict:
         return _course_picker(conn, lang)
     quiz = db.get_quiz_for_lesson(conn, lesson_id, lang=lang)
     actions = [(_copy(lang)["complete"], "complete")]
+    if db.get_lesson_exercises(conn, lesson_id, lang, user_id=user_id):
+        actions.insert(0, (_copy(lang)["practice"], "practice"))
     if quiz:
         actions.append((_copy(lang)["quiz"], "quiz"))
     actions.extend([(_copy(lang)["lessons"], "lessons"), (_copy(lang)["courses"], "courses")])
@@ -214,6 +233,120 @@ def _show_lesson(conn, user_id: int, lesson_id: int, lang: str) -> dict:
     return {
         "title": lesson["title"], "context": context, "lesson_id": lesson_id,
         "content": f"## {lesson['title']}\n\n{meta}\n\n{lesson.get('content_md') or ''}\n\n{_choice_markdown(choices)}",
+    }
+
+
+def _client_exercise(exercise: dict) -> dict:
+    allowed = {
+        "id", "source_key", "engine", "exercise_type", "fen", "prompt", "concepts",
+        "difficulty_band", "cognitive_layer", "choices", "pieces", "goal", "optimal_len", "ui",
+    }
+    return {key: value for key, value in exercise.items() if key in allowed}
+
+
+def _start_exercise(conn, user_id: int, lesson_id: int, lang: str, exercise_id: int | None = None) -> dict:
+    lesson = db.get_lesson(conn, lesson_id, lang=lang)
+    course = _course_for_lesson(conn, lesson_id, lang)
+    exercise = (
+        db.get_interactive_exercise(conn, exercise_id, lang) if exercise_id
+        else db.get_next_lesson_exercise(conn, lesson_id, user_id, lang)
+    )
+    if not lesson or not course:
+        return _course_picker(conn, lang)
+    if not exercise:
+        exercises = db.get_lesson_exercises(conn, lesson_id, lang, user_id=user_id)
+        exercise = exercises[0] if exercises else None
+    if not exercise:
+        return _show_lesson(conn, user_id, lesson_id, lang)
+    interactive = _client_exercise(exercise)
+    context = {
+        "phase": "exercise", "course_id": course["id"], "lesson_id": lesson_id,
+        "exercise_id": exercise["id"], "choices": [], "interactive": interactive,
+        "title": lesson["title"],
+    }
+    return {
+        "title": lesson["title"], "context": context, "lesson_id": lesson_id,
+        "interactive": interactive,
+        "content": f"### {exercise['prompt']}\n\n{_copy(lang)['exercise_ready']}",
+    }
+
+
+def _typed_exercise_answer(message: str, exercise: dict) -> dict | None:
+    kind = exercise["exercise_type"]
+    if kind == "multiple_choice":
+        token = (message or "").strip().upper()
+        if len(token) == 1 and "A" <= token <= "Z":
+            return {"answer": ord(token) - ord("A")}
+        return None
+    if kind == "select_squares":
+        squares = re.findall(r"\b[a-h][1-8]\b", (message or "").lower())
+        return {"squares": squares} if squares else None
+    if kind in {"path", "move_sequence"}:
+        moves = re.findall(r"\b[a-h][1-8][a-h][1-8]\b", (message or "").lower())
+        return {"moves": moves} if moves else None
+    if kind == "place_pieces":
+        placements = [
+            {"piece": piece, "square": square.lower()}
+            for piece, square in re.findall(r"\b([KQRBNPkqrbnp])\s*[:@-]?\s*([a-h][1-8])\b", message or "")
+        ]
+        return {"placements": placements} if placements else None
+    return None
+
+
+def submit_exercise(
+    conn, *, user_id: int, context: dict, answer: dict, lang: str,
+    chat_session_id: str | None = None, duration_seconds: int = 0,
+) -> dict:
+    """Grade, persist, adapt, and produce the next chat state."""
+    exercise_id = int(context.get("exercise_id") or 0)
+    lesson_id = int(context.get("lesson_id") or 0)
+    exercise = db.get_interactive_exercise(conn, exercise_id, lang, include_answer=True)
+    if not exercise or not lesson_id:
+        raise ValueError("Exercise is no longer available")
+    if exercise.get("engine") != "chess":
+        raise ValueError("Unsupported exercise engine")
+    verdict = grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], answer)
+    db.record_exercise_attempt(
+        conn, user_id=user_id, exercise_id=exercise_id, lesson_id=lesson_id,
+        chat_session_id=chat_session_id, answer=answer, verdict=verdict,
+        duration_seconds=duration_seconds,
+    )
+    if not verdict["correct"]:
+        interactive = _client_exercise(exercise)
+        retry_context = {**context, "phase": "exercise", "choices": [], "interactive": interactive}
+        return {
+            "title": context.get("title") or "Chess practice", "context": retry_context,
+            "lesson_id": lesson_id, "interactive": interactive,
+            "content": _copy(lang)["exercise_retry"], "verdict": verdict,
+        }
+
+    remaining = db.get_next_lesson_exercise(conn, lesson_id, user_id, lang)
+    if remaining:
+        choices = _choices([(_copy(lang)["next_exercise"], "next"), (_copy(lang)["lessons"], "lesson")])
+        next_context = {
+            **context, "phase": "exercise_feedback", "choices": choices,
+            "interactive": None, "last_exercise_id": exercise_id,
+        }
+        return {
+            "title": context.get("title") or "Chess practice", "context": next_context,
+            "lesson_id": lesson_id, "content": f"{_copy(lang)['exercise_correct']}\n\n{_choice_markdown(choices)}",
+            "verdict": verdict,
+        }
+
+    progress = db.get_lesson_progress(conn, user_id, lesson_id)
+    xp = 0 if progress and progress["status"] == "completed" else db.mark_lesson_complete(conn, user_id, lesson_id)
+    choices = _choices([
+        (_copy(lang)["lessons"], "lesson"), (_copy(lang)["courses"], "courses"),
+        (_copy(lang)["retry_exercise"], "retry"),
+    ])
+    lead = _copy(lang)["exercise_done"].format(xp=xp) if xp else _copy(lang)["exercise_correct"]
+    done_context = {
+        **context, "phase": "exercise_feedback", "choices": choices,
+        "interactive": None, "last_exercise_id": exercise_id, "lesson_complete": True,
+    }
+    return {
+        "title": context.get("title") or "Chess practice", "context": done_context,
+        "lesson_id": lesson_id, "content": f"{lead}\n\n{_choice_markdown(choices)}", "verdict": verdict,
     }
 
 
@@ -356,7 +489,18 @@ def initial_response(
     return _course_picker(conn, lang)
 
 
-def handle_guided_message(conn, user_id: int, context: dict, message: str, lang: str) -> dict | None:
+def handle_guided_message(
+    conn, user_id: int, context: dict, message: str, lang: str,
+    chat_session_id: str | None = None,
+) -> dict | None:
+    if context.get("phase") == "exercise" and context.get("exercise_id"):
+        exercise = db.get_interactive_exercise(conn, int(context["exercise_id"]), lang)
+        answer = _typed_exercise_answer(message, exercise) if exercise else None
+        if answer:
+            return submit_exercise(
+                conn, user_id=user_id, context=context, answer=answer, lang=lang,
+                chat_session_id=chat_session_id,
+            )
     choice = resolve_choice(message, context.get("choices", []))
     if not choice:
         return None
@@ -374,6 +518,8 @@ def handle_guided_message(conn, user_id: int, context: dict, message: str, lang:
     if phase == "lesson_picker":
         return _show_lesson(conn, user_id, int(value), lang)
     if phase == "lesson":
+        if value == "practice":
+            return _start_exercise(conn, user_id, int(context["lesson_id"]), lang)
         if value == "complete":
             progress = db.get_lesson_progress(conn, user_id, int(context["lesson_id"]))
             lead = _copy(lang)["already"] if progress and progress["status"] == "completed" else _copy(lang)["done"].format(
@@ -386,6 +532,18 @@ def handle_guided_message(conn, user_id: int, context: dict, message: str, lang:
             return _start_quiz(conn, user_id, int(context["quiz_id"]), lang)
         if value == "lessons":
             return _show_course(conn, user_id, int(context["course_id"]), lang)
+        if value == "courses":
+            return _course_picker(conn, lang)
+    if phase == "exercise_feedback":
+        if value == "next":
+            return _start_exercise(conn, user_id, int(context["lesson_id"]), lang)
+        if value == "retry":
+            return _start_exercise(
+                conn, user_id, int(context["lesson_id"]), lang,
+                int(context["last_exercise_id"]),
+            )
+        if value == "lesson":
+            return _show_lesson(conn, user_id, int(context["lesson_id"]), lang)
         if value == "courses":
             return _course_picker(conn, lang)
     if phase == "quiz":

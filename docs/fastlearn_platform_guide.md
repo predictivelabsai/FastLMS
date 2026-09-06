@@ -1,7 +1,7 @@
 # FastLearn Platform Guide
 
 **Published:** 2026-09-06<br>
-**Release:** 1.2.0<br>
+**Release:** 1.3.0<br>
 **Platform:** [https://fastlearn.fun](https://fastlearn.fun)  
 **Open-source foundation:** [FastLMS](https://lms.fastsme.com)  
 **Interface and catalogue languages:** English, Estonian, Lithuanian and Spanish<br>
@@ -19,7 +19,7 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 
 ### Platform capabilities
 
-- Fourteen admin-curated default courses across programming, mathematics, science, language and literature, geography, creative writing, art and music.
+- Fifteen admin-curated default courses across programming, mathematics, science, language and literature, geography, creative writing, art, music and chess.
 - Course modules, lessons, quizzes, XP, streaks, badges and a leaderboard.
 - A persistent **New Chat** workspace grounded in the selected course or lesson.
 - Streamed questions, answer choices and feedback rendered inside chat rather than static learner forms.
@@ -31,6 +31,8 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 - Active learning-time measurement.
 - Linear and adaptive learning strategies.
 - Teacher-reviewed generation for question variants and remedial or extension lessons.
+- Guided chessboards with server-side grading, adaptive practice and concept mastery records.
+- A versioned integration API with public curriculum and protected learner operations.
 
 ## 2. Roles and permissions
 
@@ -122,7 +124,25 @@ Choose one answer in chat, or reply with its displayed letter. FastLearn streams
 
 Quiz attempts contribute to progress and, in adaptive mode, to the learner's current difficulty and recommendation state. An unsuccessful attempt is evidence for extra support—not a punishment or a permanent label.
 
-### 4.6 Use New Chat
+### 4.6 Learn chess with guided boards
+
+Open **Chess Foundations I** from the catalogue. This protected default course is written for beginner children aged 3–12 and contains ten original lessons covering the board, coordinates, pieces, rooks, bishops, queens and knights.
+
+Choose **Practise on the chessboard** inside a lesson. Depending on the activity, the student can:
+
+- choose an answer;
+- select every reachable square;
+- place pieces on their starting squares;
+- build a shortest route; or
+- capture a sequence of pieces.
+
+![Guided chess exercise inside New Chat](img/fastlearn-platform-guide/15-chess-guided-practice.png)
+
+Select squares or pieces directly and choose **Check answer**. The answer is graded on the server and feedback streams into the same chat. The expected answer is never sent to the browser. Keyboard learners may type `A`, square lists such as `d1 d2 d3`, move lists such as `a1a8 a8h8`, or placements such as `R@a1 R@h1`.
+
+The default lesson order remains linear. Exercise attempts still update bounded difficulty: difficulty can fall after mistakes and rise after sustained success. FastLearn records the concept, Skill/Knowledge/Wisdom layer, result and active duration for later teacher reporting. The current Foundations I scope is guided practice only; it does not include engine games or live opponents.
+
+### 4.7 Use New Chat
 
 Open **New Chat** from the navigation or from a lesson. When opened from a lesson, the chat receives the relevant lesson context. Suggested prompts can request a simpler explanation, a practical example or a short knowledge check.
 
@@ -130,7 +150,7 @@ Open **New Chat** from the navigation or from a lesson. When opened from a lesso
 
 The tutor responds in the selected interface language unless the student asks for another language. Students should not submit passwords, private identifiers or information they are not permitted to share.
 
-### 4.7 Understand active learning time
+### 4.8 Understand active learning time
 
 FastLearn counts active learning in three contexts:
 
@@ -142,7 +162,7 @@ The browser sends a heartbeat every 30 seconds. Time pauses immediately when the
 
 Students see their total active time on their profile. Teachers see the lesson, quiz and New Chat split for their own assignments. Historical time from before tracking was enabled cannot be reconstructed reliably.
 
-### 4.8 Understand adaptive recommendations
+### 4.9 Understand adaptive recommendations
 
 Courses remain linear unless a teacher enables **adaptive** mode.
 
@@ -166,7 +186,7 @@ The default rules are:
 
 FastLearn never changes by more than one difficulty level at a time and falls back to the nearest approved material when an exact match is unavailable.
 
-### 4.9 Learn another language
+### 4.10 Learn another language
 
 Open **Language learning** in the left navigation. Choose the language the student already speaks, the target language and a daily practice goal.
 
@@ -351,10 +371,31 @@ FastLearn retains:
 - generated content versions and teacher approval decisions.
 - native and target language preferences, recall ratings and next-due intervals;
 - chat sessions and messages needed to restore learning history.
+- guided exercise attempts, board answers, concepts, difficulty and active duration.
 
 Access follows least privilege: students see their own data, teachers see relevant assigned-course data, and administrators see platform-wide records. Passwords and OAuth tokens are never part of learning analytics.
 
-## 10. Quick reference
+## 10. Integration API
+
+Open [FastLearn Developers](https://fastlearn.fun/developers), [Swagger UI](https://fastlearn.fun/api/docs), or [ReDoc](https://fastlearn.fun/api/redoc). The API is versioned under `/api/v1`.
+
+Published curriculum is public:
+
+- courses, modules and lessons;
+- complete course curriculum trees;
+- answer-safe guided exercises;
+- anonymous exercise checking that returns a verdict but never the answer key.
+
+Learner information is private. Configure `FASTSME_API_TOKEN` and send `Authorization: Bearer <token>` to access learner lists, assignments, enrolments, progress, recorded attempts, chat sessions or chat messages. Public API records never include password hashes, OAuth credentials or private exercise answers.
+
+```bash
+curl "https://fastlearn.fun/api/v1/courses?lang=es"
+
+curl "https://fastlearn.fun/api/v1/learners/42/progress" \
+  -H "Authorization: Bearer $FASTSME_API_TOKEN"
+```
+
+## 11. Quick reference
 
 ### Student
 
@@ -365,6 +406,7 @@ Access follows least privilege: students see their own data, teachers see releva
 5. Ask for a simpler explanation in New Chat when something is unclear.
 6. Review progress, active time and adaptive recommendations.
 7. Open **Language learning** to practise a chosen target language from the student's native language.
+8. Open **Chess Foundations I** to practise interactively without leaving New Chat.
 
 ### Teacher
 

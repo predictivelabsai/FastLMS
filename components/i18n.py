@@ -70,7 +70,7 @@ TEXT = {
     "how_eyebrow": {"en": "How it works", "et": "Kuidas see töötab", "lt": "Kaip tai veikia"},
     "how_title": {"en": "From curiosity to confidence in four steps.", "et": "Uudishimust enesekindluseni nelja sammuga.", "lt": "Nuo smalsumo iki pasitikėjimo keturiais žingsniais."},
     "step_1_title": {"en": "Choose your course", "et": "Vali kursus", "lt": "Pasirinkite kursą"},
-    "step_1_body": {"en": "Start with programming, science, mathematics, language, geography, creative writing, art, or music.", "et": "Alusta programmeerimisest, loodusteadustest, matemaatikast, keelest, geograafiast, loovkirjutamisest, kunstist või muusikast.", "lt": "Pradėkite nuo programavimo, gamtos mokslų, matematikos, kalbų, geografijos, kūrybinio rašymo, meno ar muzikos."},
+    "step_1_body": {"en": "Start with programming, science, mathematics, language, geography, creative writing, art, music, or chess.", "et": "Alusta programmeerimisest, loodusteadustest, matemaatikast, keelest, geograafiast, loovkirjutamisest, kunstist, muusikast või malest.", "lt": "Pradėkite nuo programavimo, gamtos mokslų, matematikos, kalbų, geografijos, kūrybinio rašymo, meno, muzikos ar šachmatų.", "es": "Empieza con programación, ciencias, matemáticas, idiomas, geografía, escritura creativa, arte, música o ajedrez."},
     "step_2_title": {"en": "Learn in focused lessons", "et": "Õpi keskendunud tundides", "lt": "Mokykitės aiškiose pamokose"},
     "step_2_body": {"en": "Move through concise explanations, examples, and practical material at your own pace.", "et": "Läbi lühikesed selgitused, näited ja praktiline materjal omas tempos.", "lt": "Savo tempu pereikite glaustus paaiškinimus, pavyzdžius ir praktinę medžiagą."},
     "step_3_title": {"en": "Check your understanding", "et": "Kontrolli arusaamist", "lt": "Pasitikrinkite supratimą"},
@@ -83,10 +83,12 @@ TEXT = {
     "subject_science": {"en": "Science", "et": "Loodusteadused", "lt": "Gamtos mokslai"},
     "subject_language": {"en": "Language", "et": "Keel", "lt": "Kalbos"},
     "subject_creativity": {"en": "Creativity", "et": "Loovus", "lt": "Kūryba"},
+    "subject_chess": {"en": "Chess", "et": "Male", "lt": "Šachmatai", "es": "Ajedrez"},
     "subject_technology_body": {"en": "Python, machine learning, and building web applications.", "et": "Python, masinõpe ja veebirakenduste loomine.", "lt": "Python, mašininis mokymasis ir interneto programų kūrimas."},
     "subject_science_body": {"en": "Mathematics, physics, biology, chemistry, and geography.", "et": "Matemaatika, füüsika, bioloogia, keemia ja geograafia.", "lt": "Matematika, fizika, biologija, chemija ir geografija."},
     "subject_language_body": {"en": "Practise ten target languages from your native language with high-frequency speech and graduated recall.", "et": "Harjuta kümmet sihtkeelt oma emakeele kaudu, kasutades sagedast kõnet ja astmelist kordamist.", "lt": "Praktikuokite dešimt tikslinių kalbų iš savo gimtosios kalbos naudodami dažnus posakius ir laipsnišką kartojimą."},
     "subject_creativity_body": {"en": "Creative writing, art and music principles, plus art and music history.", "et": "Loovkirjutamine, kunsti ja muusika põhimõtted ning kunsti- ja muusikaajalugu.", "lt": "Kūrybinis rašymas, meno ir muzikos principai bei meno ir muzikos istorija."},
+    "subject_chess_body": {"en": "Guided chessboard puzzles for children learning pieces, coordinates, routes, and careful thinking.", "et": "Juhendatud malelauaülesanded lastele, kes õpivad malendeid, koordinaate, teekondi ja hoolikat mõtlemist.", "lt": "Vadovaujamos lentos užduotys vaikams, besimokantiems figūrų, koordinačių, kelių ir atidaus mąstymo.", "es": "Ejercicios guiados en el tablero para aprender piezas, coordenadas, rutas y pensamiento cuidadoso."},
     "cta_eyebrow": {"en": "Ready when you are", "et": "Alusta, kui oled valmis", "lt": "Pradėkite, kai būsite pasirengę"},
     "cta_title": {"en": "Make your next lesson the one that clicks.", "et": "Tee järgmisest tunnist see, kus kõik paika loksub.", "lt": "Tegul kita pamoka tampa ta, kurioje viskas tampa aišku."},
     "cta_body": {"en": "Create your account, choose a subject, and keep every step of your progress visible.", "et": "Loo konto, vali aine ja hoia iga edusamm nähtaval.", "lt": "Susikurkite paskyrą, pasirinkite dalyką ir matykite kiekvieną savo pažangos žingsnį."},
@@ -302,8 +304,10 @@ def course_catalog() -> dict:
         return {}
     catalog = json.loads(path.read_text(encoding="utf-8"))
     from arts_catalog import ART_TRANSLATIONS
-    for entity, entries in ART_TRANSLATIONS.items():
-        catalog.setdefault(entity, {}).update(entries)
+    from chess_course import CHESS_TRANSLATIONS
+    for translation_set in (ART_TRANSLATIONS, CHESS_TRANSLATIONS):
+        for entity, entries in translation_set.items():
+            catalog.setdefault(entity, {}).update(entries)
     return catalog
 
 
