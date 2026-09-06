@@ -519,9 +519,11 @@ def bootstrap_schema():
         # school-administration layer (students/programs/gradebook/attendance/fees)
         import school
         school.bootstrap(conn)
-        # The small protected reference course is installed with the schema so
-        # existing deployments receive it without a destructive catalogue reset.
+        # Protected reference courses are installed with the schema so existing
+        # deployments receive them without a destructive catalogue reset.
+        from arts_catalog import seed_art_courses
         from chess_course import seed_chess_course
+        seed_art_courses(conn, SCHEMA)
         seed_chess_course(conn, SCHEMA)
 
 

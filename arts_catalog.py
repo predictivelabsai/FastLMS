@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
+
+import sqlalchemy as sa
 
 
 LANGUAGES = ("en", "et", "lt", "es")
@@ -517,3 +520,158 @@ def _build_translations():
 
 ART_COURSES = _english(CATALOG)
 ART_TRANSLATIONS = _build_translations()
+
+
+def seed_art_courses(conn, schema: str) -> list[dict]:
+    """Idempotently install the four protected Art and Music courses."""
+    owner_id = conn.execute(sa.text(f"""
+        SELECT id FROM {schema}.users
+        ORDER BY CASE
+            WHEN lower(email) = 'kaljuvee@gmail.com' THEN 0
+            WHEN lower(email) = 'instructor@fastlms.dev' THEN 1
+            ELSE 2
+        END, id
+        LIMIT 1
+    """)).scalar()
+    seeded = []
+    for course_data in ART_COURSES:
+        course = conn.execute(sa.text(f"""
+            INSERT INTO {schema}.courses
+                (title, slug, description, category, difficulty, is_published,
+                 instructor_id, is_default)
+            VALUES (:title, :slug, :description, :category, :difficulty, true,
+                    :owner, true)
+            ON CONFLICT (slug) DO UPDATE SET
+                title = EXCLUDED.title,
+                description = EXCLUDED.description,
+                category = EXCLUDED.category,
+                difficulty = EXCLUDED.difficulty,
+                is_published = true,
+                is_default = true,
+                instructor_id = COALESCE(EXCLUDED.instructor_id, {schema}.courses.instructor_id)
+            RETURNING *
+        """), {
+            **{key: course_data[key] for key in (
+                "title", "slug", "description", "category", "difficulty"
+            )},
+            "owner": owner_id,
+        }).mappings().one()
+
+        for module_index, module_data in enumerate(course_data["modules"]):
+            module_id = conn.execute(sa.text(f"""
+                SELECT id FROM {schema}.modules
+                WHERE course_id = :course AND title = :title
+                ORDER BY id LIMIT 1
+            """), {
+                "course": course["id"], "title": module_data["title"]
+            }).scalar()
+            if module_id:
+                conn.execute(sa.text(f"""
+                    UPDATE {schema}.modules SET order_idx = :order_idx WHERE id = :id
+                """), {"order_idx": module_index, "id": module_id})
+            else:
+                module_id = conn.execute(sa.text(f"""
+                    INSERT INTO {schema}.modules (course_id, title, order_idx)
+                    VALUES (:course, :title, :order_idx) RETURNING id
+                """), {
+                    "course": course["id"], "title": module_data["title"],
+                    "order_idx": module_index,
+                }).scalar_one()
+
+            for lesson_index, lesson_data in enumerate(module_data["lessons"]):
+                lesson_id = conn.execute(sa.text(f"""
+                    SELECT id FROM {schema}.lessons
+                    WHERE module_id = :module AND title = :title
+                    ORDER BY id LIMIT 1
+                """), {
+                    "module": module_id, "title": lesson_data["title"]
+                }).scalar()
+                lesson_params = {
+                    "module": module_id,
+                    "title": lesson_data["title"],
+                    "content": lesson_data.get("content_md", ""),
+                    "duration": lesson_data.get("duration_min", 10),
+                    "xp": lesson_data.get("xp_reward", 25),
+                    "order_idx": lesson_index,
+                }
+                if lesson_id:
+                    conn.execute(sa.text(f"""
+                        UPDATE {schema}.lessons SET
+                            content_md = :content,
+                            duration_min = :duration,
+                            xp_reward = :xp,
+                            order_idx = :order_idx
+                        WHERE id = :id
+                    """), {**lesson_params, "id": lesson_id})
+                else:
+                    lesson_id = conn.execute(sa.text(f"""
+                        INSERT INTO {schema}.lessons
+                            (module_id, title, content_md, duration_min, xp_reward, order_idx)
+                        VALUES (:module, :title, :content, :duration, :xp, :order_idx)
+                        RETURNING id
+                    """), lesson_params).scalar_one()
+
+                quiz_data = lesson_data.get("quiz")
+                if not quiz_data:
+                    continue
+                quiz_id = conn.execute(sa.text(f"""
+                    SELECT id FROM {schema}.quizzes
+                    WHERE lesson_id = :lesson ORDER BY id LIMIT 1
+                """), {"lesson": lesson_id}).scalar()
+                quiz_params = {
+                    "lesson": lesson_id,
+                    "title": quiz_data["title"],
+                    "threshold": quiz_data.get("pass_threshold", 70),
+                    "xp": quiz_data.get("xp_reward", 50),
+                }
+                if quiz_id:
+                    conn.execute(sa.text(f"""
+                        UPDATE {schema}.quizzes SET
+                            title = :title,
+                            pass_threshold = :threshold,
+                            xp_reward = :xp
+                        WHERE id = :id
+                    """), {**quiz_params, "id": quiz_id})
+                else:
+                    quiz_id = conn.execute(sa.text(f"""
+                        INSERT INTO {schema}.quizzes
+                            (lesson_id, title, pass_threshold, xp_reward)
+                        VALUES (:lesson, :title, :threshold, :xp)
+                        RETURNING id
+                    """), quiz_params).scalar_one()
+
+                for question_index, question in enumerate(quiz_data["questions"]):
+                    question_id = conn.execute(sa.text(f"""
+                        SELECT id FROM {schema}.quiz_questions
+                        WHERE quiz_id = :quiz AND order_idx = :order_idx
+                        ORDER BY id LIMIT 1
+                    """), {
+                        "quiz": quiz_id, "order_idx": question_index
+                    }).scalar()
+                    question_params = {
+                        "quiz": quiz_id,
+                        "text": question["question_text"],
+                        "options": json.dumps(question["options"]),
+                        "answer": question["correct_answer"],
+                        "explanation": question.get("explanation", ""),
+                        "order_idx": question_index,
+                    }
+                    if question_id:
+                        conn.execute(sa.text(f"""
+                            UPDATE {schema}.quiz_questions SET
+                                question_text = :text,
+                                options = CAST(:options AS jsonb),
+                                correct_answer = :answer,
+                                explanation = :explanation
+                            WHERE id = :id
+                        """), {**question_params, "id": question_id})
+                    else:
+                        conn.execute(sa.text(f"""
+                            INSERT INTO {schema}.quiz_questions
+                                (quiz_id, question_text, options, correct_answer,
+                                 explanation, order_idx)
+                            VALUES (:quiz, :text, CAST(:options AS jsonb), :answer,
+                                    :explanation, :order_idx)
+                        """), question_params)
+        seeded.append(dict(course))
+    return seeded

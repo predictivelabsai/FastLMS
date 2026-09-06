@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from arts_catalog import ART_COURSES
+from arts_catalog import ART_COURSES, seed_art_courses
 import db
 
 
@@ -104,3 +104,9 @@ def test_art_and_music_catalogue_is_principles_first():
     assert music["title"] == "Music"
     assert "no drawing" in art["description"].lower()
     assert "without requiring singing or an instrument" in music["description"].lower()
+
+
+def test_art_and_music_bootstrap_is_wired_into_database_startup():
+    assert callable(seed_art_courses)
+    source = Path("db.py").read_text(encoding="utf-8")
+    assert "seed_art_courses(conn, SCHEMA)" in source
