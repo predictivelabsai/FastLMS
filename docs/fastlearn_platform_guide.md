@@ -136,7 +136,7 @@ Choose **Practise on the chessboard** inside a lesson. Depending on the activity
 - build a shortest route; or
 - capture a sequence of pieces.
 
-![Guided chess exercise inside New Chat](img/fastlearn-platform-guide/15-chess-guided-practice.png)
+![Guided chess exercise inside New Chat](../output/playwright/15-chess-guided-practice.png)
 
 Select squares or pieces directly and choose **Check answer**. The answer is graded on the server and feedback streams into the same chat. The expected answer is never sent to the browser. Keyboard learners may type `A`, square lists such as `d1 d2 d3`, move lists such as `a1a8 a8h8`, or placements such as `R@a1 R@h1`.
 
@@ -234,7 +234,7 @@ Teacher navigation and profile screens show operational measures—**Students**,
 
 Open **Manage courses** to review course title, subject, difficulty and publication status.
 
-![Teacher course management](img/fastlearn-platform-guide/08-teacher-manage-courses.png)
+![Teacher chat workspace and complete catalogue](../output/playwright/teacher-chat.png)
 
 The catalogue contains every published course. **Manage courses** contains only the teacher's own editable, non-default courses. The administrator retains edit access to every course.
 
