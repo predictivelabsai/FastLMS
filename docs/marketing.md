@@ -39,7 +39,7 @@ expressions back sooner and confident answers at expanding intervals.
 🌍 **A multilingual demo** — the interface, courses, questions, and generated
 material are available in English, Estonian, Lithuanian, and Spanish.
 
-⏱️ **Measure active learning, not an open tab** — lesson, quiz, and AI Tutor time
+⏱️ **Measure active learning, not an open tab** — lesson, quiz, and New Chat time
 uses visibility checks, 30-second heartbeats, and a 90-second inactivity pause.
 
 💬 **A tutor that knows the lesson** — New Chat receives the current lesson
