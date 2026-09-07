@@ -1065,7 +1065,7 @@ def get_chat_history(
             sa.text(f"""
                 SELECT * FROM {S}.chat_messages
                 WHERE user_id = :u AND session_id = :session
-                ORDER BY created_at ASC LIMIT :lim
+                ORDER BY created_at ASC, id ASC LIMIT :lim
             """),
             {"u": user_id, "session": session_id, "lim": limit},
         ).mappings().all()
@@ -1075,7 +1075,7 @@ def get_chat_history(
             sa.text(f"""
                 SELECT * FROM {S}.chat_messages
                 WHERE user_id = :u AND lesson_id = :l
-                ORDER BY created_at ASC LIMIT :lim
+                ORDER BY created_at ASC, id ASC LIMIT :lim
             """),
             {"u": user_id, "l": lesson_id, "lim": limit},
         ).mappings().all()
@@ -1084,7 +1084,7 @@ def get_chat_history(
             sa.text(f"""
                 SELECT * FROM {S}.chat_messages
                 WHERE user_id = :u AND lesson_id IS NULL
-                ORDER BY created_at ASC LIMIT :lim
+                ORDER BY created_at ASC, id ASC LIMIT :lim
             """),
             {"u": user_id, "lim": limit},
         ).mappings().all()

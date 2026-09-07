@@ -77,3 +77,8 @@ def test_saved_visuals_follow_the_existing_teacher_approval_flow():
     assert 'value="visualization"' in routes
     assert 'draft["draft_type"] == "visualization"' in routes
     assert "visualizations.validate(english)" in routes
+
+
+def test_chat_reload_order_is_deterministic_for_same_transaction_messages():
+    source = Path("db.py").read_text(encoding="utf-8")
+    assert source.count("ORDER BY created_at ASC, id ASC LIMIT :lim") == 3
