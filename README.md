@@ -17,18 +17,9 @@ The walkthrough above is generated from a repeatable Playwright journey against 
 - [Platform guide — Markdown](docs/fastlearn_platform_guide.md), for browsing and editing on GitHub.
 - [Platform guide — landscape PDF](docs/fastlearn_platform_guide.pdf), for reading, presenting, or sharing offline.
 - [LinkedIn post and publishing links](docs/marketing.md).
-- [Versioned Playwright screenshot set](output/playwright/linkedin-demo), used to build the animated walkthrough.
+- [Playwright screenshot set](output/playwright/linkedin-demo), used to build the single animated walkthrough above.
 
-| Mathematics and physics | Geography and art |
-|---|---|
-| [![Interactive mathematics explanation](output/playwright/linkedin-demo/03-mathematics.png)](output/playwright/linkedin-demo/03-mathematics.png) | [![Urbanisation flow explanation](output/playwright/linkedin-demo/05-geography.png)](output/playwright/linkedin-demo/05-geography.png) |
-| [![Interactive physics explanation](output/playwright/linkedin-demo/04-physics.png)](output/playwright/linkedin-demo/04-physics.png) | [![Interactive colour relationships](output/playwright/linkedin-demo/06-art.png)](output/playwright/linkedin-demo/06-art.png) |
-
-| Guided chess | Language learning |
-|---|---|
-| [![Guided chessboard exercise](output/playwright/linkedin-demo/07-chess.png)](output/playwright/linkedin-demo/07-chess.png) | [![Native-to-target language learning](output/playwright/linkedin-demo/08-languages.png)](output/playwright/linkedin-demo/08-languages.png) |
-
-The screenshots show FastLearn v1.4.0 in English. Interface and catalogue content are also available in Estonian, Lithuanian, and Spanish; the language engine supports ten target languages.
+The walkthrough shows FastLearn v1.4.0 in English. Interface and catalogue content are also available in Estonian, Lithuanian, and Spanish; the language engine supports ten target languages.
 
 ## Features
 

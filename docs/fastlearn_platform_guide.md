@@ -9,9 +9,19 @@
 
 This guide explains how students, teachers and the administrator use FastLearn, including role-based access, learning-time reporting and configurable adaptive learning.
 
-**Available editions:** [Markdown source](https://github.com/predictivelabsai/FastLMS/blob/main/docs/fastlearn_platform_guide.md) · [A4 landscape PDF](https://github.com/predictivelabsai/FastLMS/blob/main/docs/fastlearn_platform_guide.pdf) · [animated walkthrough](https://fastlearn.fun/static/fastlearn-demo.gif) · [Playwright screenshots](https://github.com/predictivelabsai/FastLMS/tree/main/output/playwright/linkedin-demo)
+## Contents
 
-Screenshots were reviewed on 2026-09-07. Learner screens come from the current FastLearn product tour; teacher screens use a controlled documentation account on the same application build. No production learner data is shown.
+1. Platform overview
+2. Roles and permissions
+3. Signing in
+4. Student guide
+5. Teacher guide
+6. Administrator guide
+7. Adaptive-learning decision process
+8. Language support
+9. Data and audit records
+10. Integration API
+11. Quick reference
 
 ## 1. Platform overview
 
@@ -249,7 +259,7 @@ Teacher navigation and profile screens show operational measures—**Students**,
 
 Open **Manage courses** to review course title, subject, difficulty and publication status.
 
-![Teacher chat workspace and complete catalogue](../output/playwright/teacher-chat.png)
+![Teacher course management](img/fastlearn-platform-guide/08-teacher-manage-courses.png)
 
 The catalogue contains every published course. **Manage courses** contains only the teacher's own editable, non-default courses. The administrator retains edit access to every course.
 
