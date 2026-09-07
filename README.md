@@ -6,7 +6,29 @@ Open-source learning management system built with [FastHTML](https://github.com/
 
 FastLearn 1.4 adds safe interactive Plotly explanations for mathematics, physics, geography, and art. Visuals stream into chat, persist with the lesson context, include accessible data tables, and use a self-hosted renderer. Chess Foundations I remains available for children aged 3–12 with guided boards and private server-side grading.
 
-![FastLearn Demo](static/fastlearn-demo.gif)
+[Open the live demo](https://fastlearn.fun) · [Read the platform guide](docs/fastlearn_platform_guide.md) · [Download the landscape PDF](docs/fastlearn_platform_guide.pdf)
+
+[![FastLearn animated product walkthrough](static/fastlearn-demo.gif)](https://fastlearn.fun)
+
+## Product tour and documentation
+
+The walkthrough above is generated from a repeatable Playwright journey against the deployed application. The same release is documented in several formats:
+
+- [Platform guide — Markdown](docs/fastlearn_platform_guide.md), for browsing and editing on GitHub.
+- [Platform guide — landscape PDF](docs/fastlearn_platform_guide.pdf), for reading, presenting, or sharing offline.
+- [LinkedIn post and publishing links](docs/marketing.md).
+- [Versioned Playwright screenshot set](output/playwright/linkedin-demo), used to build the animated walkthrough.
+
+| Mathematics and physics | Geography and art |
+|---|---|
+| [![Interactive mathematics explanation](output/playwright/linkedin-demo/03-mathematics.png)](output/playwright/linkedin-demo/03-mathematics.png) | [![Urbanisation flow explanation](output/playwright/linkedin-demo/05-geography.png)](output/playwright/linkedin-demo/05-geography.png) |
+| [![Interactive physics explanation](output/playwright/linkedin-demo/04-physics.png)](output/playwright/linkedin-demo/04-physics.png) | [![Interactive colour relationships](output/playwright/linkedin-demo/06-art.png)](output/playwright/linkedin-demo/06-art.png) |
+
+| Guided chess | Language learning |
+|---|---|
+| [![Guided chessboard exercise](output/playwright/linkedin-demo/07-chess.png)](output/playwright/linkedin-demo/07-chess.png) | [![Native-to-target language learning](output/playwright/linkedin-demo/08-languages.png)](output/playwright/linkedin-demo/08-languages.png) |
+
+The screenshots show FastLearn v1.4.0 in English. Interface and catalogue content are also available in Estonian, Lithuanian, and Spanish; the language engine supports ten target languages.
 
 ## Features
 

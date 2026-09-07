@@ -9,6 +9,8 @@
 
 This guide explains how students, teachers and the administrator use FastLearn, including role-based access, learning-time reporting and configurable adaptive learning.
 
+**Available editions:** [Markdown source](https://github.com/predictivelabsai/FastLMS/blob/main/docs/fastlearn_platform_guide.md) · [A4 landscape PDF](https://github.com/predictivelabsai/FastLMS/blob/main/docs/fastlearn_platform_guide.pdf) · [animated walkthrough](https://fastlearn.fun/static/fastlearn-demo.gif) · [Playwright screenshots](https://github.com/predictivelabsai/FastLMS/tree/main/output/playwright/linkedin-demo)
+
 Screenshots were reviewed on 2026-09-07. Learner screens come from the current FastLearn product tour; teacher screens use a controlled documentation account on the same application build. No production learner data is shown.
 
 ## 1. Platform overview
