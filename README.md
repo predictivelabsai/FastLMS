@@ -1,10 +1,10 @@
 # FastLMS
 
-Current release: `v1.3.0`
+Current release: `v1.4.0`
 
 Open-source learning management system built with [FastHTML](https://github.com/AnswerDotAI/fasthtml). Python-first, no JavaScript framework — HTMX handles all interactivity. Features a 3-pane layout, a New Chat workspace with SSE streaming, and Duolingo-style learner elements (XP, streaks, badges, leaderboards, levels).
 
-FastLearn 1.3 adds Chess Foundations I for children aged 3–12, with original multilingual lessons, guided chessboards, private server-side grading, adaptive practice records, and API access. Role-specific chat keeps students, teachers, and administrators on their own paths even when older conversations exist.
+FastLearn 1.4 adds safe interactive Plotly explanations for mathematics, physics, geography, and art. Visuals stream into chat, persist with the lesson context, include accessible data tables, and use a self-hosted renderer. Chess Foundations I remains available for children aged 3–12 with guided boards and private server-side grading.
 
 ![FastLMS Demo](docs/fastlms-demo.gif)
 
@@ -23,6 +23,7 @@ FastLearn 1.3 adds Chess Foundations I for children aged 3–12, with original m
 - **Language learning** — native-to-target practice across 10 major languages using a ranked frequency dictionary, browser pronunciation, anticipation, and graduated recall
 - **Multilingual demo** — complete catalogue and core UI in English, Estonian, Lithuanian, and Spanish
 - **Guided chess** — 10 original beginner lessons and 20 interactive board exercises covering coordinates, rooks, bishops, queens, and knights
+- **Interactive explanations** — curated hoverable and zoomable charts for mathematics, physics, geography, and art, with accessible source data and teacher approval
 - **Integration API** — public localized curriculum and answer-safe exercises, plus bearer-protected assignments, progress, attempts, learners, and chat history
 
 ### Interactivity
@@ -150,6 +151,7 @@ All tables live in the `fastlms` PostgreSQL schema:
 | `learner_course_state` | Current bounded adaptive difficulty state |
 | `adaptive_recommendations` | Explainable remediation and extension decisions |
 | `content_drafts` | Multilingual teacher-approval queue |
+| `lesson_visualizations` | Approved localized, allow-listed Plotly specifications |
 | `content_translations` | Approved and catalogue translations, including Spanish |
 | `interactive_exercises` | Answer-safe exercise presentation plus private grading payload |
 | `exercise_translations` | Localized prompts and public interaction labels |
@@ -208,6 +210,8 @@ The chat supports three LLM providers via environment variables:
 | Anthropic | `anthropic` | `claude-sonnet-4-6` | `ANTHROPIC_API_KEY` |
 
 Students land in chat after signing in. Course, lesson, adaptive quiz, and language-learning choices appear as clickable chat responses and also accept typed answers such as `A` or `B`. Open-ended tutor responses receive the active lesson context. Conversation history and guided-learning state are persisted per user and thread.
+
+Supported lessons attach a curated interactive visualization to the streamed explanation. Learners can also ask “show me this visually.” Rendering is restricted to allow-listed Plotly trace types and a checked-in Plotly bundle; no model-generated JavaScript is executed.
 
 ## Routes
 

@@ -17,6 +17,11 @@ A few things FastLearn does differently from incumbent learning platforms 👇
 path. Struggle can trigger easier questions and remediation; sustained success
 can raise the challenge and suggest extension material.
 
+📈 **See the idea, not just the paragraph** — mathematics, physics, geography,
+and art lessons stream interactive Plotly explanations into New Chat. Learners
+can hover, zoom, pan, reset the view, or open the equivalent accessible data;
+the model never sends executable chart code to the browser.
+
 ✅ **AI proposes; a teacher or parent approves** — new lessons and questions are
 reviewable drafts. Nothing enters the learning path without human approval.
 

@@ -1,7 +1,7 @@
 # FastLearn Platform Guide
 
 **Published:** 2026-09-06<br>
-**Release:** 1.3.0<br>
+**Release:** 1.4.0<br>
 **Platform:** [https://fastlearn.fun](https://fastlearn.fun)  
 **Open-source foundation:** [FastLMS](https://lms.fastsme.com)  
 **Interface and catalogue languages:** English, Estonian, Lithuanian and Spanish<br>
@@ -32,6 +32,7 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 - Linear and adaptive learning strategies.
 - Teacher-reviewed generation for question variants and remedial or extension lessons.
 - Guided chessboards with server-side grading, adaptive practice and concept mastery records.
+- Interactive visual explanations with hover, zoom, pan and accessible data for mathematics, physics, geography and art.
 - A versioned integration API with public curriculum and protected learner operations.
 
 ## 2. Roles and permissions
@@ -124,7 +125,17 @@ Choose one answer in chat, or reply with its displayed letter. FastLearn streams
 
 Quiz attempts contribute to progress and, in adaptive mode, to the learner's current difficulty and recommendation state. An unsuccessful attempt is evidence for extra support—not a punishment or a permanent label.
 
-### 4.6 Learn chess with guided boards
+### 4.6 Explore a visual explanation
+
+Supported mathematics, physics, geography and art lessons place an interactive visual directly below the lesson explanation. Hover over points or shapes to inspect values, zoom or pan when detail matters, and use the toolbar to reset the view.
+
+Every visual includes a plain-language description and an expandable **View accessible data** table. The same concept therefore remains available without relying only on colour, pointer interaction or sight.
+
+Students can also ask **“Show me this visually”**, **“Plot this”** or **“Draw a diagram”** in a supported lesson. FastLearn streams the written explanation first and then attaches the relevant visual. The model selects a safe template; it never sends executable JavaScript to the browser.
+
+Visuals saved permanently into teacher-owned courses enter the existing draft queue. A teacher reviews and approves the English, Estonian, Lithuanian and Spanish versions before the visual becomes part of the lesson.
+
+### 4.7 Learn chess with guided boards
 
 Open **Chess Foundations I** from the catalogue. This protected default course is written for beginner children aged 3–12 and contains ten original lessons covering the board, coordinates, pieces, rooks, bishops, queens and knights.
 
@@ -142,7 +153,7 @@ Select squares or pieces directly and choose **Check answer**. The answer is gra
 
 The default lesson order remains linear. Exercise attempts still update bounded difficulty: difficulty can fall after mistakes and rise after sustained success. FastLearn records the concept, Skill/Knowledge/Wisdom layer, result and active duration for later teacher reporting. The current Foundations I scope is guided practice only; it does not include engine games or live opponents.
 
-### 4.7 Use New Chat
+### 4.8 Use New Chat
 
 Open **New Chat** from the navigation or from a lesson. When opened from a lesson, the chat receives the relevant lesson context. Suggested prompts can request a simpler explanation, a practical example or a short knowledge check.
 
@@ -150,7 +161,7 @@ Open **New Chat** from the navigation or from a lesson. When opened from a lesso
 
 The tutor responds in the selected interface language unless the student asks for another language. Students should not submit passwords, private identifiers or information they are not permitted to share.
 
-### 4.8 Understand active learning time
+### 4.9 Understand active learning time
 
 FastLearn counts active learning in three contexts:
 
@@ -162,7 +173,7 @@ The browser sends a heartbeat every 30 seconds. Time pauses immediately when the
 
 Students see their total active time on their profile. Teachers see the lesson, quiz and New Chat split for their own assignments. Historical time from before tracking was enabled cannot be reconstructed reliably.
 
-### 4.9 Understand adaptive recommendations
+### 4.10 Understand adaptive recommendations
 
 Courses remain linear unless a teacher enables **adaptive** mode.
 
@@ -186,7 +197,7 @@ The default rules are:
 
 FastLearn never changes by more than one difficulty level at a time and falls back to the nearest approved material when an exact match is unavailable.
 
-### 4.10 Learn another language
+### 4.11 Learn another language
 
 Open **Language learning** in the left navigation. Choose the language the student already speaks, the target language and a daily practice goal.
 

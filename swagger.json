@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "FastLearn API",
-    "description": "Build learning integrations with FastLearn courses, assignments, progress, chat sessions, and guided exercises. Published curriculum reads are public. Learner data and all state-changing operations require `Authorization: Bearer <token>`.",
+    "description": "Build learning integrations with FastLearn courses, assignments, progress, chat sessions, guided exercises, and accessible lesson visualizations. Published curriculum reads are public. Learner data and all state-changing operations require `Authorization: Bearer <token>`.",
     "contact": {
       "name": "FastSME",
       "url": "https://fastsme.com/"
@@ -10,7 +10,7 @@
     "license": {
       "name": "MIT"
     },
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "servers": [
     {
@@ -532,6 +532,57 @@
         ],
         "summary": "Lesson Exercises",
         "operationId": "lesson_exercises_v1_lessons__lesson_id__exercises_get",
+        "parameters": [
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(en|et|lt|es)$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/lessons/{lesson_id}/visualizations": {
+      "get": {
+        "tags": [
+          "Lessons"
+        ],
+        "summary": "Lesson Visualizations",
+        "operationId": "lesson_visualizations_v1_lessons__lesson_id__visualizations_get",
         "parameters": [
           {
             "name": "lesson_id",

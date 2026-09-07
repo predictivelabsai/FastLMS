@@ -23,6 +23,8 @@ def page_head(title="FastLearn", lang="en"):
         Link(rel="stylesheet", href="/static/app.css"),
         Script(src="https://unpkg.com/htmx.org@2.0.4"),
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"),
+        Script(src="/static/vendor/plotly-3.6.0.min.js", defer=True),
+        Script(src="/static/visualizations.js", defer=True),
         Script(src="/static/chat.js", defer=True),
         Script(src="/static/activity.js", defer=True),
         Script(src="/static/language.js", defer=True),

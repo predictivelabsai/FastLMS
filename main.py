@@ -28,6 +28,7 @@ import db
 import language_learning as languages
 import learning_chat
 import school
+import visualizations
 from app_version import APP_VERSION
 from components.layout import (
     app_shell,
@@ -1340,6 +1341,20 @@ def _interactive_card(exercise):
     )
 
 
+def _visualization_cards(items):
+    if not items:
+        return ""
+    return Div(*[
+        Div(
+            data_visualization=json.dumps(item, separators=(",", ":")),
+            cls="chat-visualization",
+            role="group",
+            aria_label=item.get("alt_text", item.get("title", "Visualization")),
+        )
+        for item in items
+    ], cls="chat-visualizations")
+
+
 def _latest_session_for_role(sessions: list[dict], role: str) -> dict | None:
     """Do not reopen a student-preview thread as a teacher's home chat."""
     normalized = "teacher" if role == "instructor" else role
@@ -1406,7 +1421,9 @@ def chat_workspace(req):
             message_elements.append(Div(
                 Div(Span("FastLearn"), cls="msg-header"),
                 Div(NotStr(render_chat_markdown(message["content"])), cls="msg-content"),
-                _interactive_card(interactive), _choice_buttons(choices), cls="msg msg-assistant",
+                _interactive_card(interactive),
+                _visualization_cards((session.get("context") or {}).get("visualizations") if index == len(history) - 1 else []),
+                _choice_buttons(choices), cls="msg msg-assistant",
             ))
         elif message["role"] == "user":
             message_elements.append(Div(message["content"], cls="msg msg-user"))
@@ -1479,6 +1496,9 @@ async def chat_stream_workspace(req):
         async def generate_guided():
             rendered = render_chat_markdown(guided["content"])
             yield f"data: {json.dumps({'html': rendered})}\n\n"
+            lesson_visuals = guided.get("visualizations") or guided.get("context", {}).get("visualizations", [])
+            if lesson_visuals:
+                yield f"event: visualization\ndata: {json.dumps({'items': lesson_visuals})}\n\n"
             yield f"data: {json.dumps({'done': True, 'html': rendered, 'choices': guided['context'].get('choices', []), 'interactive': guided.get('interactive'), 'lesson_id': guided.get('lesson_id'), 'redirect_url': guided.get('redirect_url')})}\n\n"
         return StreamingResponse(generate_guided(), media_type="text/event-stream", headers=stream_headers)
 
@@ -1488,6 +1508,15 @@ async def chat_stream_workspace(req):
         session_context = session.get("context") or {}
         lesson_id = session_context.get("lesson_id")
         lesson = db.get_lesson(conn, int(lesson_id), lang=lang) if lesson_id else None
+        requested_visuals = (
+            visualizations.for_lesson_id(conn, int(lesson_id), lang, db.S)
+            if lesson_id and visualizations.wants_visual(message) else []
+        )
+
+    if requested_visuals:
+        session_context = {**session_context, "visualizations": requested_visuals}
+        with db.begin() as conn:
+            db.update_chat_session(conn, user["id"], chat_id, context=session_context)
 
     lesson_context = ""
     if lesson:
@@ -1577,6 +1606,8 @@ Format responses in Markdown.
 
             if pending_tokens:
                 yield response_event("", force=True)
+            if requested_visuals:
+                yield f"event: visualization\ndata: {json.dumps({'items': requested_visuals})}\n\n"
             active_choices = (session.get("context") or {}).get("choices", [])
             yield f"data: {json.dumps({'done': True, 'html': render_chat_markdown(full_response), 'choices': active_choices})}\n\n"
             with db.begin() as conn:
@@ -2735,7 +2766,11 @@ def course_strategy(req, course_id: int):
         payload = draft["content"] if isinstance(draft["content"], dict) else json.loads(draft["content"])
         english = payload.get("en", {})
         draft_heading = english.get("question_text") if draft["draft_type"] == "quiz_variant" else english.get("title")
-        draft_preview = english.get("explanation") if draft["draft_type"] == "quiz_variant" else english.get("content_md")
+        draft_preview = (
+            english.get("explanation") if draft["draft_type"] == "quiz_variant"
+            else english.get("description") if draft["draft_type"] == "visualization"
+            else english.get("content_md")
+        )
         actions = ""
         if draft["status"] == "pending":
             actions = Div(
@@ -2749,7 +2784,7 @@ def course_strategy(req, course_id: int):
             Div(Span(draft["draft_type"].replace("_", " ").title(), cls="role-pill"), Span(draft["status"].title(), cls="status-pill"), cls="course-meta"),
             H3(draft_heading or "Generated material"),
             P((draft_preview or "").replace("#", "")[:240]),
-            Div("EN · ET · LT", cls="page-subtitle"), actions, cls="draft-card",
+            Div("EN · ET · LT · ES", cls="page-subtitle"), actions, cls="draft-card",
         ))
     content = Div(
         A("← " + t("manage_courses", lang), href="/app/manage"), H1(course["title"], cls="page-title"),
@@ -2768,10 +2803,11 @@ def course_strategy(req, course_id: int):
         Form(
             Select(*[Option(item["title"], value=item["id"]) for item in lessons], name="lesson_id", cls="form-input"),
             Select(Option(t("remedial", lang), value="remedial"), Option(t("optional", lang), value="extension"),
-                   Option(t("question_variant", lang), value="quiz_variant"), name="draft_type", cls="form-input"),
+                   Option(t("question_variant", lang), value="quiz_variant"),
+                   Option(t("visualization", lang), value="visualization"), name="draft_type", cls="form-input"),
             Select(Option("Easier", value="1"), Option("Standard", value="2", selected=True), Option("Harder", value="3"),
                    name="difficulty_level", cls="form-input"),
-            Button("Generate EN · ET · LT draft", type="submit", cls="btn btn-secondary"),
+            Button("Generate EN · ET · LT · ES draft", type="submit", cls="btn btn-secondary"),
             method="post", action=f"/app/course/{course_id}/draft/generate", cls="team-invite-form",
         ) if lessons else "",
         Div(*draft_cards, cls="draft-grid") if draft_cards else Div("No drafts awaiting review.", cls="empty-state"),
@@ -2821,7 +2857,7 @@ async def generate_course_draft(req, course_id: int):
     form = await req.form()
     lesson_id, kind = int(form.get("lesson_id", 0)), str(form.get("draft_type", "remedial"))
     requested_level = max(1, min(3, int(form.get("difficulty_level", 2))))
-    if kind not in {"remedial", "extension", "quiz_variant"}:
+    if kind not in {"remedial", "extension", "quiz_variant", "visualization"}:
         return RedirectResponse(f"/app/course/{course_id}/strategy", status_code=303)
     import sqlalchemy as sa
     with db.begin() as conn:
@@ -2829,8 +2865,19 @@ async def generate_course_draft(req, course_id: int):
         if actual_course != course_id:
             return RedirectResponse("/app/manage", status_code=303)
         lesson_by_lang = {code: db.get_lesson(conn, lesson_id, lang=code) for code in SUPPORTED_LANGS}
-        payload = (db._question_draft_payload(lesson_by_lang, requested_level) if kind == "quiz_variant" else
-                   db._draft_payload(kind, lesson_by_lang, 100 if kind == "extension" else 50))
+        if kind == "visualization":
+            course = conn.execute(sa.text(f"""
+                SELECT c.slug, l.title FROM {db.S}.lessons l
+                JOIN {db.S}.modules m ON m.id = l.module_id
+                JOIN {db.S}.courses c ON c.id = m.course_id
+                WHERE l.id = :lesson
+            """), {"lesson": lesson_id}).mappings().one()
+            payload = visualizations.draft_payload(course["slug"], course["title"])
+            if not payload:
+                return RedirectResponse(f"/app/course/{course_id}/strategy?error=No+visualization+template+for+this+lesson", status_code=303)
+        else:
+            payload = (db._question_draft_payload(lesson_by_lang, requested_level) if kind == "quiz_variant" else
+                       db._draft_payload(kind, lesson_by_lang, 100 if kind == "extension" else 50))
         module_id = lesson_by_lang["en"]["module_id"]
         conn.execute(sa.text(f"""
             INSERT INTO {db.S}.content_drafts
@@ -2891,6 +2938,23 @@ async def review_course_draft(req, course_id: int):
                     """), {"question_id": question_id, "language": code, "question": translated["question_text"],
                              "options": json.dumps(translated["options"]), "answer": translated["correct_answer"],
                              "explanation": translated["explanation"]})
+            elif draft["draft_type"] == "visualization":
+                visualizations.validate(english)
+                conn.execute(sa.text(f"""
+                    INSERT INTO {db.S}.lesson_visualizations
+                        (lesson_id, source_key, renderer, localized_specs, created_by, approved_by)
+                    VALUES (:lesson, :source_key, 'plotly', CAST(:specs AS jsonb), :created_by, :approved_by)
+                    ON CONFLICT (lesson_id, source_key) DO UPDATE SET
+                        renderer = EXCLUDED.renderer,
+                        localized_specs = EXCLUDED.localized_specs,
+                        created_by = EXCLUDED.created_by,
+                        approved_by = EXCLUDED.approved_by,
+                        created_at = now()
+                """), {
+                    "lesson": draft["source_lesson_id"], "source_key": english["source_key"],
+                    "specs": json.dumps(payload), "created_by": draft["created_by"],
+                    "approved_by": user["id"],
+                })
             else:
                 order_idx = conn.execute(sa.text(f"SELECT COALESCE(max(order_idx), -1) + 1 FROM {db.S}.lessons WHERE module_id = :module"),
                                          {"module": draft["module_id"]}).scalar()
@@ -2911,7 +2975,7 @@ async def review_course_draft(req, course_id: int):
             conn.execute(sa.text(f"""
                 UPDATE {db.S}.content_drafts SET status='approved', approved_by=:user, reviewed_at=now() WHERE id=:id
             """), {"user": user["id"], "id": draft_id})
-            if draft["draft_type"] != "quiz_variant":
+            if draft["draft_type"] in {"remedial", "extension"}:
                 conn.execute(sa.text(f"""
                     UPDATE {db.S}.adaptive_recommendations SET target_lesson_id = :lesson
                     WHERE course_id = :course AND recommendation_type = :kind AND status = 'pending'

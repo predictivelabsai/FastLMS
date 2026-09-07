@@ -10,6 +10,7 @@ import sqlalchemy as sa
 
 import db
 import language_learning as languages
+import visualizations
 from chess_engine import grade as grade_chess
 
 
@@ -225,13 +226,16 @@ def _show_lesson(conn, user_id: int, lesson_id: int, lang: str) -> dict:
         actions.append((_copy(lang)["quiz"], "quiz"))
     actions.extend([(_copy(lang)["lessons"], "lessons"), (_copy(lang)["courses"], "courses")])
     choices = _choices(actions)
+    lesson_visuals = visualizations.for_lesson_id(conn, lesson_id, lang, db.S)
     context = {
         "phase": "lesson", "course_id": course["id"], "lesson_id": lesson_id,
         "quiz_id": quiz["id"] if quiz else None, "choices": choices,
+        "visualizations": lesson_visuals,
     }
     meta = f"*{lesson.get('duration_min', 0)} min · +{lesson.get('xp_reward', 25)} XP*"
     return {
         "title": lesson["title"], "context": context, "lesson_id": lesson_id,
+        "visualizations": lesson_visuals,
         "content": f"## {lesson['title']}\n\n{meta}\n\n{lesson.get('content_md') or ''}\n\n{_choice_markdown(choices)}",
     }
 

@@ -39,6 +39,27 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(choicesDiv);
     }
 
+    function addVisualizations(container, items) {
+        if (!Array.isArray(items) || !items.length || !window.FastLearnVisualizations) return;
+        let group = container.querySelector('.chat-visualizations');
+        if (!group) {
+            group = document.createElement('div');
+            group.className = 'chat-visualizations';
+            container.appendChild(group);
+        }
+        items.forEach((item) => {
+            const previous = group.querySelector(`[data-source-key="${CSS.escape(item.source_key || '')}"]`);
+            if (previous) previous.remove();
+            const holder = document.createElement('div');
+            holder.className = 'chat-visualization';
+            holder.dataset.sourceKey = item.source_key || '';
+            holder.setAttribute('role', 'group');
+            holder.setAttribute('aria-label', item.alt_text || item.title || 'Visualization');
+            group.appendChild(holder);
+            window.FastLearnVisualizations.mount(holder, item);
+        });
+    }
+
     function piecesFromFen(fen) {
         const pieces = {};
         const rows = String(fen || '8/8/8/8/8/8/8/8').split(' ')[0].split('/');
@@ -99,12 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const { done, value } = await reader.read();
             if (done) break;
             buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop();
-            for (const line of lines) {
-                if (!line.startsWith('data: ')) continue;
+            let boundary;
+            while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+                const rawEvent = buffer.slice(0, boundary);
+                buffer = buffer.slice(boundary + 2);
+                let eventType = 'message';
+                const dataLines = [];
+                rawEvent.split('\n').forEach((line) => {
+                    if (line.startsWith('event: ')) eventType = line.slice(7).trim();
+                    if (line.startsWith('data: ')) dataLines.push(line.slice(6));
+                });
+                if (!dataLines.length) continue;
                 try {
-                    const data = JSON.parse(line.slice(6));
+                    const data = JSON.parse(dataLines.join('\n'));
+                    if (eventType === 'visualization') {
+                        addVisualizations(assistant, data.items || []);
+                        continue;
+                    }
                     if (typeof data.html === 'string') content.innerHTML = data.html;
                     if (data.done) {
                         if (data.lesson_id !== undefined && data.lesson_id !== null) form.dataset.lessonId = String(data.lesson_id);
@@ -294,6 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.chat-interactive[data-exercise]').forEach((container) => {
         try { mountInteractive(container, JSON.parse(container.dataset.exercise)); } catch (_error) { /* invalid card */ }
+    });
+
+    document.querySelectorAll('.chat-visualization[data-visualization]').forEach((container) => {
+        try { window.FastLearnVisualizations?.mount(container, JSON.parse(container.dataset.visualization)); } catch (_error) { /* invalid card */ }
     });
 
     document.querySelectorAll('.prompt-chip').forEach((button) => {

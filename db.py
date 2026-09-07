@@ -313,6 +313,19 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.content_drafts (
     reviewed_at     TIMESTAMPTZ
 );
 
+-- Approved visual explanations attached to lessons
+CREATE TABLE IF NOT EXISTS {SCHEMA}.lesson_visualizations (
+    id              BIGSERIAL PRIMARY KEY,
+    lesson_id       INTEGER NOT NULL REFERENCES {SCHEMA}.lessons(id) ON DELETE CASCADE,
+    source_key      TEXT NOT NULL,
+    renderer        TEXT NOT NULL DEFAULT 'plotly',
+    localized_specs JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    created_by      INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    approved_by     INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(lesson_id, source_key)
+);
+
 CREATE TABLE IF NOT EXISTS {SCHEMA}.content_translations (
     entity_type     TEXT NOT NULL,
     entity_id       INTEGER NOT NULL,
@@ -496,6 +509,7 @@ CREATE INDEX IF NOT EXISTS idx_assignments_user ON {SCHEMA}.course_assignments(u
 CREATE INDEX IF NOT EXISTS idx_learning_time_course ON {SCHEMA}.learning_time(course_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_adaptive_user_course ON {SCHEMA}.adaptive_recommendations(user_id, course_id, status);
 CREATE INDEX IF NOT EXISTS idx_drafts_course_status ON {SCHEMA}.content_drafts(course_id, status);
+CREATE INDEX IF NOT EXISTS idx_lesson_visualizations_lesson ON {SCHEMA}.lesson_visualizations(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON {SCHEMA}.audit_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_language_reviews_due ON {SCHEMA}.language_reviews(user_id, target_language, next_due_at);
 CREATE INDEX IF NOT EXISTS idx_language_attempts_user ON {SCHEMA}.language_attempts(user_id, attempted_at DESC);

@@ -206,6 +206,7 @@ TEXT = {
     "remedial": {"en": "Support", "et": "Tugi", "lt": "Pagalba"},
     "core": {"en": "Core", "et": "Põhiosa", "lt": "Pagrindinė"},
     "question_variant": {"en": "Question variant", "et": "Küsimuse variant", "lt": "Klausimo variantas"},
+    "visualization": {"en": "Visualization", "et": "Visualiseering", "lt": "Vizualizacija", "es": "Visualización"},
 
     # Language learning.
     "language_learning": {"en": "Language learning", "et": "Keeleõpe", "lt": "Kalbų mokymasis", "es": "Aprendizaje de idiomas"},

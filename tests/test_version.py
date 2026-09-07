@@ -9,7 +9,7 @@ from components.layout import left_pane, page_head
 
 
 def test_release_version_is_bumped_and_used_by_api():
-    assert APP_VERSION == "1.3.0"
+    assert APP_VERSION == "1.4.0"
     assert api.version == APP_VERSION
     assert health()["version"] == APP_VERSION
 

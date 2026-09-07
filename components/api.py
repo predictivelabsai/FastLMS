@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
 
 import db
+import visualizations
 from app_version import APP_VERSION
 from chess_engine import grade as grade_chess
 from .api_core import ErrorEnvelope, Resource, require_write_token
@@ -39,7 +40,7 @@ api = FastAPI(
     version=APP_VERSION,
     description=(
         "Build learning integrations with FastLearn courses, assignments, progress, "
-        "chat sessions, and guided exercises. Published curriculum reads are public. "
+        "chat sessions, guided exercises, and accessible lesson visualizations. Published curriculum reads are public. "
         "Learner data and all state-changing operations require `Authorization: Bearer <token>`."
     ),
     docs_url="/docs",
@@ -216,6 +217,9 @@ def course_curriculum(course_id: int, lang: str = Query("en", pattern="^(en|et|l
             module["lessons"] = db.get_lessons(connection, module["id"], lang)
             for lesson in module["lessons"]:
                 lesson["exercise_count"] = len(db.get_lesson_exercises(connection, lesson["id"], lang))
+                lesson["visualization_count"] = len(
+                    visualizations.for_lesson_id(connection, lesson["id"], lang, db.S)
+                )
     return {"course": course, "modules": modules}
 
 
@@ -224,6 +228,14 @@ def lesson_exercises(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt
     _get_public("lessons", lesson_id, lang)
     with db.connect() as connection:
         rows = db.get_lesson_exercises(connection, lesson_id, lang)
+    return {"data": rows, "meta": {"total": len(rows)}}
+
+
+@api.get("/v1/lessons/{lesson_id}/visualizations", tags=["Lessons"])
+def lesson_visualizations(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
+    _get_public("lessons", lesson_id, lang)
+    with db.connect() as connection:
+        rows = visualizations.for_lesson_id(connection, lesson_id, lang, db.S)
     return {"data": rows, "meta": {"total": len(rows)}}
 
 
