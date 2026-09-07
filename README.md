@@ -6,7 +6,7 @@ Open-source learning management system built with [FastHTML](https://github.com/
 
 FastLearn 1.4 adds safe interactive Plotly explanations for mathematics, physics, geography, and art. Visuals stream into chat, persist with the lesson context, include accessible data tables, and use a self-hosted renderer. Chess Foundations I remains available for children aged 3–12 with guided boards and private server-side grading.
 
-![FastLMS Demo](docs/fastlms-demo.gif)
+![FastLearn Demo](static/fastlearn-demo.gif)
 
 ## Features
 

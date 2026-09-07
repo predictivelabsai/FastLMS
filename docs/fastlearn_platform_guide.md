@@ -1,6 +1,6 @@
 # FastLearn Platform Guide
 
-**Published:** 2026-09-06<br>
+**Published:** 2026-09-07<br>
 **Release:** 1.4.0<br>
 **Platform:** [https://fastlearn.fun](https://fastlearn.fun)  
 **Open-source foundation:** [FastLMS](https://lms.fastsme.com)  
@@ -9,7 +9,7 @@
 
 This guide explains how students, teachers and the administrator use FastLearn, including role-based access, learning-time reporting and configurable adaptive learning.
 
-Screenshots were reviewed on 2026-09-06. Learner screens come from the current FastLearn product tour; teacher screens use a controlled documentation account on the same application build. No production learner data is shown.
+Screenshots were reviewed on 2026-09-07. Learner screens come from the current FastLearn product tour; teacher screens use a controlled documentation account on the same application build. No production learner data is shown.
 
 ## 1. Platform overview
 
@@ -128,6 +128,8 @@ Quiz attempts contribute to progress and, in adaptive mode, to the learner's cur
 ### 4.6 Explore a visual explanation
 
 Supported mathematics, physics, geography and art lessons place an interactive visual directly below the lesson explanation. Hover over points or shapes to inspect values, zoom or pan when detail matters, and use the toolbar to reset the view.
+
+![Interactive mathematics explanation streamed into New Chat](../output/playwright/16-interactive-visual.png)
 
 Every visual includes a plain-language description and an expandable **View accessible data** table. The same concept therefore remains available without relying only on colour, pointer interaction or sight.
 

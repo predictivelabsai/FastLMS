@@ -31,10 +31,16 @@ def open_visual(page: Page, slug: str, lesson: str, image_name: str) -> dict:
     card.scroll_into_view_if_needed()
     page.wait_for_timeout(600)
 
-    plot_box = plot.bounding_box()
-    if plot_box:
-        page.mouse.move(plot_box["x"] + plot_box["width"] * 0.64, plot_box["y"] + plot_box["height"] * 0.5)
-        page.wait_for_timeout(250)
+    hover_target = None
+    for selector in (".scatterlayer .point", ".pielayer .slice", ".sankey-link"):
+        candidates = plot.locator(selector)
+        if candidates.count():
+            hover_target = candidates.nth(min(3, candidates.count() - 1))
+            break
+    if hover_target:
+        hover_target.hover(force=True)
+    page.wait_for_timeout(250)
+    hover_labels = card.locator(".hoverlayer > *").count()
     screenshot(page, image_name)
 
     details = card.locator("details.visual-data")
@@ -44,6 +50,8 @@ def open_visual(page: Page, slug: str, lesson: str, image_name: str) -> dict:
     return {
         "title": card.locator(".visual-title").inner_text(),
         "modebar_buttons": card.locator(".modebar-btn").count(),
+        "zoom_buttons": card.locator('.modebar-btn[data-title^="Zoom"]').count(),
+        "hover_labels": hover_labels,
         "accessible_rows": rows,
         "aria_label": plot.get_attribute("aria-label"),
     }
@@ -107,13 +115,9 @@ def main() -> None:
         report["explicit_request_visual_count"] = page.locator(".visual-card").count()
 
         # Check that the real browser exposes hover/zoom controls and tabular fallback.
-        last_plot = page.locator(".visual-card .js-plotly-plot").last
-        zoom = last_plot.locator('.modebar-btn[data-title^="Zoom"]')
-        if zoom.count():
-            zoom.first.click()
-            report["zoom_control"] = True
-        else:
-            report["zoom_control"] = False
+        report["zoom_control"] = any(
+            item["zoom_buttons"] for item in report["visuals"].values()
+        )
 
         page.goto(f"{BASE}/app/chat/new?course=chess-foundations", wait_until="networkidle")
         page.locator(".chat-choice").first.click()
@@ -147,6 +151,8 @@ def main() -> None:
     if report["console_errors"] or report["http_errors"]:
         raise RuntimeError(json.dumps(report, indent=2))
     if any(item["modebar_buttons"] < 1 or item["accessible_rows"] < 1 for item in report["visuals"].values()):
+        raise RuntimeError(json.dumps(report, indent=2))
+    if not report.get("zoom_control") or report["visuals"]["mathematics-foundations"]["hover_labels"] < 1:
         raise RuntimeError(json.dumps(report, indent=2))
     if report.get("chess_squares") != 64 or report.get("explicit_request_visual_count", 0) < 2:
         raise RuntimeError(json.dumps(report, indent=2))

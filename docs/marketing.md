@@ -1,6 +1,6 @@
 # FastLearn marketing
 
-## LinkedIn post — 4 September 2026
+## LinkedIn post — 7 September 2026
 
 Brilliant.org, Duolingo, Khan Academy, and IXL are powerful. But children learn
 differently—and families still have to fit someone else's curriculum and pace.

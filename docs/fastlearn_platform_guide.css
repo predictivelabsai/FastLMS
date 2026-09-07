@@ -33,7 +33,8 @@ img[src$="11-adaptive-strategy.png"],
 img[src$="12-learning-reports.png"],
 img[src$="14-spanish-demo.png"],
 img[src$="teacher-chat.png"],
-img[src$="15-chess-guided-practice.png"] { max-height: 90mm; }
+img[src$="15-chess-guided-practice.png"],
+img[src$="16-interactive-visual.png"] { max-height: 90mm; }
 p:has(> img:only-child) { break-inside: avoid-page; page-break-inside: avoid; }
 code { font: 8.8pt "DejaVu Sans Mono", monospace; background: #f3f4f6; padding: .3mm 1mm; border-radius: 1mm; }
 pre { padding: 3mm; background: #111827; color: #f9fafb; border-radius: 2mm; white-space: pre-wrap; break-inside: avoid-page; }
