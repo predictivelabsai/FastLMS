@@ -21,6 +21,12 @@ FAVICON = "data:image/svg+xml," + quote(
     """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#256b62"/><path fill="white" d="M8 8h16v5H14v3h8v5h-8v5H8Z"/><circle cx="24" cy="8" r="4" fill="#f2c94c"/></svg>""",
     safe="",
 )
+ANDROID_SVG = (
+    '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">'
+    '<path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.69-.4l-1.86 3.23a11.4 11.4 0 0 0-9.78 0L5.25 5.9a.4.4 0 1 0-.69.4L6.4 9.48'
+    'A10.8 10.8 0 0 0 1 18.13h22a10.8 10.8 0 0 0-5.4-8.65zM7 15.25a1.1 1.1 0 1 1 1.1-1.1 1.1 1.1 0 0 1-1.1 1.1zm10 0a1.1 '
+    '1.1 0 1 1 1.1-1.1 1.1 1.1 0 0 1-1.1 1.1z"/></svg>'
+)
 
 PARTNERS = (
     ("SAASPASS", "https://saaspass.com/", "https://saaspass.com/_next/static/assets/0176aeff921f6359fee88e796be31ace.png", "Identity and access management for secure learning environments."),
@@ -44,7 +50,7 @@ a{color:inherit}.site-nav{height:70px;display:flex;align-items:center;justify-co
 .metrics{max-width:1200px;margin:0 auto 78px;padding:0 26px;display:grid;grid-template-columns:repeat(4,1fr)}.metric{padding:23px 24px;background:#fff;border:1px solid var(--line);border-right:0}.metric:first-child{border-radius:18px 0 0 18px}.metric:last-child{border-right:1px solid var(--line);border-radius:0 18px 18px 0}.metric strong{display:block;color:var(--accent);font-size:27px;letter-spacing:-.04em}.metric span{display:block;color:var(--muted);font-size:13px;margin-top:5px}
 .preview{background:var(--tint);border-block:1px solid var(--line)}.section{max-width:1200px;margin:auto;padding:82px 26px}.section-head{max-width:780px}.section h2{font-size:clamp(32px,4.2vw,52px);letter-spacing:-.045em;line-height:1.08;margin:15px 0}.section-lede{color:var(--muted);font-size:17px;line-height:1.65;max-width:720px}.demo-frame{max-width:1030px;margin:38px auto 0;padding:9px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 25px 70px rgba(37,107,98,.12)}.demo-frame img{display:block;width:100%;height:auto;border-radius:15px;background:#fff}.demo-frame p{text-align:center;color:var(--muted);font-size:12px;margin:12px 4px 3px}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:15px;margin-top:38px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:25px}.card-num{font-size:12px;font-weight:800;color:var(--accent)}.card-icon{font-size:25px}.card h3{font-size:19px;margin:22px 0 9px}.card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
-.mobile-download{display:grid;grid-template-columns:1.25fr .75fr;gap:44px;align-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-strong));color:#fff;border-radius:28px;padding:48px}.mobile-download .eyebrow{color:#cce8e3}.mobile-download h2{font-size:clamp(31px,4vw,50px);letter-spacing:-.045em;line-height:1.08;margin:13px 0}.mobile-download p{color:#dcefeb;line-height:1.65}.mobile-download .button{background:#fff;color:var(--accent)}.mobile-note{font-size:12px;margin-top:12px}.phone-card{background:#fff;color:var(--ink);border-radius:24px;padding:25px;box-shadow:0 20px 55px rgba(12,46,42,.28)}.phone-mark{width:48px;height:48px;border-radius:15px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:850}.phone-card strong{display:block;font-size:21px;margin:18px 0 8px}.phone-card span{display:block;color:var(--muted);font-size:13px;line-height:1.5}.phone-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}.phone-pills i{font-style:normal;font-size:11px;background:var(--tint);color:var(--accent);border-radius:999px;padding:6px 9px}
+.mobile-download{display:grid;grid-template-columns:1.25fr .75fr;gap:44px;align-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-strong));color:#fff;border-radius:28px;padding:48px}.mobile-download .eyebrow{color:#cce8e3}.mobile-download h2{font-size:clamp(31px,4vw,50px);letter-spacing:-.045em;line-height:1.08;margin:13px 0}.mobile-download p{color:#dcefeb;line-height:1.65}.mobile-download .button{background:#fff;color:var(--accent)}.mobile-note{font-size:12px;margin-top:12px}.apk-download{display:flex;align-items:center;gap:14px;margin-top:28px;flex-wrap:wrap}.apk-badge-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#cce8e3;font-weight:750}.apk-badge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border:1px solid rgba(255,255,255,.75);border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 10px 28px rgba(12,46,42,.2);transition:transform .15s,box-shadow .15s}.apk-badge:hover{color:var(--accent);transform:translateY(-1px);box-shadow:0 14px 34px rgba(12,46,42,.28)}.apk-badge-ic{display:inline-flex;color:var(--accent)}.apk-badge-txt{display:flex;flex-direction:column;line-height:1.12;text-align:left}.apk-badge-top{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}.apk-badge-big{font-size:15px;font-weight:750}.phone-card{background:#fff;color:var(--ink);border-radius:24px;padding:25px;box-shadow:0 20px 55px rgba(12,46,42,.28)}.phone-mark{width:48px;height:48px;border-radius:15px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:850}.phone-card strong{display:block;font-size:21px;margin:18px 0 8px}.phone-card span{display:block;color:var(--muted);font-size:13px;line-height:1.5}.phone-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}.phone-pills i{font-style:normal;font-size:11px;background:var(--tint);color:var(--accent);border-radius:999px;padding:6px 9px}
 .oss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}.oss-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px}.oss-card h2,.oss-card h3{font-size:21px;margin:20px 0 9px}.oss-card p{color:var(--muted);line-height:1.63;margin:0}.split{display:grid;grid-template-columns:1fr 1fr;gap:65px;align-items:start}.reference{border:1px solid var(--line);border-radius:25px;background:linear-gradient(135deg,var(--tint),#fff);padding:42px}
 .partner-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}.partner{color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:18px;padding:20px;background:#fff}.partner-top{display:flex;justify-content:space-between;align-items:center}.partner img{width:42px;height:42px;object-fit:contain}.partner small{color:var(--accent);font-weight:750}.partner h3{font-size:17px;margin:17px 0 8px}.partner p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
 .cta{max-width:1148px;margin:0 auto 78px;padding:56px;border-radius:28px;background:var(--accent);color:#fff;display:grid;grid-template-columns:1fr auto;align-items:end;gap:30px}.cta .eyebrow{color:#cce8e3}.cta h2{font-size:clamp(31px,4vw,50px);letter-spacing:-.045em;line-height:1.08;margin:13px 0}.cta p{color:#dcefeb;max-width:700px;line-height:1.6}.cta .button{background:#fff;color:var(--accent)}
@@ -93,6 +99,26 @@ def _nav(*, brand: str, lang: str, product: bool):
                  A(t("view_github", lang), href=REPOSITORY_URL, target="_blank", rel="noopener noreferrer", cls="button secondary"),
                  Button(t("sign_in", lang).title(), type="button", onclick="authOpen('login')", cls="button primary"))
     return Nav(A(Span("F", cls="site-mark"), Span(brand), href="/", cls="site-brand"), Div(*links, cls="nav-actions"), cls="site-nav")
+
+
+def _apk_badge(lang: str):
+    return Div(
+        Span(t("get_mobile_app", lang), cls="apk-badge-label"),
+        A(
+            Span(NotStr(ANDROID_SVG), cls="apk-badge-ic"),
+            Span(
+                Span(t("get_install", lang), cls="apk-badge-top"),
+                Span(t("apk_for_android", lang), cls="apk-badge-big"),
+                cls="apk-badge-txt",
+            ),
+            href=ANDROID_APK_URL,
+            target="_blank",
+            rel="noopener noreferrer",
+            cls="apk-badge",
+            title=t("download_android", lang).rstrip(" →"),
+        ),
+        cls="apk-download",
+    )
 
 
 def fastlms_landing(lang: str = "en"):
@@ -148,7 +174,7 @@ def fastlearn_landing(lang: str = "en"):
                 Section(
                     Div(
                         Div(Span(t("mobile_eyebrow", lang), cls="eyebrow"), H2(t("mobile_title", lang)), P(t("mobile_body", lang)),
-                            Div(A(t("download_android", lang), href=ANDROID_APK_URL, target="_blank", rel="noopener noreferrer", cls="button"), cls="actions"),
+                            _apk_badge(lang),
                             P(t("mobile_note", lang), cls="mobile-note")),
                         Div(Div("F", cls="phone-mark"), Strong("FastLearn Mobile"), Span(t("mobile_card", lang)),
                             Div(I("15 courses"), I("4 languages"), I("AI tutor"), cls="phone-pills"), cls="phone-card"),

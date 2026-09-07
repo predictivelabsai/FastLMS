@@ -28,6 +28,7 @@ def page_head(title="FastLearn", lang="en"):
         Script(src="/static/chat.js", defer=True),
         Script(src="/static/activity.js", defer=True),
         Script(src="/static/language.js", defer=True),
+        Script(src="/static/navigation.js", defer=True),
     )
 
 
@@ -147,8 +148,15 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
             A(
                 Span("F", cls="brand-icon"),
                 Span("FastLearn", cls="brand-text"),
-                href="/",
+                href="/app" if user else "/",
                 cls="brand",
+            ),
+            Button(
+                NotStr('<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'),
+                type="button",
+                cls="mobile-drawer-close",
+                aria_label=t("close_menu", lang),
+                onclick="toggleLeftPane(false)",
             ),
             cls="pane-header",
         ),
@@ -181,6 +189,39 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
     )
 
 
+def mobile_header(user=None, title="FastLearn", lang="en"):
+    account_action = (
+        A(t("sign_out", lang), href="/auth/logout", cls="mobile-account-action", data_testid="mobile-sign-out")
+        if user else
+        A(t("sign_in", lang), href="/auth/login", cls="mobile-account-action")
+    )
+    return Header(
+        Button(
+            NotStr('<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'),
+            type="button",
+            id="mobile-menu-button",
+            cls="mobile-menu-button",
+            aria_label=t("open_menu", lang),
+            aria_controls="left-pane",
+            aria_expanded="false",
+            data_testid="mobile-menu-button",
+            onclick="toggleLeftPane()",
+        ),
+        A(
+            Span("F", cls="mobile-brand-icon"),
+            Span(
+                Span("FastLearn", cls="mobile-brand-name"),
+                (Span(title, cls="mobile-page-name") if title != "FastLearn" else ""),
+                cls="mobile-title-group",
+            ),
+            href="/app" if user else "/",
+            cls="mobile-brand",
+        ),
+        account_action,
+        cls="mobile-app-header",
+    )
+
+
 def right_pane(lang="en"):
     return Div(
         Div(
@@ -199,7 +240,9 @@ def app_shell(center_content, user=None, active=None, title="FastLearn", lang="e
         page_head(title, lang),
         Body(
             Div(
+                mobile_header(user, title, lang),
                 left_pane(user, active, lang, current_path, current_chat_id),
+                Div(id="left-overlay", cls="left-overlay", aria_hidden="true", onclick="toggleLeftPane(false)"),
                 Div(center_content, cls="center-pane", id="center-pane"),
                 right_pane(lang),
                 cls="app-grid",
