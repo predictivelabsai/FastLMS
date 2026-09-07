@@ -19,6 +19,11 @@ OUTPUT = DOCS / "fastlearn_platform_guide.pdf"
 
 HEADING = re.compile(r"^(#{2,3})\s+(.+?)\s*$", re.MULTILINE)
 IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
+ROLE_DIVIDERS = {
+    "4. Student guide": "Student",
+    "5. Teacher guide": "Teacher",
+    "6. Administrator guide": "Administrator",
+}
 
 
 @dataclass
@@ -34,6 +39,7 @@ FALLBACK_IMAGES = (
     ("role", "img/fastlearn-platform-guide/10-team.png"),
     ("access", "img/fastlearn-platform-guide/10-team.png"),
     ("signing", "img/fastlearn-platform-guide/02-sign-in.png"),
+    ("student guide", "img/fastlearn-platform-guide/03-student-course-catalogue.png"),
     ("start in new chat", "img/fastlearn-platform-guide/07-student-ai-tutor.png"),
     ("browse", "img/fastlearn-platform-guide/03-student-course-catalogue.png"),
     ("open a course", "img/fastlearn-platform-guide/04-student-course-path.png"),
@@ -46,6 +52,7 @@ FALLBACK_IMAGES = (
     ("graduated recall", "img/fastlearn-platform-guide/13-language-learning.png"),
     ("language", "img/fastlearn-platform-guide/13-language-learning.png"),
     ("teacher workspace", "../output/playwright/teacher-chat.png"),
+    ("teacher guide", "../output/playwright/teacher-chat.png"),
     ("manage courses", "img/fastlearn-platform-guide/08-teacher-manage-courses.png"),
     ("build and publish", "img/fastlearn-platform-guide/09-teacher-course-setup.png"),
     ("invite", "img/fastlearn-platform-guide/10-team.png"),
@@ -54,6 +61,8 @@ FALLBACK_IMAGES = (
     ("progress and time", "img/fastlearn-platform-guide/12-learning-reports.png"),
     ("administrator", "img/fastlearn-platform-guide/10-team.png"),
     ("data and audit", "img/fastlearn-platform-guide/12-learning-reports.png"),
+    ("authentication", "img/fastlearn-platform-guide/02-sign-in.png"),
+    ("chat, visuals", "../output/playwright/16-interactive-visual.png"),
     ("integration api", "../output/playwright/16-interactive-visual.png"),
     ("quick reference", "img/fastlearn-platform-guide/01-home.png"),
 )
@@ -94,7 +103,7 @@ def merge_sections(sections: list[Section]) -> list[Section]:
             if following.title == "Platform capabilities":
                 section = Section(2, section.title, f"{section.content}\n\n### {following.title}\n\n{following.content}")
                 index += 1
-        if section.title.startswith("11. Quick reference"):
+        if section.title == "Quick reference":
             parts = [section.content]
             cursor = index + 1
             while cursor < len(sections) and sections[cursor].level == 3:
@@ -133,8 +142,12 @@ def extract_media(section: Section) -> tuple[str, str, str]:
 
 
 def chapter_label(title: str) -> str:
+    if title in ROLE_DIVIDERS:
+        return "Role guide"
+    if title.startswith("A."):
+        return "Developer appendix"
     match = re.match(r"(\d+)\.", title)
-    chapters = {"4": "Student guide", "5": "Teacher guide"}
+    chapters = {"4": "Student guide", "5": "Teacher guide", "6": "Administrator guide"}
     return chapters.get(match.group(1), "") if match else ""
 
 
@@ -143,8 +156,9 @@ def page(section: Section) -> str:
     eyebrow = chapter_label(section.title)
     eyebrow_html = f'<p class="eyebrow">{html.escape(eyebrow)}</p>' if eyebrow else ""
     copy = markdown_html(content) if content else ""
+    classes = "guide-page divider-page" if section.title in ROLE_DIVIDERS else "guide-page"
     return f"""
-<section class="guide-page">
+<section class="{classes}">
   <div class="guide-copy">
     {eyebrow_html}<h2>{html.escape(section.title)}</h2>
     {copy}

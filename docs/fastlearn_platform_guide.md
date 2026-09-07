@@ -3,7 +3,6 @@
 **Published:** 2026-09-07<br>
 **Release:** 1.4.0<br>
 **Platform:** [https://fastlearn.fun](https://fastlearn.fun)  
-**Open-source foundation:** [FastLMS](https://lms.fastsme.com)  
 **Interface and catalogue languages:** English, Estonian, Lithuanian and Spanish<br>
 **Language-learning targets:** English, Spanish, French, German, Italian, Portuguese, Mandarin Chinese, Arabic, Japanese and Hindi
 
@@ -11,21 +10,47 @@ This guide explains how students, teachers and the administrator use FastLearn, 
 
 ## Contents
 
-1. Platform overview
-2. Roles and permissions
-3. Signing in
-4. Student guide
-5. Teacher guide
-6. Administrator guide
-7. Adaptive-learning decision process
-8. Language support
-9. Data and audit records
-10. Integration API
-11. Quick reference
+- Quick reference
+- Platform overview
+- Roles and permissions
+- Signing in
+- Student guide
+- Teacher guide
+- Administrator guide
+- Adaptive-learning decision process
+- Language support
+- Data and audit records
+- Appendix: Developers
+
+## Quick reference
+
+### Student
+
+1. Sign in and choose a language.
+2. Open an assigned course or explore the catalogue.
+3. Work through the recommended lesson and complete its quiz.
+4. Ask for a simpler explanation in New Chat when something is unclear.
+5. Review progress, active time and adaptive recommendations.
+6. Use **Language learning** or **Chess Foundations I** for guided practice.
+
+### Teacher
+
+1. Start in **New Chat** and choose a course or teacher action.
+2. Assign a protected default course, or clone it into an editable draft.
+3. Build, preview and publish teacher-owned content through **Course setup**.
+4. Use **Team** to invite students and assign published courses.
+5. Configure linear or adaptive learning on teacher-owned courses.
+6. Review generated drafts and monitor assigned learners and active time.
+
+### Support
+
+- Product: [https://fastlearn.fun](https://fastlearn.fun)
+- Open-source project: [https://github.com/predictivelabsai/FastLMS](https://github.com/predictivelabsai/FastLMS)
+- FastLMS reference: [https://lms.fastsme.com](https://lms.fastsme.com)
 
 ## 1. Platform overview
 
-FastLearn provides structured courses, focused lessons, quizzes, visible progress and a chat-first learning experience. The public product runs at `fastlearn.fun`; FastLMS remains the open-source implementation and developer-facing reference.
+FastLearn provides structured courses, focused lessons, quizzes, visible progress and a chat-first learning experience at [fastlearn.fun](https://fastlearn.fun).
 
 ![FastLearn landing page](img/fastlearn-platform-guide/01-home.png)
 
@@ -34,18 +59,17 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 - Fifteen admin-curated default courses across programming, mathematics, science, language and literature, geography, creative writing, art, music and chess.
 - Course modules, lessons, quizzes, XP, streaks, badges and a leaderboard.
 - A persistent **New Chat** workspace grounded in the selected course or lesson.
-- Streamed questions, answer choices and feedback rendered inside chat rather than static learner forms.
+- Questions, answer choices and feedback delivered inside chat rather than static learner forms.
 - English, Estonian, Lithuanian and Spanish interface and course content.
 - Native-to-target language practice across ten major languages.
-- Google OAuth and password authentication.
+- Google and password sign-in.
 - Enforced admin, teacher and student permissions.
 - Team invitations and teacher/course assignments.
 - Active learning-time measurement.
 - Linear and adaptive learning strategies.
 - Teacher-reviewed generation for question variants and remedial or extension lessons.
-- Guided chessboards with server-side grading, adaptive practice and concept mastery records.
+- Guided chessboards with adaptive practice and concept mastery records.
 - Interactive visual explanations with hover, zoom, pan and accessible data for mathematics, physics, geography and art.
-- A versioned integration API with public curriculum and protected learner operations.
 
 ## 2. Roles and permissions
 
@@ -67,7 +91,7 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 
 ### Access principles
 
-- Permissions are checked by the server, not merely by hiding navigation links.
+- Permissions apply consistently throughout the platform, not only in the visible navigation.
 - The administrator owns and protects the default catalogue. Teachers can browse and assign those courses, but cannot edit the originals.
 - Teachers edit only courses they created. A protected default can be cloned into a new teacher-owned draft and then adapted safely.
 - Teachers see learner records only where that teacher made the course assignment, including assignments to admin defaults.
@@ -82,23 +106,19 @@ Open [fastlearn.fun](https://fastlearn.fun), select **Sign In**, then choose **C
 
 ![FastLearn account creation with Student and Teacher choices](img/fastlearn-platform-guide/02-sign-in.png)
 
-Students and teachers may use their email and password. Google SSO is available at [fastlearn.fun/auth/google](https://fastlearn.fun/auth/google); it returns the authenticated user to the FastLearn application. The registered callback is:
+Students and teachers may use their email and password or choose **Continue with Google**. Never share a password or sign-in code with another user.
 
-```text
-https://fastlearn.fun/auth/google/callback
-```
-
-The original FastLMS callback remains registered separately. Never share a password, OAuth code or recovery token with another user.
-
-On **Create account**, select **Student** to learn and explore courses or **Teacher** to teach and manage learners. The selected role also applies when **Continue with Google** is used from that signup screen. Returning Google users retain their existing database role.
+On **Create account**, select **Student** to learn and explore courses or **Teacher** to teach and manage learners. The selected role also applies when **Continue with Google** is used from that signup screen. Returning Google users retain their saved role.
 
 ## 4. Student guide
+
+Students learn through a conversation that keeps lessons, questions, visual explanations and feedback together. This section follows the learner journey from the first chat through courses, practice and progress.
 
 ### 4.1 Start in New Chat
 
 After login, a student lands in **New Chat**. The opening message asks what the student would like to learn and presents the complete course catalogue as lettered choices. Select a visible option or reply with its letter, such as `A`.
 
-The selected course, lesson content, quiz choices and feedback all arrive in the conversation using streamed updates. Markdown headings, lists, examples and code are rendered as safe HTML rather than displayed as raw `**` or `###` text. Chat history is saved in the left rail, and **+ New Chat** starts a separate learning conversation.
+The selected course, lesson content, quiz choices and feedback all appear in the same conversation. Chat history is saved in the left rail, and **+ New Chat** starts a separate learning conversation.
 
 ### 4.2 Browse the catalogue
 
@@ -131,7 +151,7 @@ Use the chat choices to:
 
 ### 4.5 Complete quizzes
 
-Choose one answer in chat, or reply with its displayed letter. FastLearn streams the score, pass status, correct answer and explanation into the same conversation.
+Choose one answer in chat, or reply with its displayed letter. FastLearn shows the score, pass status, correct answer and explanation in the same conversation.
 
 ![Student quiz](img/fastlearn-platform-guide/06-student-quiz.png)
 
@@ -145,7 +165,7 @@ Supported mathematics, physics, geography and art lessons place an interactive v
 
 Every visual includes a plain-language description and an expandable **View accessible data** table. The same concept therefore remains available without relying only on colour, pointer interaction or sight.
 
-Students can also ask **“Show me this visually”**, **“Plot this”** or **“Draw a diagram”** in a supported lesson. FastLearn streams the written explanation first and then attaches the relevant visual. The model selects a safe template; it never sends executable JavaScript to the browser.
+Students can also ask **“Show me this visually”**, **“Plot this”** or **“Draw a diagram”** in a supported lesson. FastLearn provides a written explanation and then attaches the relevant visual.
 
 Visuals saved permanently into teacher-owned courses enter the existing draft queue. A teacher reviews and approves the English, Estonian, Lithuanian and Spanish versions before the visual becomes part of the lesson.
 
@@ -163,7 +183,7 @@ Choose **Practise on the chessboard** inside a lesson. Depending on the activity
 
 ![Guided chess exercise inside New Chat](../output/playwright/15-chess-guided-practice.png)
 
-Select squares or pieces directly and choose **Check answer**. The answer is graded on the server and feedback streams into the same chat. The expected answer is never sent to the browser. Keyboard learners may type `A`, square lists such as `d1 d2 d3`, move lists such as `a1a8 a8h8`, or placements such as `R@a1 R@h1`.
+Select squares or pieces directly and choose **Check answer**. FastLearn checks the answer and shows feedback in the same chat. Keyboard learners may type `A`, square lists such as `d1 d2 d3`, move lists such as `a1a8 a8h8`, or placements such as `R@a1 R@h1`.
 
 The default lesson order remains linear. Exercise attempts still update bounded difficulty: difficulty can fall after mistakes and rise after sustained success. FastLearn records the concept, Skill/Knowledge/Wisdom layer, result and active duration for later teacher reporting. The current Foundations I scope is guided practice only; it does not include engine games or live opponents.
 
@@ -183,7 +203,7 @@ FastLearn counts active learning in three contexts:
 - answering a quiz;
 - using New Chat within a course.
 
-The browser sends a heartbeat every 30 seconds. Time pauses immediately when the tab is hidden and after 90 seconds without keyboard, pointer or touch activity. Returning to the page starts a new active interval. This prevents a page left open overnight from being counted as study time.
+Time pauses when the FastLearn tab is hidden and after 90 seconds without keyboard, pointer or touch activity. Returning to the page starts a new active interval. This prevents a page left open overnight from being counted as study time.
 
 Students see their total active time on their profile. Teachers see the lesson, quiz and New Chat split for their own assignments. Historical time from before tracking was enabled cannot be reconstructed reliably.
 
@@ -241,13 +261,15 @@ Each practice turn follows an audio-first recall loop:
 1. Read the meaning in the native language.
 2. Anticipate and say the target expression aloud before revealing it.
 3. Reveal the target expression and its romanisation where appropriate.
-4. Listen to browser-generated pronunciation.
+4. Listen to the pronunciation.
 5. Rate recall as **Again**, **Hard** or **Got it**.
 6. Let FastLearn schedule the next appearance.
 
 The initial dictionary contains 30 frequency-informed words and functional expressions aligned across every supported language. Difficult expressions return sooner. Successful recall expands from short in-session intervals to hours, days and months. This is a Pimsleur-style use of anticipation and graduated interval recall with original content; FastLearn does not reproduce proprietary Pimsleur lessons or recordings.
 
 ## 5. Teacher guide
+
+Teachers begin with the goals they have for their students, then choose or create suitable learning material, invite learners and review progress. This section follows that workflow from setup to reporting.
 
 ### 5.1 Start with the teacher workspace
 
@@ -281,7 +303,7 @@ Draft courses remain invisible to students until published. Teachers should prev
 
 ### 5.4 Invite and assign students
 
-Open **Team**, enter the student's email and send an invitation through the existing Postmark service.
+Open **Team**, enter the student's email and send an invitation.
 
 ![Team invitations, roles and course assignments](img/fastlearn-platform-guide/10-team.png)
 
@@ -340,6 +362,10 @@ Time is an engagement signal, not proof of understanding. It should be considere
 
 ## 6. Administrator guide
 
+The administrator maintains the trusted platform-wide foundation: people, roles, the default catalogue, access and reporting. This section summarises the controls reserved for that role.
+
+### 6.1 Manage the platform
+
 The administrator uses **Team** to:
 
 - invite students or teachers;
@@ -351,7 +377,7 @@ The administrator uses **Team** to:
 - revoke unused invitations;
 - view platform-wide learning and time reports.
 
-Role changes take effect on the next authorized request. The server will reject unauthorized direct URLs and form submissions even if a user attempts to bypass the interface.
+Role changes apply across the platform. Permissions remain enforced even when someone attempts to open a restricted area directly.
 
 ## 7. Adaptive-learning decision process
 
@@ -398,9 +424,33 @@ FastLearn retains:
 - chat sessions and messages needed to restore learning history.
 - guided exercise attempts, board answers, concepts, difficulty and active duration.
 
-Access follows least privilege: students see their own data, teachers see relevant assigned-course data, and administrators see platform-wide records. Passwords and OAuth tokens are never part of learning analytics.
+Access follows least privilege: students see their own data, teachers see relevant assigned-course data, and administrators see platform-wide records. Sign-in credentials are never part of learning analytics.
 
-## 10. Integration API
+## Appendix: Developers
+
+### A.1 Authentication and identity
+
+FastLMS is the open-source implementation and developer reference behind FastLearn.
+
+Google sign-in for the public product returns to:
+
+```text
+https://fastlearn.fun/auth/google/callback
+```
+
+The original FastLMS callback remains registered separately. Signup role selection applies to password registration and Google SSO, while returning users retain the role stored for their account. Invitation roles take precedence, and public signup can never create an administrator.
+
+Passwords, OAuth credentials and recovery tokens must never be exposed in learning analytics, logs intended for teachers, or public API output.
+
+### A.2 Chat, visuals and activity delivery
+
+Chat responses use server-sent events. Markdown headings, lists, examples and code are converted to safe HTML before insertion so learners never see raw formatting syntax.
+
+Interactive lesson visuals are generated from allow-listed Plotly templates. Model output selects a bounded visual specification and never sends executable JavaScript to the browser. Every visual includes a plain-language description and accessible data table.
+
+Guided chess answers are graded server-side; expected answers are not included in the learner payload. Active learning uses a 30-second heartbeat, pauses when the page is hidden, and closes an interval after 90 seconds without keyboard, pointer or touch activity.
+
+### A.3 Integration API
 
 Open [FastLearn Developers](https://fastlearn.fun/developers), [Swagger UI](https://fastlearn.fun/api/docs), or [ReDoc](https://fastlearn.fun/api/redoc). The API is versioned under `/api/v1`.
 
@@ -419,33 +469,3 @@ curl "https://fastlearn.fun/api/v1/courses?lang=es"
 curl "https://fastlearn.fun/api/v1/learners/42/progress" \
   -H "Authorization: Bearer $FASTSME_API_TOKEN"
 ```
-
-## 11. Quick reference
-
-### Student
-
-1. Sign in and choose a language.
-2. Open an assigned course or explore the catalogue.
-3. Work through the recommended lesson.
-4. Complete its quiz.
-5. Ask for a simpler explanation in New Chat when something is unclear.
-6. Review progress, active time and adaptive recommendations.
-7. Open **Language learning** to practise a chosen target language from the student's native language.
-8. Open **Chess Foundations I** to practise interactively without leaving New Chat.
-
-### Teacher
-
-1. Start in **New Chat** and choose a course or teacher action.
-2. Browse the complete catalogue and assign a protected default, or clone it into an editable draft.
-3. Build teacher-owned content through **Course setup**.
-4. Preview and publish the course.
-5. Use **Team** to invite students and assign any published course.
-6. Configure linear or adaptive learning on teacher-owned courses.
-7. Generate variants, review every draft and approve suitable material.
-8. Monitor the teacher's assigned learners, adaptive difficulty and active time.
-
-### Support
-
-- Product: [https://fastlearn.fun](https://fastlearn.fun)
-- Open-source project: [https://github.com/predictivelabsai/FastLMS](https://github.com/predictivelabsai/FastLMS)
-- FastLMS reference: [https://lms.fastsme.com](https://lms.fastsme.com)
