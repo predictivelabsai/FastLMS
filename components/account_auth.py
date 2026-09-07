@@ -82,7 +82,7 @@ def google_button(label: str, href: str = "/auth/google", **attrs):
     return A(NotStr(GOOGLE_ICON), Span(label), href=href, cls="auth-google", **attrs)
 
 
-GOOGLE_SIGNUP_ONCLICK = "const f=this.closest('form'),r=f&&f.querySelector('input[name=role]:checked');if(r)this.href='/auth/google?role='+encodeURIComponent(r.value)"
+GOOGLE_SIGNUP_ONCLICK = "const f=this.closest('form'),r=f&&f.querySelector('input[name=role]:checked');if(r){const u=new URL(this.href,location.origin);u.searchParams.set('role',r.value);this.href=u.pathname+'?'+u.searchParams.toString()}"
 
 AUTH_JS = """
 function authOpen(tab='login'){document.getElementById('auth-overlay').classList.add('visible');authTab(tab)}

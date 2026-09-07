@@ -95,6 +95,18 @@ account_auth.register_fastapi_routes(
 # Auth helpers
 # ---------------------------------------------------------------------------
 
+MOBILE_AUTH_RETURN = "mobile"
+MOBILE_AUTH_CALLBACK_URI = "fastlearn://auth/complete"
+
+
+def _is_mobile_auth_return(req) -> bool:
+    """Accept only the app's fixed OAuth handoff, never an arbitrary redirect."""
+    return req.query_params.get("return_to") == MOBILE_AUTH_RETURN
+
+
+def _google_success_destination(return_to: str) -> str:
+    return MOBILE_AUTH_CALLBACK_URI if return_to == MOBILE_AUTH_RETURN else "/app"
+
 def _hash_pw(pw: str) -> str:
     return hashlib.sha256(pw.encode()).hexdigest()
 
@@ -201,6 +213,8 @@ def set_language(req, lang: str = "en", next: str = "/"):
 def login_page(req):
     lang = get_lang(req)
     error = req.query_params.get("error", "")
+    mobile_return = _is_mobile_auth_return(req)
+    google_href = "/auth/google?role=student" + ("&return_to=mobile" if mobile_return else "")
     return auth_page(
         Div(
             H2(t("sign_in", lang).title(), cls="auth-title"),
@@ -208,7 +222,7 @@ def login_page(req):
             Form(
                 account_auth.signin_role_picker(lang),
                 account_auth.google_button(
-                    t("continue_google", lang), href="/auth/google?role=student",
+                    t("continue_google", lang), href=google_href,
                     onclick=account_auth.GOOGLE_SIGNUP_ONCLICK,
                 ),
                 Div("or", cls="auth-divider"),
@@ -218,7 +232,7 @@ def login_page(req):
                 method="post",
                 action="/auth/login",
             ),
-            Div(A(t("create_account", lang), href="/auth/register"), cls="auth-footer"),
+            Div(A(t("create_account", lang), href="/auth/register?return_to=mobile" if mobile_return else "/auth/register"), cls="auth-footer"),
             cls="auth-box",
         ), lang=lang,
     )
@@ -230,6 +244,9 @@ def google_start(req):
         return RedirectResponse("/auth/login?error=Google+sign-in+is+not+configured", status_code=303)
     state = google_auth.new_state()
     req.session["google_oauth_state"] = state
+    req.session.pop("google_oauth_return_to", None)
+    if _is_mobile_auth_return(req):
+        req.session["google_oauth_return_to"] = MOBILE_AUTH_RETURN
     req.session.pop("pending_signup_role", None)
     requested_role = str(req.query_params.get("role", "")).strip().lower()
     if requested_role in account_auth.SIGNUP_ROLES:
@@ -242,6 +259,7 @@ def google_start(req):
 
 @app.get("/auth/google/callback")
 def google_callback(req, code: str = "", state: str = "", error: str = ""):
+    return_to = req.session.pop("google_oauth_return_to", "")
     if error or not code or state != req.session.pop("google_oauth_state", None):
         return RedirectResponse("/auth/login?error=Google+sign-in+failed", status_code=303)
     signup_role = account_auth.normalize_signup_role(req.session.pop("pending_signup_role", "student"))
@@ -263,7 +281,7 @@ def google_callback(req, code: str = "", state: str = "", error: str = ""):
         if pending_invite:
             _consume_invitation(conn, pending_invite, user)
     req.session["user_id"] = user["id"]
-    return RedirectResponse("/app", status_code=303)
+    return RedirectResponse(_google_success_destination(return_to), status_code=303)
 
 
 @app.post("/auth/login")
@@ -283,6 +301,8 @@ async def login_post(req):
 def register_page(req):
     lang = get_lang(req)
     error = req.query_params.get("error", "")
+    mobile_return = _is_mobile_auth_return(req)
+    google_href = "/auth/google?role=student" + ("&return_to=mobile" if mobile_return else "")
     return auth_page(
         Div(
             H2(t("create_account", lang), cls="auth-title"),
@@ -290,7 +310,7 @@ def register_page(req):
             Form(
                 account_auth.signup_role_picker(lang),
                 account_auth.google_button(
-                    t("continue_google", lang), href="/auth/google?role=student",
+                    t("continue_google", lang), href=google_href,
                     onclick=account_auth.GOOGLE_SIGNUP_ONCLICK,
                 ),
                 Div("or", cls="auth-divider"),
@@ -301,7 +321,7 @@ def register_page(req):
                 method="post",
                 action="/auth/register",
             ),
-            Div(A(t("sign_in", lang), href="/auth/login"), cls="auth-footer"),
+            Div(A(t("sign_in", lang), href="/auth/login?return_to=mobile" if mobile_return else "/auth/login"), cls="auth-footer"),
             cls="auth-box",
         ), lang=lang,
     )

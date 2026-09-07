@@ -112,3 +112,34 @@ def test_google_start_preserves_only_a_safe_signup_role(monkeypatch):
     unsafe = SimpleNamespace(query_params={"role": "admin"}, session={"pending_signup_role": "teacher"})
     main.google_start(unsafe)
     assert "pending_signup_role" not in unsafe.session
+
+
+def test_mobile_google_signin_preserves_only_the_fixed_app_handoff(monkeypatch):
+    import main
+
+    mobile_page = SimpleNamespace(
+        query_params={"return_to": "mobile"}, session={}, cookies={},
+        headers={"host": "fastlearn.fun", "accept-language": "en"},
+    )
+    markup = to_xml(main.login_page(mobile_page))
+    assert 'href="/auth/google?role=student&amp;return_to=mobile"' in markup
+    assert 'href="/auth/register?return_to=mobile"' in markup
+
+    monkeypatch.setattr(main.google_auth, "enabled", lambda: True)
+    monkeypatch.setattr(main.google_auth, "new_state", lambda: "oauth-state")
+    monkeypatch.setattr(main.google_auth, "authorize_url", lambda req, state: f"https://accounts.example/{state}")
+
+    request = SimpleNamespace(query_params={"return_to": "mobile"}, session={})
+    main.google_start(request)
+    assert request.session["google_oauth_return_to"] == "mobile"
+    assert main._google_success_destination(request.session["google_oauth_return_to"]) == "fastlearn://auth/complete"
+
+    unsafe = SimpleNamespace(query_params={"return_to": "https://evil.example"}, session={})
+    main.google_start(unsafe)
+    assert "google_oauth_return_to" not in unsafe.session
+    assert main._google_success_destination("https://evil.example") == "/app"
+
+
+def test_google_role_picker_keeps_existing_mobile_return_parameter():
+    assert "new URL(this.href,location.origin)" in account_auth.GOOGLE_SIGNUP_ONCLICK
+    assert "searchParams.set('role',r.value)" in account_auth.GOOGLE_SIGNUP_ONCLICK
