@@ -90,11 +90,11 @@ def _head(*, lang: str, product: bool):
 
 def _nav(*, brand: str, lang: str, product: bool):
     if product:
-        links = (A(t("overview", lang), href="#overview", cls="nav-link optional"), A(t("courses", lang), href="#subjects", cls="nav-link optional"),
+        links = (A(t("overview", lang), href="#overview", cls="nav-link optional"), A("Pricing", href="#pricing", cls="nav-link optional"), A(t("courses", lang), href="#subjects", cls="nav-link optional"),
                  A(t("android_app", lang), href="#mobile", cls="nav-link optional"),
                  _language_switcher(lang, "/"), A(t("sign_in", lang).title(), href="/auth/login", cls="button primary"))
     else:
-        links = (A(t("overview", lang), href="#overview", cls="nav-link optional"), A(t("open_source", lang), href="#open-source", cls="nav-link optional"),
+        links = (A(t("overview", lang), href="#overview", cls="nav-link optional"), A("Pricing", href="#pricing", cls="nav-link optional"), A(t("open_source", lang), href="#open-source", cls="nav-link optional"),
                  A(t("demo", lang), href=FASTLEARN_URL, cls="nav-link"), _language_switcher(lang, "/"),
                  A(t("view_github", lang), href=REPOSITORY_URL, target="_blank", rel="noopener noreferrer", cls="button secondary"),
                  Button(t("sign_in", lang).title(), type="button", onclick="authOpen('login')", cls="button primary"))
@@ -121,6 +121,18 @@ def _apk_badge(lang: str):
     )
 
 
+
+def _pricing_section(lang: str = "en"):
+    return Section(
+        Div(Span("Pricing", cls="kicker"), H2("Simple pricing for every FastSME product."), P("Every Fast* product uses the same two options: bring your own cloud for free, or host with us for €1 per month."), cls="section-head"),
+        Div(
+            Article(Span("BYOC", cls="kicker"), H3("Bring Your Own Cloud"), P(Strong("Free")), P("Self-host on your own infrastructure or cloud. Full control of data and upgrades. No per-seat platform fee."), cls="card"),
+            Article(Span("Hosted", cls="kicker"), H3("Host with us"), P(Strong("€1 / month")), P("We run the product for you on FastSME-managed infrastructure. €1 per product per month."), cls="card"),
+            cls="card-grid",
+        ),
+        id="pricing", cls="section",
+    )
+
 def fastlms_landing(lang: str = "en"):
     cards = (("01", "oss_courses_title", "oss_courses_body"), ("02", "oss_ai_title", "oss_ai_body"), ("03", "oss_control_title", "oss_control_body"))
     return Html(
@@ -144,6 +156,7 @@ def fastlms_landing(lang: str = "en"):
                                 href=url, target="_blank", rel="noopener noreferrer", cls="partner") for name, url, logo, description in PARTNERS], cls="partner-grid")),
                     cls="section split"),
             ),
+            _pricing_section(lang),
             Footer(Div(Span("FastLMS · FastSME"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A(t("demo", lang), href=FASTLEARN_URL), A(t("developers", lang), href="/developers"), A(t("view_github", lang), href=REPOSITORY_URL), cls="footer-links"), cls="footer"),
             auth_modal("FastLMS", lang), Script(AUTH_JS),
         ), lang=lang,
@@ -184,10 +197,12 @@ def fastlearn_landing(lang: str = "en"):
                 Section(Div(Span(t("cta_eyebrow", lang), cls="eyebrow"), H2(t("cta_title", lang)), P(t("cta_body", lang))),
                         A(t("start_learning", lang), href="/auth/login", cls="button"), cls="cta"),
             ),
+            _pricing_section(lang),
             Footer(Div(Span("© 2026 FastLearn"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A(t("download_android", lang), href=ANDROID_APK_URL), A("FastLMS", href="https://lms.fastsme.com"), A(t("language", lang), href="#overview"), cls="footer-links"), cls="footer"),
             auth_modal("FastLearn", lang), Script(AUTH_JS),
         ), lang=lang,
     )
+
 
 
 def landing_page(lang: str = "en", *, product: bool = False):
