@@ -26,6 +26,7 @@ def page_head(title="FastLearn", lang="en"):
         Script(src="/static/vendor/plotly-3.6.0.min.js", defer=True),
         Script(src="/static/visualizations.js", defer=True),
         Script(src="/static/chat.js", defer=True),
+        Script(src="/static/voice.js", defer=True),
         Script(src="/static/activity.js", defer=True),
         Script(src="/static/language.js", defer=True),
         Script(src="/static/navigation.js", defer=True),

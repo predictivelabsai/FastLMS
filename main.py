@@ -29,6 +29,7 @@ import language_learning as languages
 import learning_chat
 import school
 import visualizations
+import voice
 from app_version import APP_VERSION
 from components.layout import (
     app_shell,
@@ -124,6 +125,9 @@ def _require_login(req):
     if not user:
         return None, RedirectResponse("/auth/login", status_code=303)
     return user, None
+
+
+voice.register_voice_routes(app, _get_session_user)
 
 
 def _require_teacher(req):
@@ -1461,11 +1465,28 @@ def chat_workspace(req):
             Form(
                 Div(
                     Textarea(placeholder=t(placeholder_key, lang), id="chat-input", cls="chat-input", rows=1),
+                    Button(
+                        NotStr('<svg class="voice-mic-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3M8 22h8"/></svg><span class="voice-button-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>'),
+                        id="voice-btn", type="button", cls="voice-btn",
+                        aria_label=t("start_voice", lang), aria_pressed="false",
+                        title=t("start_voice", lang), data_testid="voice-button",
+                        onclick="toggleVoice()",
+                    ),
                     Button(t("send", lang), cls="chat-send", type="submit"), cls="chat-input-row",
                 ),
                 id="chat-form", data_chat_id=chat_id, data_thinking=t("thinking", lang),
                 data_lesson_id=(session.get("context") or {}).get("lesson_id") or "",
                 data_tutor="FastLearn", data_connection_error=t("connection_error", lang),
+                data_lang=lang, data_voice_start=t("start_voice", lang),
+                data_voice_stop=t("stop_voice", lang),
+                data_voice_connecting=t("voice_connecting", lang),
+                data_voice_microphone=t("voice_microphone", lang),
+                data_voice_listening=t("voice_listening", lang),
+                data_voice_thinking=t("voice_thinking", lang),
+                data_voice_speaking=t("voice_speaking", lang),
+                data_voice_blocked=t("voice_blocked", lang),
+                data_voice_unavailable=t("voice_unavailable", lang),
+                data_voice_tap=t("voice_tap_to_start", lang),
             ), cls="chat-input-area",
         ), cls="chat-container",
     )

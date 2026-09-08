@@ -1057,6 +1057,107 @@ a:hover { text-decoration: underline; }
 
 .chat-send:hover { opacity: 0.9; }
 
+.voice-btn {
+    display: inline-flex;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    min-height: 46px;
+    padding: 0;
+    border: 1px solid var(--line-br);
+    border-radius: var(--radius);
+    background: var(--bg-elev);
+    color: var(--accent-text);
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.voice-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.voice-btn:focus-visible,
+.voice-stop:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    outline-offset: 2px;
+}
+.voice-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+.voice-btn.active .voice-mic-icon { display: none; }
+.voice-btn.active .voice-button-wave { display: inline-flex; }
+.voice-button-wave { display: none; height: 22px; align-items: center; gap: 2px; }
+.voice-button-wave i,
+.voice-wave i {
+    width: 3px;
+    height: 8px;
+    border-radius: 999px;
+    background: currentColor;
+    animation: voice-wave 1s ease-in-out infinite;
+    transform-origin: center;
+}
+.voice-button-wave i:nth-child(2), .voice-wave i:nth-child(2) { height: 15px; animation-delay: -.8s; }
+.voice-button-wave i:nth-child(3), .voice-wave i:nth-child(3) { height: 21px; animation-delay: -.6s; }
+.voice-button-wave i:nth-child(4), .voice-wave i:nth-child(4) { height: 13px; animation-delay: -.4s; }
+.voice-button-wave i:nth-child(5), .voice-wave i:nth-child(5) { height: 7px; animation-delay: -.2s; }
+
+.voice-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(100%, 680px);
+    margin: 0 auto 12px;
+    padding: 11px 12px;
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 7%, white);
+    color: var(--accent-text);
+    box-shadow: 0 8px 24px rgba(23, 35, 33, .07);
+}
+.voice-wave { display: inline-flex; flex: 0 0 28px; height: 24px; align-items: center; justify-content: center; gap: 2px; }
+.voice-status { flex: 1; min-width: 0; color: var(--ink); font-size: 13px; font-weight: 650; line-height: 1.35; }
+.voice-stop {
+    min-height: 38px;
+    padding: 7px 12px;
+    border: 1px solid var(--line-br);
+    border-radius: 9px;
+    background: var(--bg-elev);
+    color: var(--accent-text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.voice-stop:hover { border-color: var(--accent); background: var(--accent-dim); }
+.voice-panel[data-state="thinking"] { color: var(--purple); }
+.voice-panel[data-state="speaking"] { color: var(--blue); }
+.voice-panel[data-state="error"] { border-color: color-mix(in srgb, var(--red) 35%, var(--line)); background: var(--red-dim); color: var(--red); }
+.voice-panel[data-state="ready"] .voice-wave i { animation-play-state: paused; }
+.voice-transcript-pending { opacity: .72; }
+.voice-invite { animation: voice-invite 1.8s ease-in-out 3; }
+
+@keyframes voice-wave {
+    0%, 100% { transform: scaleY(.55); opacity: .62; }
+    50% { transform: scaleY(1.2); opacity: 1; }
+}
+@keyframes voice-invite {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 107, 98, 0); }
+    50% { box-shadow: 0 0 0 7px rgba(37, 107, 98, .15); }
+}
+
+@media (max-width: 600px) {
+    .chat-input-area { padding: 12px; }
+    .chat-input-row { gap: 7px; align-items: flex-end; }
+    .chat-input { min-width: 0; padding: 12px; }
+    .chat-send { min-height: 46px; padding: 10px 13px; }
+    .voice-panel { align-items: center; margin-bottom: 10px; }
+    .voice-status { font-size: 12px; }
+    .voice-stop { min-height: 44px; padding-inline: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .voice-button-wave i,
+    .voice-wave i,
+    .voice-invite { animation: none; }
+}
+
 .thinking-indicator {
     color: var(--ink-dim);
     font-size: 13px;
