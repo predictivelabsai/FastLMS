@@ -1,4 +1,4 @@
-"""Seed additional academic subjects — Mathematics, Physics, Biology, Chemistry, English, Geography, Creative Writing.
+"""Seed optional academic subjects — Mathematics, Physics, Biology, English, Geography, Creative Writing.
 
 Usage:
     python seed_subjects.py
@@ -929,6 +929,9 @@ than anything
 ]
 
 COURSES.extend(ART_COURSES)
+# Chemistry Fundamentals is maintained by science_catalog.py so that its
+# KS3–GCSE expansion, advanced pathway, and guided simulations seed together.
+COURSES = [course for course in COURSES if course["slug"] != "chemistry-fundamentals"]
 
 
 def seed_subjects():

@@ -12,6 +12,7 @@ import db
 import language_learning as languages
 import visualizations
 from chess_engine import grade as grade_chess
+from chemistry_engine import grade as grade_chemistry
 
 
 COPY = {
@@ -244,6 +245,7 @@ def _client_exercise(exercise: dict) -> dict:
     allowed = {
         "id", "source_key", "engine", "exercise_type", "fen", "prompt", "concepts",
         "difficulty_band", "cognitive_layer", "choices", "pieces", "goal", "optimal_len", "ui",
+        "molecule", "scene", "equation", "atom", "mass_number", "atomic_number", "unit", "chart",
     }
     return {key: value for key, value in exercise.items() if key in allowed}
 
@@ -307,9 +309,12 @@ def submit_exercise(
     exercise = db.get_interactive_exercise(conn, exercise_id, lang, include_answer=True)
     if not exercise or not lesson_id:
         raise ValueError("Exercise is no longer available")
-    if exercise.get("engine") != "chess":
+    if exercise.get("engine") == "chess":
+        verdict = grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], answer)
+    elif exercise.get("engine") == "chemistry":
+        verdict = grade_chemistry(exercise["exercise_type"], exercise["answer_payload"], answer)
+    else:
         raise ValueError("Unsupported exercise engine")
-    verdict = grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], answer)
     db.record_exercise_attempt(
         conn, user_id=user_id, exercise_id=exercise_id, lesson_id=lesson_id,
         chat_session_id=chat_session_id, answer=answer, verdict=verdict,
@@ -319,7 +324,7 @@ def submit_exercise(
         interactive = _client_exercise(exercise)
         retry_context = {**context, "phase": "exercise", "choices": [], "interactive": interactive}
         return {
-            "title": context.get("title") or "Chess practice", "context": retry_context,
+            "title": context.get("title") or "Guided practice", "context": retry_context,
             "lesson_id": lesson_id, "interactive": interactive,
             "content": _copy(lang)["exercise_retry"], "verdict": verdict,
         }
@@ -332,7 +337,7 @@ def submit_exercise(
             "interactive": None, "last_exercise_id": exercise_id,
         }
         return {
-            "title": context.get("title") or "Chess practice", "context": next_context,
+            "title": context.get("title") or "Guided practice", "context": next_context,
             "lesson_id": lesson_id, "content": f"{_copy(lang)['exercise_correct']}\n\n{_choice_markdown(choices)}",
             "verdict": verdict,
         }
@@ -349,7 +354,7 @@ def submit_exercise(
         "interactive": None, "last_exercise_id": exercise_id, "lesson_complete": True,
     }
     return {
-        "title": context.get("title") or "Chess practice", "context": done_context,
+        "title": context.get("title") or "Guided practice", "context": done_context,
         "lesson_id": lesson_id, "content": f"{lead}\n\n{_choice_markdown(choices)}", "verdict": verdict,
     }
 

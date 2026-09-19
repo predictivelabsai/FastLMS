@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/vendor/3Dmol-min.js"></script>
+    <script src="/static/chemistry.js"></script>
+  </head>
+  <body>
+    <main id="activity"></main>
+    <script>
+      window.FastLearnChemistry.mount(document.getElementById('activity'), {
+        id: 999,
+        engine: 'chemistry', exercise_type: 'molecule_geometry', difficulty_band: 4,
+        prompt: 'Which shape does water have?', molecule: 'water', scene: 'vsepr',
+        choices: ['Bent', 'Linear', 'Tetrahedral'],
+        ui: {level: 'Advanced chemistry', check: 'Check geometry', reset: 'Reset view'}
+      }, (answer, label) => { window.__chemistryAnswer = {answer, label}; });
+    </script>
+  </body>
+</html>

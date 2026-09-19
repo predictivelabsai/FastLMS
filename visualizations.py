@@ -59,6 +59,8 @@ def _spec(
     rows: list[list],
     *,
     lang: str = "en",
+    min_age: int = 8,
+    max_age: int = 16,
 ) -> dict:
     return validate({
         "version": 1,
@@ -67,7 +69,7 @@ def _spec(
         "title": title,
         "description": description,
         "alt_text": alt_text,
-        "audience": {"min_age": 8, "max_age": 16},
+        "audience": {"min_age": min_age, "max_age": max_age},
         "data": data,
         "layout": layout,
         "config": {
@@ -300,6 +302,48 @@ def _composition(lang: str) -> dict:
     )
 
 
+def _particle_energy(lang: str) -> dict:
+    stages = [_t("Cold", "Külm", "Šaltas", "Frío", lang), _t("Warmer", "Soojem", "Šiltesnis", "Más cálido", lang), _t("Hot", "Kuum", "Karštas", "Caliente", lang)]
+    energy = [1, 3, 5]
+    return _spec(
+        "primary-particle-energy", _t("Heating gives particles more energy", "Kuumutamine annab osakestele rohkem energiat", "Kaitinimas suteikia dalelėms daugiau energijos", "Calentar da más energía a las partículas", lang),
+        _t("As a sample is warmed, particles move more. Use the 3D activity to explore solid, liquid and gas behaviour.", "Proovi soojendamisel liiguvad osakesed rohkem. Uuri 3D tegevuses tahke, vedela ja gaasilise aine käitumist.", "Šildant mėginį dalelės juda daugiau. 3D veikloje tyrinėkite kietos, skystos ir dujinės būsenas.", "Al calentar una muestra, las partículas se mueven más. Usa la actividad 3D para explorar sólido, líquido y gas.", lang),
+        _t("A line rises from cold to hot, showing increasing particle energy.", "Joon tõuseb külmast kuumani ja näitab osakeste energia suurenemist.", "Linija kyla nuo šalto iki karšto ir rodo didėjančią dalelių energiją.", "Una línea sube de frío a caliente y muestra el aumento de energía de las partículas.", lang),
+        [{"type": "scatter", "mode": "lines+markers", "name": _t("Particle energy", "Osakeste energia", "Dalelių energija", "Energía de partículas", lang), "x": stages, "y": energy, "line": {"color": CORAL, "width": 4}, "marker": {"size": 10, "color": YELLOW}}],
+        _layout(y_title=_t("Relative energy", "Suhteline energia", "Santykinė energija", "Energía relativa", lang)),
+        [_t("Temperature", "Temperatuur", "Temperatūra", "Temperatura", lang), _t("Relative particle energy", "Osakeste suhteline energia", "Santykinė dalelių energija", "Energía relativa de partículas", lang)],
+        [[stage, value] for stage, value in zip(stages, energy)], lang=lang,
+    )
+
+
+def _atomic_particles(lang: str) -> dict:
+    labels = [_t("Protons", "Prootonid", "Protonai", "Protones", lang), _t("Neutrons", "Neutronid", "Neutronai", "Neutrones", lang), _t("Electrons", "Elektronid", "Elektronai", "Electrones", lang)]
+    values = [11, 12, 11]
+    return _spec(
+        "chemistry-sodium-atom", _t("A sodium-23 atom has balanced charges", "Naatrium-23 aatomil on tasakaalus laengud", "Natrio-23 atome krūviai subalansuoti", "Un átomo de sodio-23 tiene cargas equilibradas", lang),
+        _t("A neutral sodium-23 atom has 11 protons, 12 neutrons and 11 electrons.", "Neutraalsel naatrium-23 aatomil on 11 prootonit, 12 neutronit ja 11 elektroni.", "Neutralus natrio-23 atomas turi 11 protonų, 12 neutronų ir 11 elektronų.", "Un átomo neutro de sodio-23 tiene 11 protones, 12 neutrones y 11 electrones.", lang),
+        _t("Three bars show eleven protons, twelve neutrons and eleven electrons.", "Kolm tulpa näitavad üheteist prootonit, kahtteist neutronit ja üheteist elektroni.", "Trys stulpeliai rodo vienuolika protonų, dvylika neutronų ir vienuolika elektronų.", "Tres barras muestran once protones, doce neutrones y once electrones.", lang),
+        [{"type": "bar", "x": labels, "y": values, "marker": {"color": [CORAL, BLUE, GREEN]}}], _layout(y_title=_t("Particles", "Osakesed", "Dalelės", "Partículas", lang)),
+        [_t("Particle", "Osake", "Dalelė", "Partícula", lang), _t("Count", "Arv", "Skaičius", "Cantidad", lang)], [[label, value] for label, value in zip(labels, values)], lang=lang,
+    )
+
+
+def _advanced_energy_profile(lang: str) -> dict:
+    progress = [0, 1, 2, 3, 4]
+    uncatalysed = [0, 4, 8, 4, -2]
+    catalysed = [0, 3, 5, 2, -2]
+    return _spec(
+        "advanced-activation-energy", _t("Catalysts lower activation energy", "Katalüsaatorid alandavad aktiveerimisenergiat", "Katalizatoriai mažina aktyvacijos energiją", "Los catalizadores reducen la energía de activación", lang),
+        _t("Both paths begin and end at the same energy. The catalysed path has a lower maximum.", "Mõlemad rajad algavad ja lõpevad samal energial. Katalüüsitud rajal on madalam maksimum.", "Abu keliai prasideda ir baigiasi tuo pačiu energijos lygiu. Katalizuojamas kelias turi mažesnį maksimumą.", "Ambas rutas empiezan y terminan con la misma energía. La ruta catalizada tiene un máximo menor.", lang),
+        _t("Two energy curves fall to the same products; the catalysed curve has a lower peak.", "Kaks energiakõverat langevad samade saadusteni; katalüüsitud kõveral on madalam tipp.", "Dvi energijos kreivės baigiasi tais pačiais produktais; katalizuojama kreivė turi mažesnę viršūnę.", "Dos curvas de energía llegan a los mismos productos; la catalizada tiene un pico menor.", lang),
+        [
+            {"type": "scatter", "mode": "lines", "name": _t("Uncatalysed", "Katalüüsimata", "Nekatalizuota", "Sin catalizar", lang), "x": progress, "y": uncatalysed, "line": {"color": CORAL, "width": 4}},
+            {"type": "scatter", "mode": "lines", "name": _t("Catalysed", "Katalüüsitud", "Katalizuota", "Catalizada", lang), "x": progress, "y": catalysed, "line": {"color": GREEN, "width": 4}},
+        ], _layout(x_title=_t("Reaction progress", "Reaktsiooni kulg", "Reakcijos eiga", "Progreso de reacción", lang), y_title=_t("Relative energy", "Suhteline energia", "Santykinė energija", "Energía relativa", lang)),
+        [_t("Reaction progress", "Reaktsiooni kulg", "Reakcijos eiga", "Progreso de reacción", lang), _t("Uncatalysed", "Katalüüsimata", "Nekatalizuota", "Sin catalizar", lang), _t("Catalysed", "Katalüüsitud", "Katalizuota", "Catalizada", lang)], [[point, high, low] for point, high, low in zip(progress, uncatalysed, catalysed)], lang=lang, min_age=16, max_age=22,
+    )
+
+
 BUILDERS: dict[tuple[str, str], Callable[[str], dict]] = {
     ("mathematics-foundations", "Variables and Expressions"): _variables,
     ("mathematics-foundations", "Solving Linear Equations"): _equations,
@@ -310,6 +354,9 @@ BUILDERS: dict[tuple[str, str], Callable[[str], dict]] = {
     ("geography-physical-human", "Urbanisation and Megacities"): _urbanisation,
     ("art-principles", "The Elements of Art"): _elements_of_art,
     ("art-principles", "Composition and Visual Meaning"): _composition,
+    ("primary-science", "Particles, States and Changes"): _particle_energy,
+    ("chemistry-fundamentals", "Atoms, Ions and Isotopes"): _atomic_particles,
+    ("advanced-chemistry", "Thermodynamics, Kinetics and Equilibrium"): _advanced_energy_profile,
 }
 
 

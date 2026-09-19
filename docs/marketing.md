@@ -26,9 +26,11 @@ the model never sends executable chart code to the browser.
 reviewable drafts. Nothing enters the learning path without human approval.
 
 📚 **Useful subjects already included** — Python, machine learning, FastHTML,
-mathematics, physics, biology, chemistry, English language and literature,
-geography, creative writing, art history, music history, visual-art principles,
-music principles, and a child-focused Chess Foundations course.
+primary science, mathematics, physics, biology, Chemistry Fundamentals, Advanced
+Chemistry, English language and literature, geography, creative writing, art
+history, music history, visual-art principles, music principles, and a
+child-focused Chess Foundations course. Guided chemistry activities combine
+3D molecular models with server-side assessment and an accessible fallback.
 
 ♞ **Chess is learned on the board, inside the conversation** — children aged
 3–12 meet coordinates, rooks, bishops, queens, and knights through guided

@@ -156,7 +156,7 @@ Navigate to `/app/configure` or click **Course Config** in the left nav. The 5-s
 
 ## Supported Courses
 
-FastLMS ships with 10 ready-to-use courses covering programming and academic subjects:
+FastLMS ships with a core catalogue that includes primary science, a three-stage chemistry pathway, programming, creative subjects, and guided chess practice. Optional subject seeding adds further academic courses.
 
 ### Programming & Technology
 - **Python Fundamentals** — Variables, data types, control flow, functions, classes (Beginner)
@@ -164,16 +164,18 @@ FastLMS ships with 10 ready-to-use courses covering programming and academic sub
 - **Building Web Apps with FastHTML** — Server-side rendering, HTMX, database integration (Intermediate)
 
 ### Academic Subjects
+- **Primary Science** — England Years 1–6 science: scientific enquiry, materials and matter, living things, energy, Earth and space (Beginner)
 - **Mathematics Foundations** — Algebra (variables, linear equations) and Geometry (shapes, area, perimeter) (Beginner)
 - **Physics Essentials** — Mechanics: Newton's laws, motion, forces, energy (Intermediate)
 - **Biology: Life Sciences** — Cell biology (organelles, membranes) and Genetics (DNA, inheritance, mutations) (Beginner)
-- **Chemistry Fundamentals** — Atomic structure (elements, periodic table) and Chemical reactions (balancing, types) (Intermediate)
+- **Chemistry Fundamentals** — England KS3–GCSE particles, atoms, bonding, equations, moles, acids, energy, rates and resources (Intermediate)
+- **Advanced Chemistry** — A-level to first-year university bridge across physical, organic and inorganic chemistry, spectroscopy and practical data (Advanced)
 - **English Language & Literature** — Reading comprehension, essay writing, literary analysis, grammar (Beginner)
 - **Geography: Physical & Human** — Landscapes, climate, urbanisation, globalisation, resource management (Beginner)
 - **Chess Foundations I** — Child-friendly coordinates and guided rook, bishop, queen, and knight puzzles (Beginner)
 - **Creative Writing** — Narrative techniques, character development, world-building, poetry forms (Beginner)
 
-Each course includes multiple modules with rich markdown lessons and multiple-choice quizzes.
+Primary Science and the chemistry pathway include guided, server-graded activities. Molecular activities use an interactive 3D model where the device supports WebGL and retain a readable fallback when it does not. English and Estonian chemistry content ship first; other language selections safely use English until reviewed translations are available.
 
 ---
 

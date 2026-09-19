@@ -537,8 +537,10 @@ def bootstrap_schema():
         # deployments receive them without a destructive catalogue reset.
         from arts_catalog import seed_art_courses
         from chess_course import seed_chess_course
+        from science_catalog import seed_science_courses
         seed_art_courses(conn, SCHEMA)
         seed_chess_course(conn, SCHEMA)
+        seed_science_courses(conn, SCHEMA)
 
 
 # ---------------------------------------------------------------------------

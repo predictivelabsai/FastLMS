@@ -158,8 +158,42 @@ document.addEventListener('DOMContentLoaded', () => {
         return assistant;
     }
 
+    async function submitInteractive(container, exercise, answer, label, startedAt, submitButton) {
+        submitButton.disabled = true;
+        addUserMessage(label);
+        const thinking = addThinking();
+        try {
+            const response = await fetch('/app/chat/exercise/stream', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    chat: form.dataset.chatId || '', exercise_id: exercise.id, answer,
+                    duration_seconds: Math.max(0, Math.round((Date.now() - startedAt) / 1000)),
+                }),
+            });
+            container.closest('.msg-assistant')?.querySelectorAll('button').forEach((button) => { button.disabled = true; });
+            await streamAssistant(response, thinking);
+        } catch (_error) {
+            thinking.remove();
+            const error = document.createElement('div');
+            error.className = 'msg msg-assistant';
+            error.textContent = form.dataset.connectionError || 'Connection error. Please try again.';
+            messages.appendChild(error);
+            submitButton.disabled = false;
+        }
+        messages.scrollTop = messages.scrollHeight;
+    }
+
     function mountInteractive(container, exercise) {
         if (!container || container.dataset.mounted === '1') return;
+        if (exercise.engine === 'chemistry') {
+            if (!window.FastLearnChemistry?.mount) {
+                container.textContent = 'The chemistry activity could not load. Please use the lesson explanation instead.';
+                return;
+            }
+            window.FastLearnChemistry.mount(container, exercise, (answer, label, startedAt, button) =>
+                submitInteractive(container, exercise, answer, label, startedAt, button));
+            return;
+        }
         container.dataset.mounted = '1';
         const startedAt = Date.now();
         const pieces = piecesFromFen(exercise.fen);
@@ -290,28 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (exercise.exercise_type === 'place_pieces' && Object.keys(placements).length) answer = { placements: Object.entries(placements).map(([square, piece]) => ({ square, piece })) };
             if (['path', 'move_sequence'].includes(exercise.exercise_type) && moves.length) answer = { moves };
             if (!answer || submit.disabled) return;
-            submit.disabled = true;
-            addUserMessage(answerLabel(exercise, answer));
-            const thinking = addThinking();
-            try {
-                const response = await fetch('/app/chat/exercise/stream', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat: form.dataset.chatId || '', exercise_id: exercise.id, answer,
-                        duration_seconds: Math.max(0, Math.round((Date.now() - startedAt) / 1000)),
-                    }),
-                });
-                container.closest('.msg-assistant')?.querySelectorAll('button').forEach((button) => { button.disabled = true; });
-                await streamAssistant(response, thinking);
-            } catch (_error) {
-                thinking.remove();
-                const error = document.createElement('div');
-                error.className = 'msg msg-assistant';
-                error.textContent = form.dataset.connectionError || 'Connection error. Please try again.';
-                messages.appendChild(error);
-                submit.disabled = false;
-            }
-            messages.scrollTop = messages.scrollHeight;
+            await submitInteractive(container, exercise, answer, answerLabel(exercise, answer), startedAt, submit);
         });
         card.appendChild(submit);
         container.appendChild(card);

@@ -19,6 +19,7 @@ import db
 import visualizations
 from app_version import APP_VERSION
 from chess_engine import grade as grade_chess
+from chemistry_engine import grade as grade_chemistry
 from .api_core import ErrorEnvelope, Resource, require_write_token
 
 
@@ -103,6 +104,15 @@ def _not_found(resource: str, item_id: int | str):
     raise HTTPException(404, detail={
         "code": "not_found", "message": f"{resource} record not found.", "details": {"id": item_id},
     })
+
+
+def _grade_exercise(exercise: dict, answer: dict) -> dict:
+    """Dispatch to a server-side grader; never delegate correctness to the client."""
+    if exercise["engine"] == "chess":
+        return grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], answer)
+    if exercise["engine"] == "chemistry":
+        return grade_chemistry(exercise["exercise_type"], exercise["answer_payload"], answer)
+    raise HTTPException(422, detail={"code": "unsupported_engine", "message": "Unsupported exercise engine.", "details": {}})
 
 
 def _published_clause(table: str) -> tuple[str, str]:
@@ -254,9 +264,7 @@ def check_exercise(exercise_id: int, payload: ExerciseCheck):
         exercise = db.get_interactive_exercise(connection, exercise_id, include_answer=True)
     if not exercise:
         _not_found("Exercise", exercise_id)
-    if exercise["engine"] != "chess":
-        raise HTTPException(422, detail={"code": "unsupported_engine", "message": "Unsupported exercise engine.", "details": {}})
-    return grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], payload.answer)
+    return _grade_exercise(exercise, payload.answer)
 
 
 @api.get("/v1/learners", dependencies=[Depends(require_write_token)], tags=["Learners"])
@@ -333,7 +341,7 @@ def create_exercise_attempt(payload: ExerciseAttemptCreate):
         exercise = db.get_interactive_exercise(connection, payload.exercise_id, include_answer=True)
         if not exercise:
             _not_found("Exercise", payload.exercise_id)
-        verdict = grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], payload.answer)
+        verdict = _grade_exercise(exercise, payload.answer)
         row = db.record_exercise_attempt(
             connection, user_id=payload.user_id, exercise_id=payload.exercise_id,
             lesson_id=payload.lesson_id, chat_session_id=payload.chat_session_id,

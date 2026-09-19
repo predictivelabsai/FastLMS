@@ -16,6 +16,9 @@ EXPECTED_LESSONS = {
     "Urbanisation and Megacities",
     "The Elements of Art",
     "Composition and Visual Meaning",
+    "Particles, States and Changes",
+    "Atoms, Ions and Isotopes",
+    "Thermodynamics, Kinetics and Equilibrium",
 }
 
 
@@ -23,7 +26,8 @@ def test_curated_visual_library_covers_the_agreed_subject_lessons():
     assert {lesson for _slug, lesson in visualizations.BUILDERS} == EXPECTED_LESSONS
     assert {slug for slug, _lesson in visualizations.BUILDERS} == {
         "mathematics-foundations", "physics-essentials",
-        "geography-physical-human", "art-principles",
+        "geography-physical-human", "art-principles", "primary-science",
+        "chemistry-fundamentals", "advanced-chemistry",
     }
 
 
@@ -34,7 +38,7 @@ def test_every_visual_is_localized_accessible_and_json_safe():
         for lang in visualizations.LANGUAGES:
             spec = builder(lang)
             assert visualizations.validate(spec) == spec
-            assert spec["audience"] == {"min_age": 8, "max_age": 16}
+            assert spec["audience"] in ({"min_age": 8, "max_age": 16}, {"min_age": 16, "max_age": 22})
             assert spec["alt_text"]
             assert spec["ui"]["accessible_data"]
             assert spec["ui"]["load_error"]

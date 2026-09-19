@@ -99,11 +99,11 @@ XAI_API_KEY=xai-...
 python seed.py
 ```
 
-This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), the protected Chess Foundations course, 11 badges, and two accounts:
+This creates the `fastlms` schema, 3 demo courses (Python, ML, FastHTML), the protected Chess Foundations course, Primary Science, Chemistry Fundamentals, Advanced Chemistry, art and music reference courses, 11 badges, and two accounts:
 - **Teacher**: `instructor@fastlms.dev` / `admin`
 - **Student**: `student@fastlms.dev` / `admin`
 
-To add 11 academic and creative subjects (Mathematics, Physics, Biology, Chemistry, English, Geography, Creative Writing, Art History, Music History, Art, and Music):
+To add the six optional academic subjects (Mathematics, Physics, Biology, English, Geography, and Creative Writing):
 
 ```bash
 python seed_subjects.py
@@ -260,7 +260,7 @@ Supported lessons attach a curated interactive visualization to the streamed exp
 
 ## Supported Courses
 
-FastLMS ships with 15 ready-to-use courses:
+FastLMS ships with 11 ready-to-use courses after `python seed.py`, and 17 after the optional academic-subject seed:
 
 ### Programming & Technology
 | Course | Category | Difficulty | Modules | Lessons |
@@ -272,10 +272,12 @@ FastLMS ships with 15 ready-to-use courses:
 ### Academic Subjects
 | Course | Category | Difficulty | Modules | Lessons |
 |--------|----------|------------|---------|---------|
+| Primary Science | Science | Beginner | 4 (Scientific inquiry, Materials, Living World, Energy/Earth) | 9 |
 | Mathematics Foundations | Mathematics | Beginner | 2 (Algebra, Geometry) | 3 |
 | Physics Essentials | Physics | Intermediate | 1 (Mechanics) | 2 |
 | Biology: Life Sciences | Biology | Beginner | 2 (Cell Biology, Genetics) | 4 |
-| Chemistry Fundamentals | Chemistry | Intermediate | 2 (Atomic Structure, Reactions) | 4 |
+| Chemistry Fundamentals | Chemistry | Intermediate | 4 (Particles, Bonding, Reactions, Energy) | 10 |
+| Advanced Chemistry | Chemistry | Advanced | 4 (Physical, Organic, Inorganic, Practical) | 9 |
 | English Language & Literature | English | Beginner | 2 (Reading, Writing) | 4 |
 | Geography: Physical & Human | Geography | Beginner | 2 (Physical, Human) | 4 |
 | Creative Writing | Creative Writing | Beginner | 2 (Storytelling, Poetry) | 4 |
@@ -295,7 +297,11 @@ FastLMS ships with 15 ready-to-use courses:
 
 Chess Foundations I is installed idempotently during schema bootstrap. Its 20 guided exercises cover multiple choice, square selection, piece placement, route planning, and capture sequences. Learner-facing text is original FastLearn material available in English, Estonian, Lithuanian, and Spanish; the board engine keeps expected answers on the server.
 
-Run `python seed.py` for the 3 programming courses, then `python seed_subjects.py` for the 11 academic and creative subjects.
+Primary Science and the chemistry pathway are installed idempotently during schema bootstrap. They follow England's science progression: Primary Science (Years 1–6), Chemistry Fundamentals (KS3–GCSE), and Advanced Chemistry (A-level to first-year university bridge). Guided activities are available in English and Estonian first; other languages fall back safely to English pending reviewed translations. Molecular activities use a checked-in 3Dmol.js viewer with a non-WebGL text fallback. Chemistry answers stay server-side and attempts use the same mastery and adaptive-learning records as other guided practice.
+
+See [the curriculum crosswalk](docs/chemistry_curriculum.md) for the implemented scope, reference points, and delivery rules.
+
+Run `python seed.py` for the core catalogue, then `python seed_subjects.py` for the six optional academic subjects.
 
 ## Integration API
 
