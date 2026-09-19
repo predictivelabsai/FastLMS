@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from urllib.parse import quote, urlencode
 
 from fasthtml.common import *
+import markdown
 
 from app_version import APP_VERSION
 from .account_auth import AUTH_CSS, AUTH_JS, auth_modal
@@ -15,6 +17,8 @@ from .seo import seo_meta
 FASTLEARN_URL = "https://fastlearn.fun/"
 REPOSITORY_URL = "https://github.com/predictivelabsai/FastLMS"
 ANDROID_APK_URL = "https://github.com/predictivelabsai/fastlearn-mobile/releases/latest/download/fastlearn-mobile-latest.apk"
+EXAM_PREP_METHODOLOGY_URL = "/methodology"
+EXAM_PREP_METHODOLOGY_PDF_URL = "/static/exam_prep_methodology.pdf"
 ACCENT = "#256b62"
 TINT = "#f1f8f6"
 FAVICON = "data:image/svg+xml," + quote(
@@ -58,6 +62,13 @@ a{color:inherit}.site-nav{height:70px;display:flex;align-items:center;justify-co
 @media(max-width:820px){.nav-actions{gap:9px}.nav-link.optional,.nav-actions>.secondary{display:none}.hero{padding-top:74px}.metrics,.card-grid,.oss-grid,.partner-grid,.split,.mobile-download{grid-template-columns:1fr}.metric{border-right:1px solid var(--line);border-bottom:0}.metric:first-child{border-radius:18px 18px 0 0}.metric:last-child{border-bottom:1px solid var(--line);border-radius:0 0 18px 18px}.mobile-download{padding:32px}.cta{margin-inline:16px;padding:34px;grid-template-columns:1fr}.footer{flex-direction:column}.footer-links{flex-wrap:wrap}}
 """
 
+METHODOLOGY_CSS = """
+.methodology-page{min-height:100vh;background:linear-gradient(180deg,#f1f8f6 0,rgba(241,248,246,.42) 320px,#fbfdfc 690px)}
+.methodology-hero{max-width:1100px;margin:auto;padding:82px 26px 48px}.methodology-kicker{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.methodology-hero h1{max-width:760px;margin:14px 0;font-size:clamp(42px,6vw,70px);line-height:1.02;letter-spacing:-.055em}.methodology-hero p{max-width:720px;color:var(--muted);font-size:18px;line-height:1.65}.methodology-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}.methodology-actions .button.secondary{background:transparent}
+.methodology-shell{max-width:1100px;margin:auto;padding:0 26px 84px}.methodology-content{max-width:820px;padding:42px 52px 60px;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 18px 54px rgba(37,107,98,.08)}.methodology-content h1{display:none}.methodology-content h2{scroll-margin-top:24px;color:var(--ink);font-size:29px;line-height:1.18;letter-spacing:-.035em;margin:48px 0 16px;padding-top:4px}.methodology-content h2:first-of-type{margin-top:0}.methodology-content h3{scroll-margin-top:24px;color:var(--accent-strong);font-size:20px;margin:30px 0 10px}.methodology-content p,.methodology-content li{font-size:16px;line-height:1.7}.methodology-content p{margin:0 0 16px}.methodology-content ul,.methodology-content ol{padding-left:25px;margin:0 0 19px}.methodology-content li{margin:7px 0}.methodology-content a{color:#086da5;text-decoration-thickness:1.5px;text-underline-offset:3px}.methodology-content strong{color:var(--ink)}.methodology-content h2#table-of-contents+ol{display:grid;gap:5px;padding:23px 28px;background:var(--tint);border:1px solid var(--line);border-radius:16px}.methodology-note{margin:0 0 28px;padding:16px 18px;background:#fffbeb;border:1px solid #fde68a;border-radius:14px;color:#5f4b18;font-size:14px;line-height:1.55}
+@media(max-width:700px){.methodology-hero{padding-top:55px}.methodology-content{padding:30px 23px;border-radius:18px}.methodology-content h2{font-size:25px}.methodology-content p,.methodology-content li{font-size:15px}}
+"""
+
 
 def _language_switcher(lang: str, current_path: str):
     current = LANG_META.get(lang, LANG_META["en"])
@@ -91,6 +102,7 @@ def _head(*, lang: str, product: bool):
 def _nav(*, brand: str, lang: str, product: bool):
     if product:
         links = (A(t("overview", lang), href="#overview", cls="nav-link optional"), A("Pricing", href="#pricing", cls="nav-link optional"), A(t("courses", lang), href="#subjects", cls="nav-link optional"),
+                 A("Methodology", href=EXAM_PREP_METHODOLOGY_URL, cls="nav-link"),
                  A(t("android_app", lang), href="#mobile", cls="nav-link optional"),
                  _language_switcher(lang, "/"), A(t("sign_in", lang).title(), href="/auth/login", cls="button primary"))
     else:
@@ -198,8 +210,42 @@ def fastlearn_landing(lang: str = "en"):
                         A(t("start_learning", lang), href="/auth/login", cls="button"), cls="cta"),
             ),
             _pricing_section(lang),
-            Footer(Div(Span("© 2026 FastLearn"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A(t("download_android", lang), href=ANDROID_APK_URL), A("FastLMS", href="https://lms.fastsme.com"), A(t("language", lang), href="#overview"), cls="footer-links"), cls="footer"),
+            Footer(Div(Span("© 2026 FastLearn"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A(t("download_android", lang), href=ANDROID_APK_URL), A("Methodology", href=EXAM_PREP_METHODOLOGY_URL), A("FastLMS", href="https://lms.fastsme.com"), A(t("language", lang), href="#overview"), cls="footer-links"), cls="footer"),
             auth_modal("FastLearn", lang), Script(AUTH_JS),
+        ), lang=lang,
+    )
+
+
+def exam_prep_methodology_page(lang: str = "en"):
+    """Render the canonical methodology source as a readable public web page."""
+    source = (Path(__file__).resolve().parents[1] / "docs" / "exam_prep_methodology.md").read_text(encoding="utf-8")
+    source_without_title = source.split("\n", 1)[1]
+    rendered = markdown.markdown(source_without_title, extensions=["toc", "sane_lists"])
+    return Html(
+        _head(lang=lang, product=True),
+        Style(METHODOLOGY_CSS),
+        Body(
+            _nav(brand="FastLearn", lang=lang, product=True),
+            Main(
+                Section(
+                    Div("FastLearn · Exam Prep", cls="methodology-kicker"),
+                    H1("Exam Prep Methodology"),
+                    P("How FastLearn designs guided exam preparation, assessment practice, visual learning and quality checks."),
+                    Div(
+                        A("Download PDF", href=EXAM_PREP_METHODOLOGY_PDF_URL, download="exam_prep_methodology.pdf", cls="button primary"),
+                        A("Back to FastLearn", href="/", cls="button secondary"),
+                        cls="methodology-actions",
+                    ),
+                    cls="methodology-hero",
+                ),
+                Section(
+                    Div("This is an independent FastLearn methodology, not an official assessment provider document.", cls="methodology-note"),
+                    Article(NotStr(rendered), cls="methodology-content"),
+                    cls="methodology-shell",
+                ),
+            ),
+            Footer(Div(Span("© 2026 FastLearn"), Span(f"v{APP_VERSION}", cls="site-version")), Div(A("Download PDF", href=EXAM_PREP_METHODOLOGY_PDF_URL, download="exam_prep_methodology.pdf"), A("FastLearn", href="/"), cls="footer-links"), cls="footer"),
+            cls="methodology-page",
         ), lang=lang,
     )
 

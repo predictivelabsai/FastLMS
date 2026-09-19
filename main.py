@@ -40,7 +40,7 @@ from components.layout import (
     xp_popup,
 )
 from components.chat_markdown import render_chat_markdown
-from components.landing import landing_page
+from components.landing import exam_prep_methodology_page, landing_page
 from components.i18n import (
     SUPPORTED_LANGS,
     get_lang,
@@ -198,6 +198,12 @@ def fastlms_reference(req):
 def fastlearn_reference(req):
     """Stable route for FastLearn product landing capture and review."""
     return landing_page(get_lang(req), product=True)
+
+
+@app.get("/methodology")
+def exam_prep_methodology(req):
+    """Public, accessible HTML edition of the FastLearn exam-prep methodology."""
+    return exam_prep_methodology_page(get_lang(req))
 
 
 @app.get("/set-lang")
