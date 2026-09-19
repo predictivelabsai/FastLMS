@@ -249,6 +249,25 @@ def lesson_visualizations(lesson_id: int, lang: str = Query("en", pattern="^(en|
     return {"data": rows, "meta": {"total": len(rows)}}
 
 
+@api.get("/v1/lessons/{lesson_id}/guided-content", tags=["Lessons"])
+def lesson_guided_content(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
+    """One answer-safe request for a native lesson reader.
+
+    This is deliberately a read-only bundle: clients receive authored lesson
+    content, public exercise scenarios, and the portable visualization schema,
+    but never an exercise answer key or a learner record.
+    """
+    lesson = _get_public("lessons", lesson_id, lang)
+    with db.connect() as connection:
+        exercises = db.get_lesson_exercises(connection, lesson_id, lang)
+        visuals = visualizations.for_lesson_id(connection, lesson_id, lang, db.S)
+    return {
+        "lesson": lesson,
+        "exercises": exercises,
+        "visualizations": visuals,
+    }
+
+
 @api.get("/v1/exercises/{exercise_id}", tags=["Exercises"])
 def get_exercise(exercise_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
     with db.connect() as connection:

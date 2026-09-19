@@ -72,3 +72,13 @@ def test_bootstrap_and_api_dispatch_chemistry_without_exposing_answers():
     assert "grade_chemistry" in chat
     assert "grade_chemistry" in api
     assert 'item.pop("answer_payload", None)' in database
+
+
+def test_mobile_guided_content_bundle_is_public_and_answer_safe():
+    api = Path("components/api.py").read_text(encoding="utf-8")
+    assert '@api.get("/v1/lessons/{lesson_id}/guided-content"' in api
+    assert '"exercises": exercises' in api
+    assert '"visualizations": visuals' in api
+    assert "include_answer=True" not in api.split("def lesson_guided_content", 1)[1].split(
+        '@api.get("/v1/exercises/{exercise_id}"', 1
+    )[0]
