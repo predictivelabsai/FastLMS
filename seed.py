@@ -14,6 +14,7 @@ import sqlalchemy as sa
 from dotenv import load_dotenv
 
 import db
+from components.account_auth import AccountStore
 
 load_dotenv()
 
@@ -537,24 +538,26 @@ def seed_all():
             )
         print(f"  {len(BADGES)} badges seeded")
 
-        # Demo instructor
+        # Demo accounts — scrypt (same scheme as account_auth / main._hash_pw)
+        demo_password_hash = AccountStore._hash_password("admin")
         conn.execute(
             sa.text(f"""
                 INSERT INTO {S}.users (email, password_hash, display_name, role)
-                VALUES ('instructor@fastlms.dev', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Demo Instructor', 'instructor')
-                ON CONFLICT (email) DO NOTHING
+                VALUES ('instructor@fastlms.dev', :password_hash, 'Demo Instructor', 'instructor')
+                ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
             """),
+            {"password_hash": demo_password_hash},
         )
         instructor = db.get_user_by_email(conn, "instructor@fastlms.dev")
         default_owner = db.get_user_by_email(conn, db.ADMIN_EMAIL) or instructor
 
-        # Demo student
         conn.execute(
             sa.text(f"""
                 INSERT INTO {S}.users (email, password_hash, display_name, role)
-                VALUES ('student@fastlms.dev', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Demo Student', 'student')
-                ON CONFLICT (email) DO NOTHING
+                VALUES ('student@fastlms.dev', :password_hash, 'Demo Student', 'student')
+                ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
             """),
+            {"password_hash": demo_password_hash},
         )
 
         # Courses

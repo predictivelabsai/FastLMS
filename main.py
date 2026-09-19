@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import html
 import json
 import os
@@ -55,10 +56,37 @@ from components.developer import developer_page
 from components import account_auth, google_auth
 from components.api import api
 
+_DEV_SESSION_FALLBACK = "fastlms-dev-secret-change-me"
+_WEAK_SESSION_SECRETS = frozenset({
+    _DEV_SESSION_FALLBACK,
+    "fastlms-change-me-in-production",
+})
+_DEV_ENVIRONMENTS = frozenset({"dev", "development", "local", "test"})
+
+
+def _is_dev_environment() -> bool:
+    """Weak secrets are allowed only in an explicit dev/test APP_ENV (or ENV)."""
+    app_env = (os.environ.get("APP_ENV") or os.environ.get("ENV") or "").strip().lower()
+    return app_env in _DEV_ENVIRONMENTS
+
+
+def _session_secret() -> str:
+    secret = (os.environ.get("SESSION_SECRET") or "").strip()
+    if secret and secret not in _WEAK_SESSION_SECRETS:
+        return secret
+    if _is_dev_environment():
+        return secret or _DEV_SESSION_FALLBACK
+    raise RuntimeError(
+        "SESSION_SECRET must be set to a strong unique value outside explicit "
+        "dev/test (APP_ENV=dev|development|local|test). Do not use the weak "
+        "documented defaults in production or staging."
+    )
+
+
 app = FastHTML(
     hdrs=[],
     static_path="static",
-    secret_key=os.environ.get("SESSION_SECRET", "fastlms-dev-secret-change-me"),
+    secret_key=_session_secret(),
 )
 app.mount("/api", api)
 
@@ -109,7 +137,34 @@ def _google_success_destination(return_to: str) -> str:
     return MOBILE_AUTH_CALLBACK_URI if return_to == MOBILE_AUTH_RETURN else "/app"
 
 def _hash_pw(pw: str) -> str:
-    return hashlib.sha256(pw.encode()).hexdigest()
+    """Hash with scrypt (same scheme as account_auth). Never SHA256 for new passwords."""
+    return account_auth.AccountStore._hash_password(pw)
+
+
+def _is_legacy_password_hash(encoded: str | None) -> bool:
+    """Unsalted SHA256 hex digests from the pre-scrypt users table."""
+    if not encoded or "$" in encoded:
+        return False
+    return len(encoded) == 64 and all(c in "0123456789abcdef" for c in encoded.lower())
+
+
+def _verify_user_password(password: str, encoded: str | None) -> bool:
+    if not encoded:
+        return False
+    if encoded.startswith("scrypt$"):
+        return account_auth.AccountStore._verify_password(password, encoded)
+    if _is_legacy_password_hash(encoded):
+        legacy = hashlib.sha256(password.encode()).hexdigest()
+        return hmac.compare_digest(legacy, encoded)
+    return False
+
+
+def _upgrade_legacy_password(conn, user_id: int, password: str) -> None:
+    import sqlalchemy as sa
+    conn.execute(
+        sa.text(f"UPDATE {db.S}.users SET password_hash = :p WHERE id = :id"),
+        {"p": _hash_pw(password), "id": user_id},
+    )
 
 
 def _get_session_user(req) -> dict | None:
@@ -169,10 +224,18 @@ def _consume_invitation(conn, token_hash: str, user: dict) -> bool:
 
 @app.get("/static/{path:path}")
 def static_file(path: str):
+    """Serve files from static/ only — reject path traversal escapes."""
+    from pathlib import Path
     from starlette.responses import FileResponse
-    fpath = f"static/{path}"
-    if os.path.isfile(fpath):
-        return FileResponse(fpath)
+
+    static_root = Path("static").resolve()
+    candidate = (static_root / path).resolve()
+    try:
+        candidate.relative_to(static_root)
+    except ValueError:
+        return Response("Not found", status_code=404)
+    if candidate.is_file():
+        return FileResponse(candidate)
     return Response("Not found", status_code=404)
 
 
@@ -299,11 +362,13 @@ async def login_post(req):
     form = await req.form()
     email = form.get("email", "").strip().lower()
     password = form.get("password", "")
-    with db.connect() as conn:
+    with db.begin() as conn:
         user = db.get_user_by_email(conn, email)
-    if not user or user["password_hash"] != _hash_pw(password):
-        return RedirectResponse("/auth/login?error=Invalid+email+or+password", status_code=303)
-    req.session["user_id"] = user["id"]
+        if not user or not _verify_user_password(password, user["password_hash"]):
+            return RedirectResponse("/auth/login?error=Invalid+email+or+password", status_code=303)
+        if _is_legacy_password_hash(user["password_hash"]):
+            _upgrade_legacy_password(conn, user["id"], password)
+        req.session["user_id"] = user["id"]
     return RedirectResponse("/app", status_code=303)
 
 
