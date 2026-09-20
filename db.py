@@ -116,6 +116,67 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.courses (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Versioned national and regional curriculum catalogue.  Courses point to a
+-- program rather than encoding country/grade assumptions in display strings.
+CREATE TABLE IF NOT EXISTS {SCHEMA}.curriculum_frameworks (
+    id                  SERIAL PRIMARY KEY,
+    country_code        CHAR(2) NOT NULL,
+    jurisdiction_code   TEXT NOT NULL,
+    code                TEXT NOT NULL,
+    title               TEXT NOT NULL,
+    version             TEXT NOT NULL,
+    effective_from      DATE,
+    effective_to        DATE,
+    authority           TEXT NOT NULL,
+    canonical_language  TEXT NOT NULL,
+    supported_languages JSONB NOT NULL DEFAULT '[]'::jsonb,
+    source_urls         JSONB NOT NULL DEFAULT '[]'::jsonb,
+    UNIQUE(code, version)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.curriculum_programs (
+    id                  SERIAL PRIMARY KEY,
+    framework_id        INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_frameworks(id) ON DELETE CASCADE,
+    code                TEXT UNIQUE NOT NULL,
+    subject_code        TEXT NOT NULL,
+    subject_title       TEXT NOT NULL,
+    stage_code          TEXT NOT NULL,
+    grade_code          TEXT NOT NULL,
+    estimated_periods   INTEGER,
+    description         TEXT,
+    is_active           BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.curriculum_topics (
+    id                  SERIAL PRIMARY KEY,
+    program_id          INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_programs(id) ON DELETE CASCADE,
+    code                TEXT NOT NULL,
+    title               TEXT NOT NULL,
+    description         TEXT,
+    order_idx           INTEGER NOT NULL DEFAULT 0,
+    recommended_periods INTEGER,
+    UNIQUE(program_id, code)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.curriculum_outcomes (
+    id                  SERIAL PRIMARY KEY,
+    topic_id            INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_topics(id) ON DELETE CASCADE,
+    code                TEXT UNIQUE NOT NULL,
+    description         TEXT NOT NULL,
+    prerequisites       JSONB NOT NULL DEFAULT '[]'::jsonb,
+    allowed_scope       JSONB NOT NULL DEFAULT '[]'::jsonb,
+    excluded_scope      JSONB NOT NULL DEFAULT '[]'::jsonb,
+    order_idx           INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.course_curriculum_profiles (
+    course_id           INTEGER PRIMARY KEY REFERENCES {SCHEMA}.courses(id) ON DELETE CASCADE,
+    program_id          INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_programs(id),
+    is_locked           BOOLEAN NOT NULL DEFAULT false,
+    school_overlay      JSONB NOT NULL DEFAULT '{{}}'::jsonb,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Modules (sections within a course)
 CREATE TABLE IF NOT EXISTS {SCHEMA}.modules (
     id              SERIAL PRIMARY KEY,
@@ -160,7 +221,8 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.quiz_questions (
     options         JSONB NOT NULL DEFAULT '[]',
     correct_answer  TEXT NOT NULL,
     explanation     TEXT,
-    order_idx       INTEGER NOT NULL DEFAULT 0
+    order_idx       INTEGER NOT NULL DEFAULT 0,
+    source_type     TEXT NOT NULL DEFAULT 'authored'
 );
 
 -- Lesson progress
@@ -254,6 +316,7 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.course_learning_settings (
     high_streak     INTEGER NOT NULL DEFAULT 2,
     allow_reorder   BOOLEAN NOT NULL DEFAULT true,
     allow_remedial  BOOLEAN NOT NULL DEFAULT true,
+    question_source TEXT NOT NULL DEFAULT 'llm_reviewed',
     updated_by      INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -307,6 +370,7 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.content_drafts (
     difficulty_level INTEGER NOT NULL DEFAULT 2,
     content         JSONB NOT NULL DEFAULT '{{}}'::jsonb,
     status          TEXT NOT NULL DEFAULT 'pending',
+    generation_source TEXT NOT NULL DEFAULT 'template',
     created_by      INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
     approved_by     INTEGER REFERENCES {SCHEMA}.users(id) ON DELETE SET NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -370,6 +434,24 @@ CREATE TABLE IF NOT EXISTS {SCHEMA}.lesson_exercises (
     exercise_id         BIGINT NOT NULL REFERENCES {SCHEMA}.interactive_exercises(id) ON DELETE CASCADE,
     order_idx           INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (lesson_id, exercise_id)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.lesson_curriculum_outcomes (
+    lesson_id           INTEGER NOT NULL REFERENCES {SCHEMA}.lessons(id) ON DELETE CASCADE,
+    outcome_id          INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_outcomes(id) ON DELETE CASCADE,
+    PRIMARY KEY (lesson_id, outcome_id)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.quiz_question_curriculum_outcomes (
+    question_id         INTEGER NOT NULL REFERENCES {SCHEMA}.quiz_questions(id) ON DELETE CASCADE,
+    outcome_id          INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_outcomes(id) ON DELETE CASCADE,
+    PRIMARY KEY (question_id, outcome_id)
+);
+
+CREATE TABLE IF NOT EXISTS {SCHEMA}.exercise_curriculum_outcomes (
+    exercise_id         BIGINT NOT NULL REFERENCES {SCHEMA}.interactive_exercises(id) ON DELETE CASCADE,
+    outcome_id          INTEGER NOT NULL REFERENCES {SCHEMA}.curriculum_outcomes(id) ON DELETE CASCADE,
+    PRIMARY KEY (exercise_id, outcome_id)
 );
 
 CREATE TABLE IF NOT EXISTS {SCHEMA}.exercise_attempts (
@@ -444,7 +526,23 @@ ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS lesson_kind TEXT NOT NULL 
 ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS difficulty_level INTEGER NOT NULL DEFAULT 2;
 ALTER TABLE {SCHEMA}.lessons ADD COLUMN IF NOT EXISTS prerequisite_lesson_id INTEGER REFERENCES {SCHEMA}.lessons(id) ON DELETE SET NULL;
 ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS difficulty_level INTEGER NOT NULL DEFAULT 2;
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS source_type TEXT NOT NULL DEFAULT 'authored';
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS question_kind TEXT NOT NULL DEFAULT 'single_choice';
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS cognitive_process TEXT NOT NULL DEFAULT 'understand';
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS misconception_target TEXT;
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS worked_solution TEXT;
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS safety_classification TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE {SCHEMA}.quiz_questions ADD COLUMN IF NOT EXISTS scope_confirmation TEXT;
 ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS is_default BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS country_code CHAR(2);
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS jurisdiction_code TEXT;
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS curriculum_code TEXT;
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS curriculum_version TEXT;
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS grade_code TEXT;
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS canonical_language TEXT NOT NULL DEFAULT 'en';
+ALTER TABLE {SCHEMA}.courses ADD COLUMN IF NOT EXISTS supported_languages JSONB NOT NULL DEFAULT '["en"]'::jsonb;
+ALTER TABLE {SCHEMA}.course_learning_settings ADD COLUMN IF NOT EXISTS question_source TEXT NOT NULL DEFAULT 'llm_reviewed';
+ALTER TABLE {SCHEMA}.content_drafts ADD COLUMN IF NOT EXISTS generation_source TEXT NOT NULL DEFAULT 'template';
 
 -- The checked-in demonstration catalogue is administrator-owned reference
 -- material. Teachers may assign or clone it, but never edit it in place.
@@ -516,6 +614,9 @@ CREATE INDEX IF NOT EXISTS idx_language_attempts_user ON {SCHEMA}.language_attem
 CREATE INDEX IF NOT EXISTS idx_lesson_exercises_order ON {SCHEMA}.lesson_exercises(lesson_id, order_idx);
 CREATE INDEX IF NOT EXISTS idx_exercise_attempts_user ON {SCHEMA}.exercise_attempts(user_id, attempted_at DESC);
 CREATE INDEX IF NOT EXISTS idx_exercise_attempts_lesson ON {SCHEMA}.exercise_attempts(lesson_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_curriculum_program_lookup ON {SCHEMA}.curriculum_programs(subject_code, grade_code, is_active);
+CREATE INDEX IF NOT EXISTS idx_curriculum_topic_program ON {SCHEMA}.curriculum_topics(program_id, order_idx);
+CREATE INDEX IF NOT EXISTS idx_curriculum_outcome_topic ON {SCHEMA}.curriculum_outcomes(topic_id, order_idx);
 
 -- Normalise the legacy role name and keep one deliberately scoped administrator.
 UPDATE {SCHEMA}.users SET role = 'teacher' WHERE role = 'instructor';
@@ -537,10 +638,12 @@ def bootstrap_schema():
         # deployments receive them without a destructive catalogue reset.
         from arts_catalog import seed_art_courses
         from chess_course import seed_chess_course
+        from estonian_chemistry_catalog import seed_curricula_and_estonian_chemistry
         from science_catalog import seed_science_courses
         seed_art_courses(conn, SCHEMA)
         seed_chess_course(conn, SCHEMA)
         seed_science_courses(conn, SCHEMA)
+        seed_curricula_and_estonian_chemistry(conn, SCHEMA)
 
 
 # ---------------------------------------------------------------------------
@@ -548,6 +651,109 @@ def bootstrap_schema():
 # ---------------------------------------------------------------------------
 
 S = SCHEMA  # shorthand for queries
+
+
+def list_curriculum_programs(conn, *, active_only: bool = True) -> list[dict]:
+    where = "WHERE cp.is_active=true" if active_only else ""
+    rows = conn.execute(sa.text(f"""
+        SELECT cp.*, cf.country_code, cf.jurisdiction_code,
+               cf.title AS framework_title, cf.version, cf.effective_from,
+               cf.canonical_language, cf.supported_languages, cf.source_urls
+        FROM {S}.curriculum_programs cp
+        JOIN {S}.curriculum_frameworks cf ON cf.id=cp.framework_id
+        {where}
+        ORDER BY cf.country_code, cp.grade_code, cp.subject_title
+    """)).mappings().all()
+    return [dict(row) for row in rows]
+
+
+def curriculum_program(conn, program_id: int) -> dict | None:
+    row = conn.execute(sa.text(f"""
+        SELECT cp.*, cf.country_code, cf.jurisdiction_code,
+               cf.title AS framework_title, cf.version, cf.effective_from,
+               cf.canonical_language, cf.supported_languages, cf.source_urls
+        FROM {S}.curriculum_programs cp
+        JOIN {S}.curriculum_frameworks cf ON cf.id=cp.framework_id
+        WHERE cp.id=:id AND cp.is_active=true
+    """), {"id": program_id}).mappings().first()
+    return dict(row) if row else None
+
+
+def course_curriculum(conn, course_id: int) -> dict | None:
+    row = conn.execute(sa.text(f"""
+        SELECT cp.*, p.code AS program_code, p.subject_code, p.subject_title,
+               p.stage_code, p.grade_code, p.estimated_periods,
+               f.country_code, f.jurisdiction_code, f.title AS framework_title,
+               f.version, f.effective_from, f.canonical_language,
+               f.supported_languages, f.source_urls
+        FROM {S}.course_curriculum_profiles cp
+        JOIN {S}.curriculum_programs p ON p.id=cp.program_id
+        JOIN {S}.curriculum_frameworks f ON f.id=p.framework_id
+        WHERE cp.course_id=:course
+    """), {"course": course_id}).mappings().first()
+    return dict(row) if row else None
+
+
+def curriculum_context_for_lesson(conn, lesson_id: int) -> dict | None:
+    profile = conn.execute(sa.text(f"""
+        SELECT c.id AS course_id, c.canonical_language, c.supported_languages,
+               p.code AS program_code, p.subject_title, p.stage_code, p.grade_code,
+               f.country_code, f.jurisdiction_code, f.version,
+               f.canonical_language AS framework_language,
+               array_remove(array_agg(DISTINCT o.code), NULL) AS outcome_codes,
+               array_remove(array_agg(DISTINCT o.description), NULL) AS outcomes,
+               COALESCE(jsonb_agg(DISTINCT x.scope) FILTER (WHERE x.scope IS NOT NULL), '[]'::jsonb) AS excluded_scope
+        FROM {S}.lessons l
+        JOIN {S}.modules m ON m.id=l.module_id
+        JOIN {S}.courses c ON c.id=m.course_id
+        LEFT JOIN {S}.course_curriculum_profiles cp ON cp.course_id=c.id
+        LEFT JOIN {S}.curriculum_programs p ON p.id=cp.program_id
+        LEFT JOIN {S}.curriculum_frameworks f ON f.id=p.framework_id
+        LEFT JOIN {S}.lesson_curriculum_outcomes lo ON lo.lesson_id=l.id
+        LEFT JOIN {S}.curriculum_outcomes o ON o.id=lo.outcome_id
+        LEFT JOIN LATERAL jsonb_array_elements_text(COALESCE(o.excluded_scope, '[]'::jsonb)) x(scope) ON true
+        WHERE l.id=:lesson
+        GROUP BY c.id,c.canonical_language,c.supported_languages,p.code,p.subject_title,
+                 p.stage_code,p.grade_code,f.country_code,f.jurisdiction_code,f.version,
+                 f.canonical_language
+    """), {"lesson": lesson_id}).mappings().first()
+    return dict(profile) if profile and profile.get("program_code") else None
+
+
+def attach_course_curriculum(conn, *, course_id: int, program_id: int) -> dict:
+    """Attach a curriculum before attempts exist; profiles lock on first attempt."""
+    program = curriculum_program(conn, program_id)
+    if not program:
+        raise ValueError("Unknown curriculum program")
+    current = course_curriculum(conn, course_id)
+    has_attempts = conn.execute(sa.text(f"""
+        SELECT EXISTS(
+            SELECT 1 FROM {S}.quiz_attempts qa JOIN {S}.quizzes q ON q.id=qa.quiz_id
+            JOIN {S}.lessons l ON l.id=q.lesson_id JOIN {S}.modules m ON m.id=l.module_id
+            WHERE m.course_id=:course
+            UNION ALL
+            SELECT 1 FROM {S}.exercise_attempts WHERE course_id=:course
+        )
+    """), {"course": course_id}).scalar()
+    if current and (current.get("is_locked") or has_attempts) and current["program_id"] != program_id:
+        conn.execute(sa.text(f"UPDATE {S}.course_curriculum_profiles SET is_locked=true WHERE course_id=:course"), {"course": course_id})
+        raise ValueError("Curriculum is locked after the first learner attempt; clone the course to change it")
+    conn.execute(sa.text(f"""
+        INSERT INTO {S}.course_curriculum_profiles (course_id,program_id,is_locked)
+        VALUES (:course,:program,:locked)
+        ON CONFLICT (course_id) DO UPDATE SET program_id=EXCLUDED.program_id,
+            is_locked={S}.course_curriculum_profiles.is_locked OR EXCLUDED.is_locked
+    """), {"course": course_id, "program": program_id, "locked": bool(has_attempts)})
+    conn.execute(sa.text(f"""
+        UPDATE {S}.courses SET country_code=:country,jurisdiction_code=:jurisdiction,
+            curriculum_code=:code,curriculum_version=:version,grade_code=:grade,
+            canonical_language=:language,supported_languages=CAST(:languages AS jsonb)
+        WHERE id=:course
+    """), {"country": program["country_code"], "jurisdiction": program["jurisdiction_code"],
+            "code": program["code"], "version": program["version"], "grade": program["grade_code"],
+            "language": program["canonical_language"], "languages": json.dumps(program["supported_languages"]),
+            "course": course_id})
+    return course_curriculum(conn, course_id)
 
 
 def get_user(conn, user_id: int) -> dict | None:
@@ -563,7 +769,9 @@ def get_user_by_email(conn, email: str) -> dict | None:
 def _localized(rows, entity: str, lang: str, conn=None):
     from components.i18n import localize_record
     localized = [localize_record(dict(row), entity, lang) for row in rows]
-    if lang == "en" or conn is None or not localized:
+    # Most legacy catalogue rows are English-first, but national curricula may
+    # use another canonical language and store English as a normal overlay.
+    if conn is None or not localized:
         return localized
     ids = [row["id"] for row in localized]
     translations = conn.execute(
@@ -742,6 +950,9 @@ def record_exercise_attempt(
         "optimal": verdict.get("optimal"), "duration": max(0, min(int(duration_seconds or 0), 5400)),
         "band": exercise["difficulty_band"],
     }).mappings().one()
+    conn.execute(sa.text(f"""
+        UPDATE {S}.course_curriculum_profiles SET is_locked=true WHERE course_id=:course
+    """), {"course": context["course_id"]})
     update_exercise_adaptive_state(conn, user_id=user_id, course_id=context["course_id"], correct=bool(verdict.get("correct")))
     return dict(row)
 
@@ -797,12 +1008,27 @@ def get_quiz_for_lesson(conn, lesson_id: int, lang="en") -> dict | None:
     return _localized([row], "quizzes", lang, conn)[0] if row else None
 
 
+def questions_for_source(rows: list[dict], question_source: str) -> list[dict]:
+    """Apply the reviewed-LLM toggle with an authored safety fallback."""
+    authored = [row for row in rows if row.get("source_type", "authored") != "llm"]
+    generated = [row for row in rows if row.get("source_type") == "llm"]
+    return generated if question_source == "llm_reviewed" and generated else authored
+
+
 def get_quiz_questions(conn, quiz_id: int, lang="en", learner_level: int | None = None) -> list[dict]:
     rows = conn.execute(
         sa.text(f"SELECT * FROM {S}.quiz_questions WHERE quiz_id = :q ORDER BY order_idx"),
         {"q": quiz_id},
     ).mappings().all()
-    questions = _localized(rows, "quiz_questions", lang, conn)
+    source = conn.execute(sa.text(f"""
+        SELECT COALESCE(cls.question_source, 'llm_reviewed')
+        FROM {S}.quizzes q
+        JOIN {S}.lessons l ON l.id=q.lesson_id
+        JOIN {S}.modules m ON m.id=l.module_id
+        LEFT JOIN {S}.course_learning_settings cls ON cls.course_id=m.course_id
+        WHERE q.id=:quiz
+    """), {"quiz": quiz_id}).scalar() or "fixed"
+    questions = _localized(questions_for_source([dict(row) for row in rows], source), "quiz_questions", lang, conn)
     if learner_level is None or not questions:
         return questions
     level = max(1, min(3, int(learner_level)))
@@ -816,6 +1042,34 @@ def get_lesson_progress(conn, user_id: int, lesson_id: int) -> dict | None:
         {"u": user_id, "l": lesson_id},
     ).mappings().first()
     return dict(row) if row else None
+
+
+def lesson_access(conn, user_id: int, lesson_id: int) -> dict:
+    """Return access state for a lesson, including mastery-gated preludes."""
+    row = conn.execute(sa.text(f"""
+        SELECT l.prerequisite_lesson_id, p.lesson_kind AS prerequisite_kind,
+               cp.code AS program_code
+        FROM {S}.lessons l
+        JOIN {S}.modules m ON m.id=l.module_id
+        LEFT JOIN {S}.lessons p ON p.id=l.prerequisite_lesson_id
+        LEFT JOIN {S}.course_curriculum_profiles profile ON profile.course_id=m.course_id
+        LEFT JOIN {S}.curriculum_programs cp ON cp.id=profile.program_id
+        WHERE l.id=:lesson
+    """), {"lesson": lesson_id}).mappings().first()
+    if not row or row["program_code"] != "EE-PROK-2026-CHEM-G8" or row["prerequisite_kind"] != "prelude":
+        return {"unlocked": True, "prerequisite_lesson_id": row["prerequisite_lesson_id"] if row else None}
+    prerequisite = row["prerequisite_lesson_id"]
+    mastered = conn.execute(sa.text(f"""
+        SELECT EXISTS(
+            SELECT 1 FROM {S}.lesson_progress lp
+            WHERE lp.user_id=:user AND lp.lesson_id=:lesson AND lp.status='completed'
+        ) AND EXISTS(
+            SELECT 1 FROM {S}.quiz_attempts qa
+            JOIN {S}.quizzes q ON q.id=qa.quiz_id
+            WHERE qa.user_id=:user AND q.lesson_id=:lesson AND qa.passed=true
+        )
+    """), {"user": user_id, "lesson": prerequisite}).scalar()
+    return {"unlocked": bool(mastered), "prerequisite_lesson_id": prerequisite}
 
 
 def get_user_course_progress(conn, user_id: int, course_id: int) -> dict:
@@ -1230,15 +1484,21 @@ def clone_course(conn, *, source_course_id: int, owner_id: int) -> dict:
     clone = conn.execute(sa.text(f"""
         INSERT INTO {S}.courses
             (title, slug, description, category, difficulty, thumbnail_url,
-             instructor_id, is_published, is_default)
+             instructor_id, is_published, is_default,country_code,jurisdiction_code,
+             curriculum_code,curriculum_version,grade_code,canonical_language,supported_languages)
         VALUES (:title, :slug, :description, :category, :difficulty, :thumbnail,
-                :owner, false, false)
+                :owner, false, false,:country,:jurisdiction,:curriculum,:version,:grade,
+                :language,CAST(:languages AS jsonb))
         RETURNING *
     """), {
         "title": f"{source['title']} (Copy)", "slug": slug,
         "description": source.get("description"), "category": source.get("category"),
         "difficulty": source.get("difficulty") or "beginner",
         "thumbnail": source.get("thumbnail_url"), "owner": owner_id,
+        "country": source.get("country_code"), "jurisdiction": source.get("jurisdiction_code"),
+        "curriculum": source.get("curriculum_code"), "version": source.get("curriculum_version"),
+        "grade": source.get("grade_code"), "language": source.get("canonical_language") or "en",
+        "languages": json.dumps(source.get("supported_languages") or ["en"]),
     }).mappings().one()
 
     def copy_translations(entity: str, old_id: int, new_id: int) -> None:
@@ -1285,6 +1545,11 @@ def clone_course(conn, *, source_course_id: int, owner_id: int) -> dict:
             }).scalar_one()
             lesson_ids[lesson["id"]] = new_lesson_id
             copy_translations("lessons", lesson["id"], new_lesson_id)
+            conn.execute(sa.text(f"""
+                INSERT INTO {S}.lesson_curriculum_outcomes (lesson_id,outcome_id)
+                SELECT :new_lesson,outcome_id FROM {S}.lesson_curriculum_outcomes WHERE lesson_id=:old_lesson
+                ON CONFLICT DO NOTHING
+            """), {"new_lesson": new_lesson_id, "old_lesson": lesson["id"]})
             quiz = conn.execute(sa.text(f"""
                 SELECT * FROM {S}.quizzes WHERE lesson_id = :lesson
             """), {"lesson": lesson["id"]}).mappings().first()
@@ -1307,17 +1572,32 @@ def clone_course(conn, *, source_course_id: int, owner_id: int) -> dict:
                 new_question_id = conn.execute(sa.text(f"""
                     INSERT INTO {S}.quiz_questions
                         (quiz_id, question_text, question_type, options, correct_answer,
-                         explanation, order_idx, difficulty_level)
+                         explanation, order_idx, difficulty_level, source_type,
+                         question_kind,cognitive_process,misconception_target,
+                         worked_solution,safety_classification,scope_confirmation)
                     VALUES (:quiz, :question, :type, :options, :answer,
-                            :explanation, :order_idx, :level) RETURNING id
+                            :explanation, :order_idx, :level, :source_type,
+                            :question_kind,:cognitive,:misconception,:solution,:safety,:scope) RETURNING id
                 """), {
                     "quiz": new_quiz_id, "question": question["question_text"],
                     "type": question.get("question_type") or "multiple_choice",
                     "options": json.dumps(question.get("options") or []),
                     "answer": question["correct_answer"], "explanation": question.get("explanation"),
                     "order_idx": question["order_idx"], "level": question.get("difficulty_level") or 2,
+                    "source_type": question.get("source_type") or "authored",
+                    "question_kind": question.get("question_kind") or "single_choice",
+                    "cognitive": question.get("cognitive_process") or "understand",
+                    "misconception": question.get("misconception_target"),
+                    "solution": question.get("worked_solution"),
+                    "safety": question.get("safety_classification") or "none",
+                    "scope": question.get("scope_confirmation"),
                 }).scalar_one()
                 copy_translations("quiz_questions", question["id"], new_question_id)
+                conn.execute(sa.text(f"""
+                    INSERT INTO {S}.quiz_question_curriculum_outcomes (question_id,outcome_id)
+                    SELECT :new_question,outcome_id FROM {S}.quiz_question_curriculum_outcomes
+                    WHERE question_id=:old_question ON CONFLICT DO NOTHING
+                """), {"new_question": new_question_id, "old_question": question["id"]})
 
     for old_id, new_id in lesson_ids.items():
         prerequisite = conn.execute(sa.text(f"""
@@ -1343,14 +1623,24 @@ def clone_course(conn, *, source_course_id: int, owner_id: int) -> dict:
         conn.execute(sa.text(f"""
             INSERT INTO {S}.course_learning_settings
                 (course_id, strategy, low_threshold, high_threshold, high_streak,
-                 allow_reorder, allow_remedial, updated_by)
-            VALUES (:course, :strategy, :low, :high, :streak, :reorder, :remedial, :owner)
+                 allow_reorder, allow_remedial, question_source, updated_by)
+            VALUES (:course, :strategy, :low, :high, :streak, :reorder, :remedial, :question_source, :owner)
         """), {
             "course": clone["id"], "strategy": settings["strategy"],
             "low": settings["low_threshold"], "high": settings["high_threshold"],
             "streak": settings["high_streak"], "reorder": settings["allow_reorder"],
-            "remedial": settings["allow_remedial"], "owner": owner_id,
+            "remedial": settings["allow_remedial"],
+            "question_source": settings.get("question_source") or "llm_reviewed", "owner": owner_id,
         })
+    profile = conn.execute(sa.text(f"""
+        SELECT program_id,school_overlay FROM {S}.course_curriculum_profiles WHERE course_id=:course
+    """), {"course": source_course_id}).mappings().first()
+    if profile:
+        conn.execute(sa.text(f"""
+            INSERT INTO {S}.course_curriculum_profiles (course_id,program_id,is_locked,school_overlay)
+            VALUES (:course,:program,false,CAST(:overlay AS jsonb))
+        """), {"course": clone["id"], "program": profile["program_id"],
+                "overlay": json.dumps(profile.get("school_overlay") or {})})
     return dict(clone)
 
 
@@ -1540,7 +1830,8 @@ def get_course_learning_settings(conn, course_id: int) -> dict:
     return {
         "course_id": course_id, "strategy": "linear", "low_threshold": 60,
         "high_threshold": 85, "high_streak": 2, "allow_reorder": True,
-        "allow_remedial": True, "updated_by": None, "updated_at": None,
+        "allow_remedial": True, "question_source": "llm_reviewed",
+        "updated_by": None, "updated_at": None,
     }
 
 
@@ -1645,6 +1936,9 @@ def update_adaptive_state(conn, *, user_id: int, quiz_id: int, score: int) -> di
     """), {"quiz": quiz_id}).mappings().first()
     if not context:
         return None
+    conn.execute(sa.text(f"""
+        UPDATE {S}.course_curriculum_profiles SET is_locked=true WHERE course_id=:course
+    """), {"course": context["course_id"]})
     settings = get_course_learning_settings(conn, context["course_id"])
     if settings["strategy"] != "adaptive":
         return None

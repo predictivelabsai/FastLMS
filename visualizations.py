@@ -328,6 +328,61 @@ def _atomic_particles(lang: str) -> dict:
     )
 
 
+def _ee_mass_percent(lang: str) -> dict:
+    labels = ["Lahustunud aine" if lang == "et" else "Solute", "Lahusti" if lang == "et" else "Solvent"]
+    values = [20, 80]
+    return _spec(
+        "ee-g8-mass-percent",
+        "Massiprotsent näitab aine osa lahuse kogumassist" if lang == "et" else "Mass percentage compares solute with total solution mass",
+        "20 g lahustunud ainet ja 80 g lahustit annavad 100 g lahuse: 20%." if lang == "et" else "20 g solute and 80 g solvent make 100 g solution: 20%.",
+        "Ringdiagramm: 20 protsenti lahustunud ainet ja 80 protsenti lahustit." if lang == "et" else "Pie chart with 20 percent solute and 80 percent solvent.",
+        [{"type": "pie", "labels": labels, "values": values, "marker": {"colors": [CORAL, BLUE]}}],
+        _layout(), ["Koostisosa" if lang == "et" else "Component", "%"], list(map(list, zip(labels, values))), lang=lang,
+    )
+
+
+def _ee_periodic_structure(lang: str) -> dict:
+    elements = ["Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar"]
+    outer = list(range(1, 9))
+    return _spec(
+        "ee-g8-periodic-outer-electrons",
+        "A-rühm ja väliskihi elektronid" if lang == "et" else "A-group and outer-shell electrons",
+        "Kolmanda perioodi põhirühma elementidel kasvab väliskihi elektronide arv vasakult paremale." if lang == "et" else "Across period 3 main-group elements, outer-shell electron count increases from left to right.",
+        "Tulbad Na-st Ar-ni kasvavad ühest kaheksa väliskihi elektronini." if lang == "et" else "Bars from Na to Ar rise from one to eight outer-shell electrons.",
+        [{"type": "bar", "x": elements, "y": outer, "marker": {"color": GREEN}}],
+        _layout(y_title="Väliskihi elektronid" if lang == "et" else "Outer-shell electrons"),
+        ["Element", "Väliskihi elektronid" if lang == "et" else "Outer-shell electrons"], list(map(list, zip(elements, outer))), lang=lang,
+    )
+
+
+def _ee_ph_scale(lang: str) -> dict:
+    names = ["Sidrun" if lang == "et" else "Lemon", "Vesi" if lang == "et" else "Water", "Seebilahus" if lang == "et" else "Soap solution"]
+    values = [2, 7, 10]
+    return _spec(
+        "ee-g8-ph-scale",
+        "pH eristab happelist, neutraalset ja aluselist" if lang == "et" else "pH distinguishes acidic, neutral and alkaline",
+        "Alla 7 on happeline, 7 neutraalne ja üle 7 aluseline." if lang == "et" else "Below 7 is acidic, 7 neutral and above 7 alkaline.",
+        "Kolm tulpa näitavad sidruni pH-d 2, vee pH-d 7 ja seebilahuse pH-d 10." if lang == "et" else "Three bars show lemon at pH 2, water at pH 7 and soap solution at pH 10.",
+        [{"type": "bar", "x": names, "y": values, "marker": {"color": [CORAL, GREEN, BLUE]}}],
+        _layout(y_title="pH", yaxis={"title": {"text": "pH"}, "range": [0, 14], "gridcolor": GRID}),
+        ["Näide" if lang == "et" else "Example", "pH"], list(map(list, zip(names, values))), lang=lang,
+    )
+
+
+def _ee_metal_activity(lang: str) -> dict:
+    metals = ["Mg", "Zn", "Fe", "Cu"]
+    activity = [4, 3, 2, 1]
+    return _spec(
+        "ee-g8-metal-activity",
+        "Metallide kvalitatiivne aktiivsusrida" if lang == "et" else "Qualitative metal activity series",
+        "Kõrgem tulp tähendab selles võrdluses suuremat reaktsioonivõimet; vask ei eralda lahjast HCl-st vesinikku." if lang == "et" else "A higher bar means greater reactivity here; copper does not release hydrogen from dilute HCl.",
+        "Magneesiumi, tsingi, raua ja vase tulbad kahanevad aktiivsuse järjekorras." if lang == "et" else "Bars for magnesium, zinc, iron and copper decrease in activity order.",
+        [{"type": "bar", "x": metals, "y": activity, "marker": {"color": [CORAL, YELLOW, GREEN, BLUE]}}],
+        _layout(y_title="Suhteline aktiivsus" if lang == "et" else "Relative activity"),
+        ["Metall" if lang == "et" else "Metal", "Suhteline aktiivsus" if lang == "et" else "Relative activity"], list(map(list, zip(metals, activity))), lang=lang,
+    )
+
+
 def _advanced_energy_profile(lang: str) -> dict:
     progress = [0, 1, 2, 3, 4]
     uncatalysed = [0, 4, 8, 4, -2]
@@ -357,6 +412,11 @@ BUILDERS: dict[tuple[str, str], Callable[[str], dict]] = {
     ("primary-science", "Particles, States and Changes"): _particle_energy,
     ("chemistry-fundamentals", "Atoms, Ions and Isotopes"): _atomic_particles,
     ("advanced-chemistry", "Thermodynamics, Kinetics and Equilibrium"): _advanced_energy_profile,
+    ("ee-grade-8-chemistry", "Lahuse massiprotsent"): _ee_mass_percent,
+    ("ee-grade-8-chemistry", "Protsent sammhaaval"): _ee_mass_percent,
+    ("ee-grade-8-chemistry", "Perioodid ja rühmad"): _ee_periodic_structure,
+    ("ee-grade-8-chemistry", "pH ja indikaatorid"): _ee_ph_scale,
+    ("ee-grade-8-chemistry", "Metallide pingerida"): _ee_metal_activity,
 }
 
 

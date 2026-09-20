@@ -25,9 +25,11 @@ from starlette.responses import StreamingResponse
 
 load_dotenv()
 
+import byok
 import db
 import language_learning as languages
 import learning_chat
+import question_generation
 import school
 import visualizations
 import voice
@@ -89,6 +91,9 @@ app = FastHTML(
     secret_key=_session_secret(),
 )
 app.mount("/api", api)
+
+rt = app.route
+byok.register(rt, app, app_name="FastLMS")
 
 
 @app.get("/swagger.json")
@@ -180,6 +185,49 @@ def _require_login(req):
     if not user:
         return None, RedirectResponse("/auth/login", status_code=303)
     return user, None
+
+
+def _has_explicit_language(req) -> bool:
+    try:
+        saved = req.session.get("lang")
+    except Exception:
+        saved = None
+    return bool(saved or req.cookies.get("language") or req.query_params.get("lang"))
+
+
+def _curriculum_language(
+    req, conn, *, course_id: int | None = None, course_slug: str = "",
+    lesson_id: int | None = None, quiz_id: int | None = None,
+) -> str:
+    """Use the curriculum language unless the learner explicitly chose another."""
+    selected = get_lang(req)
+    if _has_explicit_language(req):
+        return selected
+    import sqlalchemy as sa
+    conditions = []
+    params = {}
+    joins = ""
+    if course_id:
+        conditions.append("c.id=:course_id")
+        params["course_id"] = course_id
+    elif course_slug:
+        conditions.append("c.slug=:course_slug")
+        params["course_slug"] = course_slug
+    elif lesson_id:
+        joins = f"JOIN {db.S}.modules m ON m.course_id=c.id JOIN {db.S}.lessons l ON l.module_id=m.id"
+        conditions.append("l.id=:lesson_id")
+        params["lesson_id"] = lesson_id
+    elif quiz_id:
+        joins = f"JOIN {db.S}.modules m ON m.course_id=c.id JOIN {db.S}.lessons l ON l.module_id=m.id JOIN {db.S}.quizzes q ON q.lesson_id=l.id"
+        conditions.append("q.id=:quiz_id")
+        params["quiz_id"] = quiz_id
+    if not conditions:
+        return selected
+    language = conn.execute(sa.text(f"""
+        SELECT c.canonical_language FROM {db.S}.courses c {joins}
+        WHERE {' AND '.join(conditions)} LIMIT 1
+    """), params).scalar()
+    return language if language in SUPPORTED_LANGS else selected
 
 
 voice.register_voice_routes(app, _get_session_user)
@@ -566,7 +614,10 @@ def courses_page(req):
         cards = []
         for c in courses:
             prog = db.get_user_course_progress(conn, user["id"], c["id"]) if c["id"] in enrolled_ids else None
-            href = f"/app/course/{c['slug']}" if user.get("role") in {"teacher", "instructor", "admin"} else None
+            href = (
+                f"/app/course/{c['slug']}" if user.get("role") in {"teacher", "instructor", "admin"}
+                else f"/app/chat/new?course={c['slug']}"
+            )
             cards.append(course_card(c, prog, lang, assigned=c["id"] in assigned_ids, href=href))
 
     catalogue_subtitle = t("browse_all_courses", lang)
@@ -599,11 +650,8 @@ def course_detail(req, slug: str):
     if redir:
         return redir
 
-    if user.get("role") == "student":
-        return RedirectResponse(f"/app/chat/new?course={slug}", status_code=303)
-
-    lang = get_lang(req)
     with db.connect() as conn:
+        lang = _curriculum_language(req, conn, course_slug=slug)
         course = db.get_course(conn, slug, lang=lang)
         if not course:
             return Response("Course not found", status_code=404)
@@ -636,19 +684,22 @@ def course_detail(req, slug: str):
                 first_lesson_id = les["id"]
             lp = db.get_lesson_progress(conn, user["id"], les["id"])
             done = lp and lp["status"] == "completed"
-            cls = "lesson-list-item" + (" completed" if done else "")
+            access = db.lesson_access(conn, user["id"], les["id"])
+            locked = not access["unlocked"]
+            cls = "lesson-list-item" + (" completed" if done else "") + (" locked" if locked else "")
             check_cls = "lesson-check" + (" done" if done else "")
             kind = les.get("lesson_kind", "core")
             sidebar_items.append(
                 A(
-                    Span("✓" if done else "", cls=check_cls),
+                    Span("✓" if done else ("🔒" if locked else ""), cls=check_cls),
                     Span(les["title"]),
                     (Span(t(kind, lang), cls=f"lesson-kind lesson-kind-{kind}") if kind != "core" else ""),
-                    href=f"/app/lesson/{les['id']}",
+                    href=(f"/app/chat/new?lesson_id={les['id']}" if not locked else None),
                     cls=cls,
                 )
             )
 
+    is_staff = user.get("role") in {"teacher", "instructor", "admin"}
     staff_actions = Div(
         (A(t("edit_course", lang), href=f"/app/configure?step=2&course_id={course['id']}", cls="btn btn-primary") if can_edit else ""),
         (Form(
@@ -657,7 +708,7 @@ def course_detail(req, slug: str):
         ) if course.get("is_default") and not can_edit and user.get("role") in {"teacher", "instructor"} else ""),
         A(t("assign_course", lang), href=f"/app/team?course_id={course['id']}", cls="btn btn-secondary"),
         cls="course-staff-actions",
-    )
+    ) if is_staff else ""
     hero = Div(
         Div(
             H1(course["title"]),
@@ -682,6 +733,25 @@ def course_detail(req, slug: str):
             cls="adaptive-notice",
         ) for r in recommendations
     ], cls="adaptive-notices") if recommendations else ""
+    mode_selector = Div(
+        H2(t("choose_learning_mode", lang), cls="mode-selector-title"),
+        Div(
+            A(
+                Strong(t("chat_mode", lang)),
+                Span(t("chat_mode_description", lang)),
+                href=f"/app/chat/new?course={course['slug']}",
+                cls="learning-mode-card chat-mode-card",
+            ),
+            A(
+                Strong(t("classic_mode", lang)),
+                Span(t("classic_mode_description", lang)),
+                href=f"/app/lesson/{first_lesson_id}?mode=classic" if first_lesson_id else "#",
+                cls="learning-mode-card classic-mode-card",
+            ),
+            cls="learning-mode-grid",
+        ),
+        cls="course-mode-selector",
+    )
     body = Div(
         Div(*sidebar_items, cls="course-sidebar") if sidebar_items else "",
         Div(
@@ -695,7 +765,7 @@ def course_detail(req, slug: str):
         cls="course-body",
     )
 
-    content = Div(hero, body)
+    content = Div(hero, mode_selector, body)
     return app_shell(content, user=user, active="courses", title=course["title"], lang=lang, current_path=f"/app/course/{slug}")
 
 
@@ -745,17 +815,23 @@ def lesson_page(req, lesson_id: int):
     if redir:
         return redir
 
-    if user.get("role") == "student":
-        return RedirectResponse(f"/app/chat/new?lesson_id={lesson_id}", status_code=303)
-
     lang = get_lang(req)
     import markdown as md
     import sqlalchemy as sa
 
     with db.connect() as conn:
+        lang = _curriculum_language(req, conn, lesson_id=lesson_id)
         lesson = db.get_lesson(conn, lesson_id, lang=lang)
         if not lesson:
             return Response("Lesson not found", status_code=404)
+        access = db.lesson_access(conn, user["id"], lesson_id)
+        if not access["unlocked"]:
+            message = (
+                "See õppetund avaneb pärast eelmise eelkursuse õppetunni lõpetamist ja kontrolli läbimist."
+                if lang == "et" else
+                "Complete the preceding prelude lesson and pass its check to unlock this lesson."
+            )
+            return Response(message, status_code=403)
 
         module = conn.execute(sa.text(f"SELECT * FROM {db.S}.modules WHERE id = :m"), {"m": lesson["module_id"]}).mappings().first()
         module = localize_record(dict(module), "modules", lang)
@@ -766,6 +842,7 @@ def lesson_page(req, lesson_id: int):
         is_done = lp and lp["status"] == "completed"
 
         quiz = db.get_quiz_for_lesson(conn, lesson_id, lang=lang)
+        lesson_visuals = visualizations.for_lesson_id(conn, lesson_id, lang, db.S)
         discussions = db.get_discussions(conn, lesson_id)
 
         path = db.get_learning_path(conn, user_id=user["id"], course_id=course["id"], lang=lang)
@@ -794,12 +871,18 @@ def lesson_page(req, lesson_id: int):
     if quiz:
         actions.append(A(t("take_quiz", lang), href=f"/app/quiz/{quiz['id']}", cls="btn btn-blue"))
 
-    actions.append(A(t("new_chat", lang), href=f"/app/chat/new?lesson_id={lesson_id}", cls="btn btn-secondary"))
+    actions.append(A(t("chat_mode", lang), href=f"/app/chat/new?lesson_id={lesson_id}", cls="btn btn-secondary"))
 
     if next_lesson:
         actions.append(A(t("next_lesson", lang), href=f"/app/lesson/{next_lesson}", cls="btn btn-secondary"))
 
     lesson_view = Div(
+        Div(
+            A(t("chat_mode", lang), href=f"/app/chat/new?lesson_id={lesson_id}", cls="lesson-mode-tab"),
+            A(t("classic_mode", lang), href=f"/app/lesson/{lesson_id}?mode=classic", cls="lesson-mode-tab active", aria_current="page"),
+            cls="lesson-mode-switch",
+            aria_label=t("choose_learning_mode", lang),
+        ),
         Div(
             A(course["title"], href=f"/app/course/{course['slug']}"),
             Span(" / ", style="color:var(--ink-dim)"),
@@ -816,6 +899,13 @@ def lesson_page(req, lesson_id: int):
         ),
         video_embed,
         Div(NotStr(content_html), cls="lesson-content"),
+        _visualization_cards(lesson_visuals),
+        (Div(
+            H2(t("review_questions", lang)),
+            P(t("classic_mode_description", lang)),
+            A(t("take_quiz", lang), href=f"/app/quiz/{quiz['id']}?mode=classic", cls="btn btn-blue"),
+            cls="lesson-review-panel",
+        ) if quiz else ""),
         Div(*actions, cls="lesson-actions"),
         cls="lesson-layout",
     )
@@ -828,6 +918,8 @@ async def complete_lesson(req, lesson_id: int):
     if redir:
         return redir
     with db.begin() as conn:
+        if not db.lesson_access(conn, user["id"], lesson_id)["unlocked"]:
+            return Response("Lesson is locked", status_code=403)
         xp = db.mark_lesson_complete(conn, user["id"], lesson_id)
         new_badges = db.check_and_award_badges(conn, user["id"])
     return RedirectResponse(f"/app/lesson/{lesson_id}?xp={xp}", status_code=303)
@@ -1053,11 +1145,8 @@ def quiz_page(req, quiz_id: int):
     if redir:
         return redir
 
-    if user.get("role") == "student":
-        return RedirectResponse(f"/app/chat/new?quiz_id={quiz_id}", status_code=303)
-
-    lang = get_lang(req)
     with db.connect() as conn:
+        lang = _curriculum_language(req, conn, quiz_id=quiz_id)
         import sqlalchemy as sa
         quiz = conn.execute(sa.text(f"SELECT * FROM {db.S}.quizzes WHERE id = :q"), {"q": quiz_id}).mappings().first()
         if not quiz:
@@ -1097,7 +1186,13 @@ def quiz_page(req, quiz_id: int):
 
     content = Div(
         Div(
-            A(t("back_to_lesson", lang), href=f"/app/lesson/{quiz['lesson_id']}", style="font-size:13px; color:var(--ink-muted);"),
+            A(t("chat_mode", lang), href=f"/app/chat/new?lesson_id={quiz['lesson_id']}", cls="lesson-mode-tab"),
+            A(t("classic_mode", lang), href=f"/app/quiz/{quiz_id}?mode=classic", cls="lesson-mode-tab active", aria_current="page"),
+            cls="lesson-mode-switch",
+            aria_label=t("choose_learning_mode", lang),
+        ),
+        Div(
+            A(t("back_to_lesson", lang), href=f"/app/lesson/{quiz['lesson_id']}?mode=classic", style="font-size:13px; color:var(--ink-muted);"),
             cls="lesson-breadcrumb",
         ),
         H1(quiz["title"], cls="page-title"),
@@ -1120,11 +1215,11 @@ async def submit_quiz(req, quiz_id: int):
     if redir:
         return redir
 
-    lang = get_lang(req)
     form = await req.form()
     import sqlalchemy as sa
 
     with db.begin() as conn:
+        lang = _curriculum_language(req, conn, quiz_id=quiz_id)
         quiz = conn.execute(sa.text(f"SELECT * FROM {db.S}.quizzes WHERE id = :q"), {"q": quiz_id}).mappings().first()
         questions = db.get_quiz_questions(conn, quiz_id, lang=lang)
         presented = {int(value) for value in str(form.get("presented_question_ids", "")).split(",") if value.isdigit()}
@@ -1298,15 +1393,21 @@ async def chat_stream(req):
 
     async def generate():
         try:
-            provider = os.environ.get("MODEL_PROVIDER", "xai")
-            model = os.environ.get("DEFAULT_MODEL", "grok-4-1-fast-reasoning")
-
             system_prompt = f"""You are an AI tutor on FastLearn, a multilingual learning platform.
 Help students understand course material, answer questions, and guide them through concepts.
 Be encouraging, clear, and concise. Use examples when helpful.
 If the student seems stuck, break down the problem into smaller steps.
+{learning_chat.CHAT_FEEDBACK_RULE}
 Format responses in Markdown when appropriate.
 {prompt_language_directive(lang)}{lesson_context}"""
+
+            gate = byok.begin_query(req.session)
+            if gate.blocked:
+                yield f"data: {json.dumps({'token': gate.gate_markdown})}\n\n"
+                yield f"data: {json.dumps({'done': True})}\n\n"
+                return
+
+            from langchain_core.messages import HumanMessage, SystemMessage
 
             full_response = ""
             pending_tokens = ""
@@ -1325,75 +1426,17 @@ Format responses in Markdown when appropriate.
                 pending_tokens = ""
                 return f"data: {json.dumps(payload)}\n\n"
 
-            if provider == "xai":
-                import httpx
-                api_key = os.environ.get("XAI_API_KEY", "")
-                async with httpx.AsyncClient() as client:
-                    resp = await client.post(
-                        "https://api.x.ai/v1/chat/completions",
-                        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                        json={"model": model, "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": message}], "stream": True},
-                        timeout=60,
-                    )
-                    async for line in resp.aiter_lines():
-                        if line.startswith("data: ") and line != "data: [DONE]":
-                            try:
-                                chunk = json.loads(line[6:])
-                                token = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                                if token:
-                                    event = response_event(token)
-                                    if event:
-                                        yield event
-                            except json.JSONDecodeError:
-                                pass
-
-            elif provider == "openai":
-                import httpx
-                api_key = os.environ.get("OPENAI_API_KEY", "")
-                async with httpx.AsyncClient() as client:
-                    resp = await client.post(
-                        "https://api.openai.com/v1/chat/completions",
-                        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                        json={"model": model, "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": message}], "stream": True},
-                        timeout=60,
-                    )
-                    async for line in resp.aiter_lines():
-                        if line.startswith("data: ") and line != "data: [DONE]":
-                            try:
-                                chunk = json.loads(line[6:])
-                                token = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                                if token:
-                                    event = response_event(token)
-                                    if event:
-                                        yield event
-                            except json.JSONDecodeError:
-                                pass
-
-            elif provider == "anthropic":
-                import httpx
-                api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-                async with httpx.AsyncClient() as client:
-                    resp = await client.post(
-                        "https://api.anthropic.com/v1/messages",
-                        headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "Content-Type": "application/json"},
-                        json={"model": model, "max_tokens": 4096, "system": system_prompt, "messages": [{"role": "user", "content": message}], "stream": True},
-                        timeout=60,
-                    )
-                    async for line in resp.aiter_lines():
-                        if line.startswith("data: "):
-                            try:
-                                chunk = json.loads(line[6:])
-                                if chunk.get("type") == "content_block_delta":
-                                    token = chunk.get("delta", {}).get("text", "")
-                                    if token:
-                                        event = response_event(token)
-                                        if event:
-                                            yield event
-                            except json.JSONDecodeError:
-                                pass
-            else:
-                full_response = "No LLM provider configured. Set MODEL_PROVIDER in .env to 'xai', 'openai', or 'anthropic'."
-                yield f"data: {json.dumps({'token': full_response, 'html': render_chat_markdown(full_response)})}\n\n"
+            async for chunk in gate.llm.astream(
+                [SystemMessage(content=system_prompt), HumanMessage(content=message)]
+            ):
+                tok = chunk.content
+                if isinstance(tok, list):
+                    tok = "".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in tok)
+                if tok:
+                    event = response_event(tok)
+                    if event:
+                        yield event
+            gate.commit()
 
             if pending_tokens:
                 yield response_event("", force=True)
@@ -1466,8 +1509,11 @@ def new_chat(req):
     user, redir = _require_login(req)
     if redir:
         return redir
-    lang = get_lang(req)
     with db.begin() as conn:
+        lang = _curriculum_language(
+            req, conn, course_slug=req.query_params.get("course", ""),
+            lesson_id=_query_int(req, "lesson_id"), quiz_id=_query_int(req, "quiz_id"),
+        )
         initial = learning_chat.initial_response(
             conn, user["id"], lang,
             mode=req.query_params.get("mode", "courses"),
@@ -1477,7 +1523,7 @@ def new_chat(req):
             role="student" if req.query_params.get("preview") == "student" else user.get("role", "student"),
         )
         session = db.create_chat_session(
-            conn, user["id"], title=initial["title"], context=initial["context"]
+            conn, user["id"], title=initial["title"], context={**initial["context"], "language": lang}
         )
         db.add_chat_message(
             conn, user_id=user["id"], session_id=session["id"], role="assistant",
@@ -1507,6 +1553,7 @@ def chat_workspace(req):
         if not session:
             return RedirectResponse("/app/chat/new", status_code=303)
         history = db.get_chat_history(conn, user["id"], limit=100, session_id=chat_id)
+        lang = (session.get("context") or {}).get("language") or lang
 
     message_elements = []
     for index, message in enumerate(history):
@@ -1586,6 +1633,7 @@ async def chat_stream_workspace(req):
         if not session:
             return Response("Chat not found", status_code=404)
         context = dict(session.get("context") or {})
+        lang = context.get("language") or lang
         lesson_id = context.get("lesson_id")
         db.add_chat_message(
             conn, user_id=user["id"], session_id=chat_id, role="user",
@@ -1620,6 +1668,7 @@ async def chat_stream_workspace(req):
         session_context = session.get("context") or {}
         lesson_id = session_context.get("lesson_id")
         lesson = db.get_lesson(conn, int(lesson_id), lang=lang) if lesson_id else None
+        curriculum_context = db.curriculum_context_for_lesson(conn, int(lesson_id)) if lesson_id else None
         requested_visuals = (
             visualizations.for_lesson_id(conn, int(lesson_id), lang, db.S)
             if lesson_id and visualizations.wants_visual(message) else []
@@ -1633,6 +1682,19 @@ async def chat_stream_workspace(req):
     lesson_context = ""
     if lesson:
         lesson_context = f"\n\nThe student is studying '{lesson['title']}'. Ground answers in this lesson:\n{lesson.get('content_md', '')[:3000]}"
+    curriculum_prompt = ""
+    if curriculum_context:
+        curriculum_prompt = f"""
+
+Curriculum contract:
+- country/jurisdiction: {curriculum_context.get('country_code')} / {curriculum_context.get('jurisdiction_code')}
+- program/version: {curriculum_context.get('program_code')} / {curriculum_context.get('version')}
+- stage/grade: {curriculum_context.get('stage_code')} / {curriculum_context.get('grade_code')}
+- canonical language: {curriculum_context.get('canonical_language')}
+- assessed outcomes: {', '.join(curriculum_context.get('outcome_codes') or [])}
+- excluded later-grade scope: {', '.join(str(item) for item in (curriculum_context.get('excluded_scope') or []))}
+Assume the learner began with zero knowledge of chemical symbols and calculations. Define every symbol before relying on it. For calculations, identify knowns and the target, state the relationship in words, substitute with units, calculate, and check reasonableness.
+"""
 
     async def generate():
         try:
@@ -1648,9 +1710,10 @@ async def chat_stream_workspace(req):
             )
             system_prompt = f"""You are FastLearn, a multilingual conversational assistant.
 {role_direction} Be encouraging, clear, and concise.
+{learning_chat.CHAT_FEEDBACK_RULE if audience == "student" else ""}
 When useful, offer a small set of lettered choices that the learner can answer by typing the letter.
 Format responses in Markdown.
-{prompt_language_directive(lang)}{lesson_context}"""
+{prompt_language_directive(lang)}{curriculum_prompt}{lesson_context}"""
             llm_messages = [{"role": "system", "content": system_prompt}] + [
                 {"role": item["role"], "content": item["content"]}
                 for item in history if item["role"] in {"user", "assistant"}
@@ -1924,6 +1987,7 @@ def manage_page(req):
 
     with db.connect() as conn:
         courses = db.get_managed_courses(conn, user)
+        curriculum_programs = db.list_curriculum_programs(conn)
 
     rows = []
     for c in courses:
@@ -2048,6 +2112,42 @@ def configure_page(req):
             Form(
                 Div(Label("Title", cls="form-label"), Input(name="title", cls="form-input", required=True, placeholder="e.g. Introduction to Data Science"), cls="form-group"),
                 Div(Label("Category", cls="form-label"), Input(name="category", cls="form-input", placeholder="e.g. Computer Science"), cls="form-group"),
+                Div(
+                    Label("Country", cls="form-label"),
+                    Select(
+                        Option("Estonia", value="EE", selected=True),
+                        Option("England", value="GB"),
+                        Option("Custom / not specified", value=""),
+                        name="country_code", cls="form-input",
+                    ), cls="form-group",
+                ),
+                Div(
+                    Label("Grade or phase", cls="form-label"),
+                    Select(
+                        Option("Grade 8", value="8", selected=True),
+                        Option("Primary", value="PRIMARY"),
+                        Option("Secondary", value="SECONDARY"),
+                        Option("Post-16", value="POST-16"),
+                        Option("Custom / not specified", value=""),
+                        name="grade_code", cls="form-input",
+                    ), cls="form-group",
+                ),
+                Div(
+                    Label("Curriculum profile", cls="form-label"),
+                    Select(
+                        Option("No national curriculum profile", value=""),
+                        *[
+                            Option(
+                                f"{p['country_code']} · {p['grade_code']} · {p['subject_title']} · {p['version']}",
+                                value=str(p["id"]),
+                                selected=p["code"] == "EE-PROK-2026-CHEM-G8",
+                            ) for p in curriculum_programs
+                        ],
+                        name="curriculum_program_id", cls="form-input",
+                    ),
+                    P("The profile fixes country, grade, language and source version. It locks after the first learner attempt.", cls="page-subtitle"),
+                    cls="form-group",
+                ),
                 Div(
                     Label("Difficulty", cls="form-label"),
                     Select(
@@ -2267,6 +2367,9 @@ async def create_course(req):
     category = form.get("category", "").strip()
     difficulty = form.get("difficulty", "beginner")
     description = form.get("description", "").strip()
+    country_code = str(form.get("country_code", "")).strip().upper()[:2]
+    grade_code = str(form.get("grade_code", "")).strip()[:20]
+    curriculum_program_id = str(form.get("curriculum_program_id", "")).strip()
 
     if not title:
         return RedirectResponse("/app/configure?step=1&error=Title+is+required", status_code=303)
@@ -2276,17 +2379,33 @@ async def create_course(req):
 
     import sqlalchemy as sa
     with db.begin() as conn:
+        selected_program = None
+        if curriculum_program_id:
+            if not curriculum_program_id.isdigit():
+                return RedirectResponse("/app/configure?step=1&error=Invalid+curriculum+profile", status_code=303)
+            selected_program = db.curriculum_program(conn, int(curriculum_program_id))
+            if not selected_program:
+                return RedirectResponse("/app/configure?step=1&error=Curriculum+profile+not+found", status_code=303)
+            if country_code and selected_program["country_code"] != country_code:
+                return RedirectResponse("/app/configure?step=1&error=Country+does+not+match+curriculum", status_code=303)
+            if grade_code and selected_program["grade_code"] != grade_code:
+                return RedirectResponse("/app/configure?step=1&error=Grade+does+not+match+curriculum", status_code=303)
         existing = db.get_course(conn, slug)
         if existing:
             return RedirectResponse(f"/app/configure?step=1&error=Course+slug+'{slug}'+already+exists", status_code=303)
         conn.execute(
             sa.text(f"""
-                INSERT INTO {db.S}.courses (title, slug, description, category, difficulty, instructor_id, is_published)
-                VALUES (:t, :s, :d, :cat, :diff, :i, false)
+                INSERT INTO {db.S}.courses
+                    (title, slug, description, category, difficulty, instructor_id,
+                     is_published,country_code,grade_code)
+                VALUES (:t, :s, :d, :cat, :diff, :i, false,:country,:grade)
             """),
-            {"t": title, "s": slug, "d": description, "cat": category, "diff": difficulty, "i": user["id"]},
+            {"t": title, "s": slug, "d": description, "cat": category, "diff": difficulty,
+             "i": user["id"], "country": country_code or None, "grade": grade_code or None},
         )
         course = db.get_course(conn, slug)
+        if selected_program:
+            db.attach_course_curriculum(conn, course_id=course["id"], program_id=selected_program["id"])
 
     return RedirectResponse(f"/app/configure?step=2&course_id={course['id']}&msg=Course+created!", status_code=303)
 
@@ -2876,12 +2995,14 @@ def course_strategy(req, course_id: int):
     draft_cards = []
     for draft in drafts:
         payload = draft["content"] if isinstance(draft["content"], dict) else json.loads(draft["content"])
-        english = payload.get("en", {})
-        draft_heading = english.get("question_text") if draft["draft_type"] == "quiz_variant" else english.get("title")
+        variants = payload.get("variants", payload)
+        primary_code = payload.get("canonical_language", "en")
+        primary = variants.get(primary_code) or variants.get("en", {})
+        draft_heading = primary.get("question_text") if draft["draft_type"] == "quiz_variant" else primary.get("title")
         draft_preview = (
-            english.get("explanation") if draft["draft_type"] == "quiz_variant"
-            else english.get("description") if draft["draft_type"] == "visualization"
-            else english.get("content_md")
+            primary.get("explanation") if draft["draft_type"] == "quiz_variant"
+            else primary.get("description") if draft["draft_type"] == "visualization"
+            else primary.get("content_md")
         )
         actions = ""
         if draft["status"] == "pending":
@@ -2893,10 +3014,14 @@ def course_strategy(req, course_id: int):
                 cls="inline-form",
             )
         draft_cards.append(Div(
-            Div(Span(draft["draft_type"].replace("_", " ").title(), cls="role-pill"), Span(draft["status"].title(), cls="status-pill"), cls="course-meta"),
+            Div(
+                Span(draft["draft_type"].replace("_", " ").title(), cls="role-pill"),
+                Span((draft.get("generation_source") or "template").upper(), cls="role-pill"),
+                Span(draft["status"].title(), cls="status-pill"), cls="course-meta",
+            ),
             H3(draft_heading or "Generated material"),
             P((draft_preview or "").replace("#", "")[:240]),
-            Div("EN · ET · LT · ES", cls="page-subtitle"), actions, cls="draft-card",
+            Div(" · ".join(code.upper() for code in variants), cls="page-subtitle"), actions, cls="draft-card",
         ))
     content = Div(
         A("← " + t("manage_courses", lang), href="/app/manage"), H1(course["title"], cls="page-title"),
@@ -2909,6 +3034,13 @@ def course_strategy(req, course_id: int):
                 Label("Challenge at (%)", cls="form-label"), Input(name="high_threshold", type="number", min=1, max=100, value=settings["high_threshold"], cls="form-input"), cls="strategy-grid"),
             Label(Input(name="allow_reorder", type="checkbox", value="1", checked=settings["allow_reorder"]), " Reorder learning path"),
             Label(Input(name="allow_remedial", type="checkbox", value="1", checked=settings["allow_remedial"]), " Generate support lessons"),
+            Label(t("question_source", lang), cls="form-label"),
+            Select(
+                Option(t("ai_questions", lang), value="llm_reviewed", selected=settings["question_source"] == "llm_reviewed"),
+                Option(t("fixed_questions", lang), value="fixed", selected=settings["question_source"] == "fixed"),
+                name="question_source", cls="form-input",
+            ),
+            P(t("question_source_help", lang), cls="page-subtitle"),
             Button(t("save_settings", lang), type="submit", cls="btn btn-primary"), method="post", action=f"/app/course/{course_id}/strategy", cls="strategy-form",
         ),
         H2(t("content_drafts", lang)),
@@ -2919,6 +3051,7 @@ def course_strategy(req, course_id: int):
                    Option(t("visualization", lang), value="visualization"), name="draft_type", cls="form-input"),
             Select(Option("Easier", value="1"), Option("Standard", value="2", selected=True), Option("Harder", value="3"),
                    name="difficulty_level", cls="form-input"),
+            Textarea(name="teacher_guidance", placeholder=t("teacher_question_guidance", lang), maxlength="1000", cls="form-input"),
             Button("Generate EN · ET · LT · ES draft", type="submit", cls="btn btn-secondary"),
             method="post", action=f"/app/course/{course_id}/draft/generate", cls="team-invite-form",
         ) if lessons else "",
@@ -2938,23 +3071,26 @@ async def save_course_strategy(req, course_id: int):
         return denied
     form = await req.form()
     strategy = str(form.get("strategy", "linear"))
+    question_source = str(form.get("question_source", "llm_reviewed"))
     low, high = int(form.get("low_threshold", 60)), int(form.get("high_threshold", 85))
-    if strategy not in {"linear", "adaptive"} or not 1 <= low < high <= 100:
+    if strategy not in {"linear", "adaptive"} or question_source not in {"fixed", "llm_reviewed"} or not 1 <= low < high <= 100:
         return RedirectResponse(f"/app/course/{course_id}/strategy?error=Invalid+settings", status_code=303)
     import sqlalchemy as sa
     with db.begin() as conn:
         conn.execute(sa.text(f"""
             INSERT INTO {db.S}.course_learning_settings
-                (course_id, strategy, low_threshold, high_threshold, allow_reorder, allow_remedial, updated_by)
-            VALUES (:course, :strategy, :low, :high, :reorder, :remedial, :user)
+                (course_id, strategy, low_threshold, high_threshold, allow_reorder, allow_remedial, question_source, updated_by)
+            VALUES (:course, :strategy, :low, :high, :reorder, :remedial, :question_source, :user)
             ON CONFLICT (course_id) DO UPDATE SET strategy=EXCLUDED.strategy,
                 low_threshold=EXCLUDED.low_threshold, high_threshold=EXCLUDED.high_threshold,
                 allow_reorder=EXCLUDED.allow_reorder, allow_remedial=EXCLUDED.allow_remedial,
+                question_source=EXCLUDED.question_source,
                 updated_by=EXCLUDED.updated_by, updated_at=now()
         """), {"course": course_id, "strategy": strategy, "low": low, "high": high,
-                 "reorder": bool(form.get("allow_reorder")), "remedial": bool(form.get("allow_remedial")), "user": user["id"]})
+                 "reorder": bool(form.get("allow_reorder")), "remedial": bool(form.get("allow_remedial")),
+                 "question_source": question_source, "user": user["id"]})
         db.audit(conn, actor_id=user["id"], action="learning_strategy.updated", target_type="course",
-                 target_id=course_id, details={"strategy": strategy, "low": low, "high": high})
+                 target_id=course_id, details={"strategy": strategy, "question_source": question_source, "low": low, "high": high})
     return RedirectResponse(f"/app/course/{course_id}/strategy?msg=Settings+saved", status_code=303)
 
 
@@ -2969,37 +3105,67 @@ async def generate_course_draft(req, course_id: int):
     form = await req.form()
     lesson_id, kind = int(form.get("lesson_id", 0)), str(form.get("draft_type", "remedial"))
     requested_level = max(1, min(3, int(form.get("difficulty_level", 2))))
+    teacher_guidance = str(form.get("teacher_guidance", "")).strip()[:1000]
     if kind not in {"remedial", "extension", "quiz_variant", "visualization"}:
         return RedirectResponse(f"/app/course/{course_id}/strategy", status_code=303)
     import sqlalchemy as sa
-    with db.begin() as conn:
+    with db.connect() as conn:
         actual_course = db.resource_course_id(conn, "lesson", lesson_id)
         if actual_course != course_id:
             return RedirectResponse("/app/manage", status_code=303)
         lesson_by_lang = {code: db.get_lesson(conn, lesson_id, lang=code) for code in SUPPORTED_LANGS}
-        if kind == "visualization":
-            course = conn.execute(sa.text(f"""
-                SELECT c.slug, l.title FROM {db.S}.lessons l
-                JOIN {db.S}.modules m ON m.id = l.module_id
-                JOIN {db.S}.courses c ON c.id = m.course_id
-                WHERE l.id = :lesson
-            """), {"lesson": lesson_id}).mappings().one()
-            payload = visualizations.draft_payload(course["slug"], course["title"])
-            if not payload:
-                return RedirectResponse(f"/app/course/{course_id}/strategy?error=No+visualization+template+for+this+lesson", status_code=303)
-        else:
-            payload = (db._question_draft_payload(lesson_by_lang, requested_level) if kind == "quiz_variant" else
-                       db._draft_payload(kind, lesson_by_lang, 100 if kind == "extension" else 50))
+        settings = db.get_course_learning_settings(conn, course_id)
+        curriculum_context = db.curriculum_context_for_lesson(conn, lesson_id)
+        course = conn.execute(sa.text(f"""
+            SELECT c.slug, l.title FROM {db.S}.lessons l
+            JOIN {db.S}.modules m ON m.id = l.module_id
+            JOIN {db.S}.courses c ON c.id = m.course_id
+            WHERE l.id = :lesson
+        """), {"lesson": lesson_id}).mappings().one()
+
+    gate = None
+    generation_source = "template"
+    if kind == "visualization":
+        payload = visualizations.draft_payload(course["slug"], course["title"])
+        if not payload:
+            return RedirectResponse(f"/app/course/{course_id}/strategy?error=No+visualization+template+for+this+lesson", status_code=303)
+    elif kind == "quiz_variant" and settings["question_source"] == "llm_reviewed":
+        gate = byok.begin_query(req.session)
+        if gate.blocked:
+            return RedirectResponse(f"/app/course/{course_id}/strategy?error=AI+question+generation+is+not+configured", status_code=303)
+        try:
+            required_languages = (
+                curriculum_context.get("supported_languages")
+                if curriculum_context else list(SUPPORTED_LANGS)
+            )
+            payload = await question_generation.generate_question_set(
+                gate.llm, lesson_by_lang, requested_level, teacher_guidance,
+                curriculum_context, required_languages,
+            )
+        except Exception:
+            return RedirectResponse(f"/app/course/{course_id}/strategy?error=AI+question+generation+failed+validation", status_code=303)
+        generation_source = "llm"
+    else:
+        payload = (db._question_draft_payload(lesson_by_lang, requested_level) if kind == "quiz_variant" else
+                   db._draft_payload(kind, lesson_by_lang, 100 if kind == "extension" else 50))
+
+    with db.begin() as conn:
+        if db.resource_course_id(conn, "lesson", lesson_id) != course_id:
+            return RedirectResponse("/app/manage", status_code=303)
         module_id = lesson_by_lang["en"]["module_id"]
         conn.execute(sa.text(f"""
             INSERT INTO {db.S}.content_drafts
-                (course_id, module_id, source_lesson_id, draft_type, difficulty_level, content, created_by)
-            VALUES (:course, :module, :lesson, :kind, :level, :content, :user)
+                (course_id, module_id, source_lesson_id, draft_type, difficulty_level,
+                 content, generation_source, created_by)
+            VALUES (:course, :module, :lesson, :kind, :level, :content, :source, :user)
         """), {"course": course_id, "module": module_id, "lesson": lesson_id, "kind": kind,
                  "level": 1 if kind == "remedial" else (3 if kind == "extension" else requested_level),
-                 "content": json.dumps(payload), "user": user["id"]})
+                 "content": json.dumps(payload), "source": generation_source, "user": user["id"]})
         db.audit(conn, actor_id=user["id"], action="content_draft.generated", target_type="course",
-                 target_id=course_id, details={"draft_type": kind, "source_lesson_id": lesson_id})
+                 target_id=course_id, details={"draft_type": kind, "generation_source": generation_source,
+                                               "source_lesson_id": lesson_id})
+    if gate:
+        gate.commit()
     return RedirectResponse(f"/app/course/{course_id}/strategy?msg=Draft+generated+for+review", status_code=303)
 
 
@@ -3022,8 +3188,15 @@ async def review_course_draft(req, course_id: int):
             return RedirectResponse(f"/app/course/{course_id}/strategy", status_code=303)
         if action == "approve":
             payload = draft["content"] if isinstance(draft["content"], dict) else json.loads(draft["content"])
-            english = payload["en"]
+            variants = payload.get("variants", payload)
+            primary_code = payload.get("canonical_language", "en")
+            primary = variants.get(primary_code) or variants.get("en") or next(iter(variants.values()))
             if draft["draft_type"] == "quiz_variant":
+                if (draft.get("generation_source") or "template") == "llm":
+                    payload = question_generation.GeneratedQuestionSet.model_validate(payload).model_dump()
+                    variants = payload["variants"]
+                    primary_code = payload["canonical_language"]
+                    primary = variants[primary_code]
                 quiz_id = conn.execute(sa.text(f"SELECT id FROM {db.S}.quizzes WHERE lesson_id = :lesson"),
                                        {"lesson": draft["source_lesson_id"]}).scalar()
                 if not quiz_id:
@@ -3036,13 +3209,26 @@ async def review_course_draft(req, course_id: int):
                                          {"quiz": quiz_id}).scalar()
                 question_id = conn.execute(sa.text(f"""
                     INSERT INTO {db.S}.quiz_questions
-                        (quiz_id, question_text, options, correct_answer, explanation, order_idx, difficulty_level)
-                    VALUES (:quiz, :question, :options, :answer, :explanation, :order_idx, :level) RETURNING id
-                """), {"quiz": quiz_id, "question": english["question_text"], "options": json.dumps(english["options"]),
-                         "answer": english["correct_answer"], "explanation": english["explanation"],
-                         "order_idx": order_idx, "level": draft["difficulty_level"]}).scalar()
-                for code in ("et", "lt", "es"):
-                    translated = payload[code]
+                        (quiz_id, question_text, options, correct_answer, explanation,
+                         order_idx, difficulty_level, source_type,question_kind,
+                         cognitive_process,misconception_target,worked_solution,
+                         safety_classification,scope_confirmation)
+                    VALUES (:quiz, :question, :options, :answer, :explanation,
+                            :order_idx, :level, :source_type,:question_kind,
+                            :cognitive,:misconception,:worked_solution,:safety,:scope) RETURNING id
+                """), {"quiz": quiz_id, "question": primary["question_text"], "options": json.dumps(primary["options"]),
+                         "answer": primary["correct_answer"], "explanation": primary["explanation"],
+                         "order_idx": order_idx, "level": draft["difficulty_level"],
+                         "source_type": "llm" if (draft.get("generation_source") or "template") == "llm" else "authored",
+                         "question_kind": payload.get("question_kind", "single_choice"),
+                         "cognitive": payload.get("cognitive_process", "understand"),
+                         "misconception": payload.get("misconception_target"),
+                         "worked_solution": payload.get("worked_solution"),
+                         "safety": payload.get("safety_classification", "none"),
+                         "scope": payload.get("scope_confirmation")}).scalar()
+                for code, translated in variants.items():
+                    if code == primary_code:
+                        continue
                     conn.execute(sa.text(f"""
                         INSERT INTO {db.S}.content_translations
                             (entity_type, entity_id, language, question_text, options, correct_answer, explanation)
@@ -3050,8 +3236,14 @@ async def review_course_draft(req, course_id: int):
                     """), {"question_id": question_id, "language": code, "question": translated["question_text"],
                              "options": json.dumps(translated["options"]), "answer": translated["correct_answer"],
                              "explanation": translated["explanation"]})
+                for outcome_code in payload.get("curriculum_outcome_ids", []):
+                    conn.execute(sa.text(f"""
+                        INSERT INTO {db.S}.quiz_question_curriculum_outcomes (question_id,outcome_id)
+                        SELECT :question,id FROM {db.S}.curriculum_outcomes WHERE code=:code
+                        ON CONFLICT DO NOTHING
+                    """), {"question": question_id, "code": outcome_code})
             elif draft["draft_type"] == "visualization":
-                visualizations.validate(english)
+                visualizations.validate(primary)
                 conn.execute(sa.text(f"""
                     INSERT INTO {db.S}.lesson_visualizations
                         (lesson_id, source_key, renderer, localized_specs, created_by, approved_by)
@@ -3063,7 +3255,7 @@ async def review_course_draft(req, course_id: int):
                         approved_by = EXCLUDED.approved_by,
                         created_at = now()
                 """), {
-                    "lesson": draft["source_lesson_id"], "source_key": english["source_key"],
+                    "lesson": draft["source_lesson_id"], "source_key": primary["source_key"],
                     "specs": json.dumps(payload), "created_by": draft["created_by"],
                     "approved_by": user["id"],
                 })
@@ -3074,12 +3266,13 @@ async def review_course_draft(req, course_id: int):
                     INSERT INTO {db.S}.lessons
                         (module_id, title, content_md, duration_min, xp_reward, order_idx, lesson_kind, difficulty_level)
                     VALUES (:module, :title, :content, 10, 25, :order_idx, :kind, :level) RETURNING id
-                """), {"module": draft["module_id"], "title": english["title"], "content": english["content_md"],
+                """), {"module": draft["module_id"], "title": primary["title"], "content": primary["content_md"],
                          "order_idx": order_idx, "kind": "remedial" if draft["draft_type"] == "remedial" else "optional",
                          "level": draft["difficulty_level"]})
                 lesson_id = result.scalar()
-                for code in ("et", "lt", "es"):
-                    translated = payload[code]
+                for code, translated in variants.items():
+                    if code == primary_code:
+                        continue
                     conn.execute(sa.text(f"""
                         INSERT INTO {db.S}.content_translations (entity_type, entity_id, language, title, content_md)
                         VALUES ('lessons', :lesson, :language, :title, :content)

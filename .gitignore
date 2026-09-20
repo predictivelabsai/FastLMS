@@ -10,3 +10,9 @@ build/
 .sesskey
 .playwright-mcp/
 node_modules/
+artifacts/evals/
+
+# BYOK runtime key store (encrypted; never commit)
+byok/byok.sqlite
+byok/*.sqlite
+data/*.sqlite

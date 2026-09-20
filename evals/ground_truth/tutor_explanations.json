@@ -1,0 +1,59 @@
+{
+  "cases": [
+    {
+      "id": "primary-particle-language-en",
+      "language": "en",
+      "learner_stage": "England primary science",
+      "question": "Why are particles closest together in a solid?",
+      "reference": "In the particle model, particles in a solid are close together and vibrate around fixed positions. They are not completely motionless.",
+      "must_include": ["particles are close together", "vibrate or move in fixed positions"],
+      "must_not_claim": ["particles in a solid do not move at all", "atoms become smaller when frozen"],
+      "candidate_response": "In a solid the particles are packed closely. They still vibrate in nearly fixed positions, so the solid keeps its shape.",
+      "minimum_score": 3
+    },
+    {
+      "id": "ks3-conservation-en",
+      "language": "en",
+      "learner_stage": "England KS3 chemistry",
+      "question": "Why do I put 2, 1, 2 in front of H2 + O2 -> H2O?",
+      "reference": "Coefficients make the number of each kind of atom equal on both sides. Two H2 and one O2 form two H2O, giving four hydrogen atoms and two oxygen atoms on each side.",
+      "must_include": ["same number of each atom on both sides", "four hydrogen", "two oxygen"],
+      "must_not_claim": ["change the small numbers in H2 or H2O", "atoms are created or destroyed"],
+      "candidate_response": "The big numbers are coefficients. With 2 H2 + O2 -> 2 H2O there are four hydrogen atoms and two oxygen atoms on both sides, so atoms are conserved. Do not change the small 2 in the formula.",
+      "minimum_score": 3
+    },
+    {
+      "id": "organic-vsepr-et",
+      "language": "et",
+      "learner_stage": "A-level to first-year chemistry bridge",
+      "question": "Miks on vee molekul VSEPR-i järgi nurgeline, mitte lineaarne?",
+      "reference": "Water has two bonding pairs and two lone pairs around oxygen. Lone pairs repel more strongly than bonding pairs, compressing the H-O-H angle and producing a bent molecular shape.",
+      "must_include": ["kaks siduvat elektronpaari", "kaks üksikut elektronpaari", "nurgeline"],
+      "must_not_claim": ["vesi on lineaarne", "hapnikul ei ole üksikuid elektronpaare"],
+      "candidate_response": "Veel on hapniku ümber kaks siduvat elektronpaari ja kaks üksikut elektronpaari. Üksikud paarid tõrjuvad tugevamalt ning suruvad H–O–H nurka kokku, seega on molekul nurgeline, mitte lineaarne.",
+      "minimum_score": 3
+    },
+    {
+      "id": "ee-g8-symbol-prelude-et",
+      "language": "et",
+      "learner_stage": "Eesti 8. klassi keemia eelkursus; null eelteadmisi",
+      "question": "Ma ei tunne keemilisi sümboleid. Miks kirjutatakse naatrium Na, mitte NA?",
+      "reference": "Keemiline sümbol on rahvusvaheline kokkuleppeline lühend. Esimene täht on suur ja teine, kui see on olemas, väike. Naatriumi sümbol on Na; seda ei pea enne kursust juba teadma.",
+      "must_include": ["esimene täht on suur", "teine täht on väike", "Na on naatrium"],
+      "must_not_claim": ["NA on õige", "kõik sümbolid tuleb enne kursust pähe õppida"],
+      "candidate_response": "Sa ei pea sümboleid ette teadma. Sümbol on kokkuleppeline lühend: esimene täht kirjutatakse suurelt ja teine täht väikselt. Seepärast on naatrium Na, mitte NA.",
+      "minimum_score": 3
+    },
+    {
+      "id": "ee-g8-mass-percent-et",
+      "language": "et",
+      "learner_stage": "Eesti 8. klassi keemia",
+      "question": "100 g lahuses on 20 g soola. Kuidas leian massiprotsendi?",
+      "reference": "Jaga lahustunud aine mass lahuse kogumassiga ja korruta sajaga: 20 g / 100 g × 100% = 20%. Grammid taanduvad ja tulemus peab jääma 0–100% vahele.",
+      "must_include": ["20 g jagada 100 g-ga", "korrutada 100 protsendiga", "vastus on 20%"],
+      "must_not_claim": ["jaga lahusti massiga", "vastus on 500%"],
+      "candidate_response": "Kasuta seost massiprotsent = lahustunud aine mass ÷ lahuse kogumass × 100%. Siin 20 g ÷ 100 g × 100% = 20%. Grammid taanduvad ja 20% on mõistlik vahemikus 0–100%.",
+      "minimum_score": 3
+    }
+  ]
+}

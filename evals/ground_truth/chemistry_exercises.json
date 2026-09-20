@@ -1,0 +1,18 @@
+{
+  "exercises": [
+    {"source_key": "fl-primary-particle-state", "exercise_type": "molecule_geometry", "correct_answer": {"choice": 0}, "incorrect_answer": {"choice": 2}},
+    {"source_key": "fl-primary-material-choice", "exercise_type": "material_sort", "correct_answer": {"choice": 1}, "incorrect_answer": {"choice": 0}},
+    {"source_key": "fl-chem-atom-sodium", "exercise_type": "atom_builder", "correct_answer": {"protons": 11, "neutrons": 12, "electrons": 11}, "incorrect_answer": {"protons": 11, "neutrons": 11, "electrons": 11}},
+    {"source_key": "fl-chem-balance-water", "exercise_type": "equation_balance", "correct_answer": {"coefficients": [2, 1, 2]}, "incorrect_answer": {"coefficients": [1, 1, 1]}},
+    {"source_key": "fl-chem-water-geometry", "exercise_type": "molecule_geometry", "correct_answer": {"choice": 0}, "incorrect_answer": {"choice": 1}},
+    {"source_key": "fl-chem-moles-water", "exercise_type": "mole_calculation", "correct_answer": {"value": 2.0}, "incorrect_answer": {"value": 1.0}},
+    {"source_key": "fl-advanced-vsepr-water", "exercise_type": "molecule_geometry", "correct_answer": {"choice": 0}, "incorrect_answer": {"choice": 1}},
+    {"source_key": "fl-advanced-spectra-ethanol", "exercise_type": "spectra_choice", "correct_answer": {"choice": 0}, "incorrect_answer": {"choice": 1}},
+    {"source_key": "fl-advanced-mechanism-choice", "exercise_type": "mechanism_choice", "correct_answer": {"choice": 0}, "incorrect_answer": {"choice": 1}},
+    {"source_key": "ee-g8-p06", "exercise_type": "short_answer", "correct_answer": {"text": "Na"}, "incorrect_answer": {"text": "NA"}},
+    {"source_key": "ee-g8-p07", "exercise_type": "formula_builder", "correct_answer": {"text": "H₂O"}, "incorrect_answer": {"text": "HO"}},
+    {"source_key": "ee-g8-p09", "exercise_type": "numeric_calculation", "correct_answer": {"value": 20}, "incorrect_answer": {"value": 200}},
+    {"source_key": "ee-g8-a01", "exercise_type": "atom_builder", "correct_answer": {"protons": 11, "neutrons": 12, "electrons": 11}, "incorrect_answer": {"protons": 11, "neutrons": 11, "electrons": 12}},
+    {"source_key": "ee-g8-o08", "exercise_type": "equation_balance", "correct_answer": {"coefficients": [2, 1, 2]}, "incorrect_answer": {"coefficients": [1, 1, 1]}}
+  ]
+}

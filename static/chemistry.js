@@ -92,8 +92,8 @@
             input.value = '1'; input.setAttribute('aria-label', `${exercise.ui?.coefficient || 'Coefficient'} for ${term}`);
             row.appendChild(input); row.appendChild(element('span', 'chemistry-formula', term));
             fields.push(input);
-            if (index === 0) row.appendChild(element('span', 'chemistry-operator', '+'));
-            if (index === 1) row.appendChild(element('span', 'chemistry-operator', '→'));
+            const operator = (exercise.operators || ["+", "→"])[index];
+            if (operator) row.appendChild(element('span', 'chemistry-operator', operator));
         });
         getAnswer.current = () => ({coefficients: fields.map((input) => Number(input.value))});
         return row;
@@ -124,10 +124,21 @@
         return field;
     }
 
+    function textInput(exercise, getAnswer) {
+        const field = element('label', 'chemistry-number-field');
+        field.appendChild(element('span', '', exercise.ui?.text_answer || 'Type your answer'));
+        const input = element('input'); input.type = 'text'; input.autocomplete = 'off';
+        input.placeholder = exercise.placeholder || '';
+        field.appendChild(input);
+        getAnswer.current = () => input.value.trim() ? {text: input.value.trim()} : null;
+        return field;
+    }
+
     function labelFor(exercise, answer) {
         if (answer?.choice !== undefined) return `${String.fromCharCode(65 + answer.choice)}. ${(exercise.choices || [])[answer.choice] || ''}`;
         if (answer?.coefficients) return answer.coefficients.join(', ');
         if (answer?.value !== undefined) return `${answer.value} ${exercise.unit || ''}`.trim();
+        if (answer?.text !== undefined) return answer.text;
         if (answer?.protons !== undefined) return `p ${answer.protons}, n ${answer.neutrons}, e ${answer.electrons}`;
         return 'Chemistry answer';
     }
@@ -143,7 +154,8 @@
         if (['multiple_choice', 'material_sort', 'molecule_geometry', 'spectra_choice', 'mechanism_choice'].includes(exercise.exercise_type)) card.appendChild(choices(exercise, answer));
         else if (exercise.exercise_type === 'equation_balance') card.appendChild(equationInputs(exercise, answer));
         else if (exercise.exercise_type === 'atom_builder') card.appendChild(atomInputs(exercise, answer));
-        else if (exercise.exercise_type === 'mole_calculation') card.appendChild(numberInput(exercise, answer));
+        else if (['mole_calculation', 'numeric_calculation'].includes(exercise.exercise_type)) card.appendChild(numberInput(exercise, answer));
+        else if (['formula_builder', 'short_answer'].includes(exercise.exercise_type)) card.appendChild(textInput(exercise, answer));
         const status = element('div', 'chemistry-answer-status');
         status.setAttribute('aria-live', 'polite'); card.appendChild(status);
         const check = element('button', 'chemistry-submit', exercise.ui?.check || 'Check answer');

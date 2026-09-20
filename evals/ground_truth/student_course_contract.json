@@ -1,0 +1,46 @@
+{
+  "courses": [
+    {
+      "slug": "primary-science",
+      "modules": [
+        "Working Scientifically",
+        "Materials and Matter",
+        "Living World",
+        "Energy, Earth and Space"
+      ],
+      "lesson_count": 9
+    },
+    {
+      "slug": "chemistry-fundamentals",
+      "modules": [
+        "Particles, Atoms and the Periodic Table",
+        "Bonding and Properties",
+        "Reactions and Quantitative Chemistry",
+        "Energy, Rates and Resources"
+      ],
+      "lesson_count": 10
+    },
+    {
+      "slug": "advanced-chemistry",
+      "modules": [
+        "Physical Chemistry",
+        "Organic Chemistry I",
+        "Inorganic Chemistry I",
+        "Practical Chemistry and Data"
+      ],
+      "lesson_count": 9
+    },
+    {
+      "slug": "ee-grade-8-chemistry",
+      "modules": [
+        "Chemistry prelude",
+        "What chemistry involves",
+        "Atomic structure and composition",
+        "Oxygen, hydrogen and oxides",
+        "Acids and bases",
+        "Common metals"
+      ],
+      "lesson_count": 47
+    }
+  ]
+}

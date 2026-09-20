@@ -11,6 +11,7 @@ from starlette.responses import JSONResponse
 
 import db
 from components.i18n import prompt_language_directive
+from learning_chat import CHAT_FEEDBACK_RULE
 
 
 log = logging.getLogger(__name__)
@@ -20,7 +21,8 @@ DEFAULT_VOICE_ID = "eve"
 SUPPORTED_LANGUAGES = {"en", "et", "lt", "es"}
 
 
-def _voice_instructions(user: dict, chat_session: dict, history: list[dict], lang: str) -> str:
+def _voice_instructions(user: dict, chat_session: dict, history: list[dict], lang: str,
+                        curriculum: dict | None = None) -> str:
     """Build a short, spoken-friendly prompt grounded in the active tutor thread."""
     context = chat_session.get("context") or {}
     role = context.get("role") or user.get("role") or "student"
@@ -38,9 +40,19 @@ def _voice_instructions(user: dict, chat_session: dict, history: list[dict], lan
         if text:
             recent.append(f"{speaker}: {text}")
     thread_context = "\n".join(recent)
+    curriculum_direction = ""
+    if curriculum:
+        curriculum_direction = (
+            f" Teach only within {curriculum.get('country_name') or curriculum.get('country_code')} "
+            f"{curriculum.get('grade_label') or curriculum.get('grade_code')} using curriculum "
+            f"{curriculum.get('program_code')} version {curriculum.get('version')}. "
+            "Treat chemical symbols and calculations as new unless the learner has demonstrated them. "
+            "Use the curriculum's canonical language by default and do not drift into later-grade scope."
+        )
     return (
         "You are FastLearn's conversational voice tutor. "
         f"{role_direction} Keep each spoken response concise, encouraging, and easy to follow. "
+        f"{CHAT_FEEDBACK_RULE if role == 'student' else ''} {curriculum_direction} "
         "Use examples when helpful. Never claim that progress, quiz results, or account data changed "
         "unless the learner completes that action in FastLearn."
         f"{prompt_language_directive(lang)}"
@@ -84,6 +96,10 @@ def register_voice_routes(app, get_session_user: Callable):
             history = db.get_chat_history(
                 conn, user["id"], limit=20, session_id=chat_id
             ) if chat_session else []
+            context = (chat_session or {}).get("context") or {}
+            curriculum = db.curriculum_context_for_lesson(
+                conn, int(context["lesson_id"])
+            ) if context.get("lesson_id") else None
         if not chat_session:
             return JSONResponse({"error": "Chat not found."}, status_code=404)
         api_key = os.environ.get("XAI_API_KEY", "")
@@ -98,7 +114,7 @@ def register_voice_routes(app, get_session_user: Callable):
             "client_secret": client_secret,
             "model": os.environ.get("XAI_VOICE_MODEL", DEFAULT_VOICE_MODEL),
             "voice": os.environ.get("XAI_VOICE_ID", DEFAULT_VOICE_ID),
-            "instructions": _voice_instructions(user, chat_session, history, lang),
+            "instructions": _voice_instructions(user, chat_session, history, lang, curriculum),
         })
         response.headers["Cache-Control"] = "no-store"
         return response

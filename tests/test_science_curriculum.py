@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from chemistry_engine import grade
-from science_catalog import CATALOG, EXERCISES, public_exercise
+from science_catalog import CATALOG, EXERCISES, REVIEW_QUESTIONS, public_exercise
 
 
 def test_england_first_science_pathway_has_three_bilingual_courses():
@@ -29,11 +29,46 @@ def test_primary_course_covers_materials_living_world_and_energy_earth():
     }
 
 
+def test_every_science_lesson_has_a_bilingual_review_for_both_modes():
+    canonical_lessons = {
+        (course["slug"], lesson["title"]["en"])
+        for course in CATALOG
+        for module in course["modules"]
+        for lesson in module["lessons"]
+    }
+    reviews = {(review["course_slug"], review["lesson"]) for review in REVIEW_QUESTIONS}
+
+    assert len(canonical_lessons) == 28
+    assert canonical_lessons <= reviews
+    assert reviews - canonical_lessons == {
+        ("chemistry-fundamentals", "Atoms and the Periodic Table"),
+        ("chemistry-fundamentals", "Types of Reactions and Balancing Equations"),
+    }
+    for review in REVIEW_QUESTIONS:
+        assert set(review["question"]) == {"en", "et"}
+        assert set(review["options"]) == {"en", "et"}
+        assert set(review["explanation"]) == {"en", "et"}
+        assert len(review["options"]["en"]) == len(review["options"]["et"]) >= 3
+        assert 0 <= review["correct_index"] < len(review["options"]["en"])
+
+
+def test_science_seeder_wires_reviews_into_chat_exercises_and_classic_quizzes():
+    source = Path("science_catalog.py").read_text(encoding="utf-8")
+
+    assert "for review in REVIEW_QUESTIONS" in source
+    assert "'multiple_choice'" in source
+    assert "INSERT INTO {schema}.lesson_exercises" in source
+    assert "INSERT INTO {schema}.quizzes" in source
+    assert "INSERT INTO {schema}.quiz_questions" in source
+    assert "'quiz_questions'" in source
+
+
 def test_chemistry_exercises_are_guided_and_answer_safe():
     assert {exercise["engine"] if "engine" in exercise else "chemistry" for exercise in EXERCISES} == {"chemistry"}
     assert {exercise["exercise_type"] for exercise in EXERCISES} >= {
         "atom_builder", "equation_balance", "molecule_geometry", "mole_calculation",
     }
+    assert all(set(exercise["answer"].get("feedback", {})) == {"en", "et"} for exercise in EXERCISES)
     for exercise in EXERCISES:
         public = public_exercise(exercise, "et")
         assert "answer" not in public
@@ -82,3 +117,15 @@ def test_mobile_guided_content_bundle_is_public_and_answer_safe():
     assert "include_answer=True" not in api.split("def lesson_guided_content", 1)[1].split(
         '@api.get("/v1/exercises/{exercise_id}"', 1
     )[0]
+
+
+def test_technical_architecture_documents_two_modes_generation_and_gaps():
+    architecture = Path("docs/fastlearn_architecture.md").read_text(encoding="utf-8")
+
+    assert "## Two learning modes" in architecture
+    assert "Chat is the default" in architecture
+    assert "## AI-assisted question pipeline" in architecture
+    assert "GENERATOR_SYSTEM_PROMPT" in architecture
+    assert "FASTSME_API_TOKEN" in architecture
+    assert "## Known gaps" in architecture
+    assert "quiz_roadmap.md" in architecture

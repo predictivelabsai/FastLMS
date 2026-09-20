@@ -12,6 +12,9 @@ from math import isclose
 from typing import Any
 
 
+_SUBSCRIPTS = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+
+
 def _integer_list(value: Any) -> list[int] | None:
     if not isinstance(value, list) or not value:
         return None
@@ -35,6 +38,13 @@ def _number(value: Any) -> float | None:
     return number if number == number and abs(number) < 1_000_000 else None
 
 
+def _normal_text(value: Any, *, formula: bool = False) -> str:
+    text = str(value or "").strip().translate(_SUBSCRIPTS)
+    if formula:
+        return "".join(text.split())
+    return " ".join(text.casefold().split())
+
+
 def grade(exercise_type: str, expected: dict[str, Any], answer: dict[str, Any]) -> dict[str, bool]:
     """Grade one bounded chemistry activity without trusting browser state."""
     if not isinstance(expected, dict) or not isinstance(answer, dict):
@@ -52,7 +62,7 @@ def grade(exercise_type: str, expected: dict[str, Any], answer: dict[str, Any]) 
             isinstance(expected.get(key), int) and answer.get(key) == expected[key]
             for key in ("protons", "electrons", "neutrons")
         )
-    elif exercise_type == "mole_calculation":
+    elif exercise_type in {"mole_calculation", "numeric_calculation"}:
         submitted = _number(answer.get("value"))
         wanted = _number(expected.get("value"))
         tolerance = _number(expected.get("tolerance"))
@@ -60,5 +70,14 @@ def grade(exercise_type: str, expected: dict[str, Any], answer: dict[str, Any]) 
             submitted is not None and wanted is not None and
             isclose(submitted, wanted, rel_tol=0, abs_tol=tolerance if tolerance is not None else 0.01)
         )
+    elif exercise_type in {"formula_builder", "short_answer"}:
+        formula_rules = exercise_type == "formula_builder" or bool(expected.get("case_sensitive"))
+        submitted = _normal_text(answer.get("text"), formula=formula_rules)
+        accepted = expected.get("accepted") or [expected.get("text")]
+        wanted = {
+            _normal_text(value, formula=formula_rules)
+            for value in accepted if value is not None
+        }
+        correct = bool(submitted and submitted in wanted)
 
     return {"correct": correct, "completed": correct, "optimal": correct}

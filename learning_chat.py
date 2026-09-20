@@ -15,6 +15,9 @@ from chess_engine import grade as grade_chess
 from chemistry_engine import grade as grade_chemistry
 
 
+CHAT_FEEDBACK_RULE = """Global answer-feedback rule: when a student's message is an answer or attempted solution to a question, explicitly say whether it is correct and explain why. If it is incorrect, state the correct answer and explain why it is correct. Never reveal the answer before the student attempts it. If the student is asking a question rather than answering one, answer normally without inventing a correctness verdict."""
+
+
 COPY = {
     "en": {
         "welcome": "What would you like to learn? Choose a course below, or ask me anything.",
@@ -46,6 +49,11 @@ COPY = {
         "exercise_ready": "Your turn. Use the board below, then check your answer. You can also type square names or moves in the chat.",
         "exercise_correct": "Wonderful thinking — **that is correct!**",
         "exercise_retry": "Good try. Look at the piece again and trace its route slowly. Nothing is lost; have another go.",
+        "exercise_correct_reasoned": "**Correct.** {explanation}",
+        "exercise_incorrect_reasoned": "**Not quite. The correct answer is {answer}.** {explanation}",
+        "exercise_generic_reason": "Your answer matches the expected solution for {concept}.",
+        "exercise_generic_correction": "That solution satisfies the exercise goal for {concept}.",
+        "quiz_generic_reason": "This option directly satisfies what the question asks using the lesson's answer key.",
         "exercise_done": "You solved every guided exercise in this lesson and earned **{xp} XP**.",
         "next_exercise": "Try the next exercise", "retry_exercise": "Try this exercise again",
     },
@@ -70,6 +78,11 @@ COPY = {
         "opening": "Avan **{label}**…",
         "practice": "Harjuta malelaual", "exercise_ready": "Sinu kord. Kasuta allolevat lauda ja kontrolli vastust. Võid käigud või ruudud ka vestlusse kirjutada.",
         "exercise_correct": "Suurepärane mõtlemine — **see on õige!**", "exercise_retry": "Tubli katse. Vaata malendit uuesti ja jälgi selle teed aeglaselt. Proovi veel kord.",
+        "exercise_correct_reasoned": "**Õige.** {explanation}",
+        "exercise_incorrect_reasoned": "**Mitte päris. Õige vastus on {answer}.** {explanation}",
+        "exercise_generic_reason": "Sinu vastus vastab teema {concept} oodatud lahendusele.",
+        "exercise_generic_correction": "See lahendus täidab teema {concept} ülesande eesmärgi.",
+        "quiz_generic_reason": "See valik vastab tunni vastusevõtme järgi otseselt küsimusele.",
         "exercise_done": "Lahendasid kõik selle tunni ülesanded ja teenisid **{xp} XP**.", "next_exercise": "Proovi järgmist ülesannet", "retry_exercise": "Proovi seda ülesannet uuesti",
     },
     "lt": {
@@ -93,6 +106,11 @@ COPY = {
         "opening": "Atveriama **{label}**…",
         "practice": "Treniruotis šachmatų lentoje", "exercise_ready": "Tavo eilė. Naudok lentą ir patikrink atsakymą. Langelius ar ėjimus gali įrašyti ir pokalbyje.",
         "exercise_correct": "Puikiai pagalvota — **teisingai!**", "exercise_retry": "Geras bandymas. Dar kartą pažvelk į figūrą ir lėtai sek jos kelią. Bandyk dar sykį.",
+        "exercise_correct_reasoned": "**Teisingai.** {explanation}",
+        "exercise_incorrect_reasoned": "**Ne visai. Teisingas atsakymas yra {answer}.** {explanation}",
+        "exercise_generic_reason": "Jūsų atsakymas atitinka numatytą temos {concept} sprendimą.",
+        "exercise_generic_correction": "Šis sprendimas atitinka temos {concept} užduoties tikslą.",
+        "quiz_generic_reason": "Pagal pamokos atsakymų raktą šis variantas tiesiogiai atsako į klausimą.",
         "exercise_done": "Išsprendei visas šios pamokos užduotis ir gavai **{xp} XP**.", "next_exercise": "Bandyti kitą užduotį", "retry_exercise": "Bandyti šią užduotį dar kartą",
     },
     "es": {
@@ -116,6 +134,11 @@ COPY = {
         "opening": "Abriendo **{label}**…",
         "practice": "Practicar en el tablero", "exercise_ready": "Es tu turno. Usa el tablero y comprueba tu respuesta. También puedes escribir casillas o movimientos en el chat.",
         "exercise_correct": "¡Muy bien pensado: **es correcto**!", "exercise_retry": "Buen intento. Mira la pieza otra vez y sigue su ruta despacio. Inténtalo de nuevo.",
+        "exercise_correct_reasoned": "**Correcto.** {explanation}",
+        "exercise_incorrect_reasoned": "**No exactamente. La respuesta correcta es {answer}.** {explanation}",
+        "exercise_generic_reason": "Tu respuesta coincide con la solución esperada para {concept}.",
+        "exercise_generic_correction": "Esta solución cumple el objetivo del ejercicio sobre {concept}.",
+        "quiz_generic_reason": "Según la clave de respuestas de la lección, esta opción responde directamente a la pregunta.",
         "exercise_done": "Resolviste todos los ejercicios de esta lección y ganaste **{xp} XP**.", "next_exercise": "Probar el siguiente ejercicio", "retry_exercise": "Intentar este ejercicio de nuevo",
     },
 }
@@ -205,7 +228,10 @@ def _show_course(conn, user_id: int, course_id: int, lang: str) -> dict:
         VALUES (:user, :course) ON CONFLICT DO NOTHING
     """), {"user": user_id, "course": course_id})
     path = db.get_learning_path(conn, user_id=user_id, course_id=course_id, lang=lang)
-    choices = _choices((lesson["title"], lesson["id"]) for lesson in path)
+    choices = _choices(
+        (lesson["title"], lesson["id"])
+        for lesson in path if db.lesson_access(conn, user_id, lesson["id"])["unlocked"]
+    )
     context = {"phase": "lesson_picker", "course_id": course_id, "choices": choices}
     description = course.get("description") or ""
     return {
@@ -219,6 +245,15 @@ def _show_lesson(conn, user_id: int, lesson_id: int, lang: str) -> dict:
     course = _course_for_lesson(conn, lesson_id, lang)
     if not lesson or not course:
         return _course_picker(conn, lang)
+    access = db.lesson_access(conn, user_id, lesson_id)
+    if not access["unlocked"]:
+        message = (
+            "See õppetund avaneb pärast eelmise eelkursuse õppetunni lõpetamist ja selle kontrolli läbimist."
+            if lang == "et" else
+            "This lesson unlocks after you complete and pass the check for the preceding prelude lesson."
+        )
+        return {"title": lesson["title"], "context": {"phase": "lesson_picker", "course_id": course["id"]},
+                "content": f"## {lesson['title']}\n\n{message}"}
     quiz = db.get_quiz_for_lesson(conn, lesson_id, lang=lang)
     actions = [(_copy(lang)["complete"], "complete")]
     if db.get_lesson_exercises(conn, lesson_id, lang, user_id=user_id):
@@ -245,7 +280,8 @@ def _client_exercise(exercise: dict) -> dict:
     allowed = {
         "id", "source_key", "engine", "exercise_type", "fen", "prompt", "concepts",
         "difficulty_band", "cognitive_layer", "choices", "pieces", "goal", "optimal_len", "ui",
-        "molecule", "scene", "equation", "atom", "mass_number", "atomic_number", "unit", "chart",
+        "molecule", "scene", "equation", "operators", "atom", "mass_number", "atomic_number",
+        "unit", "chart", "placeholder", "worked_steps",
     }
     return {key: value for key, value in exercise.items() if key in allowed}
 
@@ -282,8 +318,18 @@ def _typed_exercise_answer(message: str, exercise: dict) -> dict | None:
     if kind == "multiple_choice":
         token = (message or "").strip().upper()
         if len(token) == 1 and "A" <= token <= "Z":
-            return {"answer": ord(token) - ord("A")}
+            index = ord(token) - ord("A")
+            return {"choice": index} if exercise.get("engine") == "chemistry" else {"answer": index}
         return None
+    if kind in {"formula_builder", "short_answer"}:
+        value = (message or "").strip()
+        return {"text": value} if value else None
+    if kind == "numeric_calculation":
+        match = re.search(r"[-+]?\d+(?:[.,]\d+)?", message or "")
+        return {"value": float(match.group(0).replace(",", "."))} if match else None
+    if kind == "equation_balance":
+        values = [int(value) for value in re.findall(r"\b\d+\b", message or "")]
+        return {"coefficients": values} if values else None
     if kind == "select_squares":
         squares = re.findall(r"\b[a-h][1-8]\b", (message or "").lower())
         return {"squares": squares} if squares else None
@@ -297,6 +343,62 @@ def _typed_exercise_answer(message: str, exercise: dict) -> dict | None:
         ]
         return {"placements": placements} if placements else None
     return None
+
+
+def _expected_answer_summary(exercise: dict, lang: str) -> str:
+    expected = exercise.get("answer_payload") or {}
+    localized = (expected.get("feedback") or {}).get(lang) or (expected.get("feedback") or {}).get("en") or {}
+    if localized.get("correct_answer"):
+        return str(localized["correct_answer"])
+    if "choice" in expected:
+        choices = exercise.get("choices") or []
+        index = expected.get("choice")
+        if isinstance(index, int) and 0 <= index < len(choices):
+            return str(choices[index])
+    if "answer" in expected:
+        choices = exercise.get("choices") or []
+        index = expected.get("answer")
+        if isinstance(index, int) and 0 <= index < len(choices):
+            return str(choices[index])
+        return str(index)
+    if expected.get("coefficients"):
+        return " : ".join(str(value) for value in expected["coefficients"])
+    if expected.get("accepted"):
+        return str(expected["accepted"][0])
+    if expected.get("value") is not None:
+        return f"{expected['value']} {exercise.get('unit') or ''}".strip()
+    if expected.get("moves"):
+        return " → ".join(str(value) for value in expected["moves"])
+    if expected.get("squares"):
+        return ", ".join(str(value) for value in expected["squares"])
+    if expected.get("placements"):
+        return ", ".join(
+            f"{item.get('piece')} on {item.get('square')}" for item in expected["placements"]
+        )
+    if "value" in expected:
+        unit = f" {exercise.get('unit')}" if exercise.get("unit") else ""
+        return f"{expected['value']}{unit}"
+    atom = [
+        f"{key}={expected[key]}" for key in ("protons", "neutrons", "electrons")
+        if key in expected
+    ]
+    return ", ".join(atom) if atom else "the authored solution"
+
+
+def exercise_feedback(exercise: dict, lang: str, correct: bool) -> str:
+    """Return verdict, correction and reasoning from the protected answer key."""
+    expected = exercise.get("answer_payload") or {}
+    localized = (expected.get("feedback") or {}).get(lang) or (expected.get("feedback") or {}).get("en") or {}
+    concepts = exercise.get("concepts") or ["this concept"]
+    concept = ", ".join(str(value).replace("-", " ") for value in concepts)
+    explanation = localized.get("explanation") or _copy(lang)[
+        "exercise_generic_reason" if correct else "exercise_generic_correction"
+    ].format(concept=concept)
+    if correct:
+        return _copy(lang)["exercise_correct_reasoned"].format(explanation=explanation)
+    return _copy(lang)["exercise_incorrect_reasoned"].format(
+        answer=_expected_answer_summary(exercise, lang), explanation=explanation
+    )
 
 
 def submit_exercise(
@@ -320,13 +422,14 @@ def submit_exercise(
         chat_session_id=chat_session_id, answer=answer, verdict=verdict,
         duration_seconds=duration_seconds,
     )
+    feedback = exercise_feedback(exercise, lang, bool(verdict["correct"]))
     if not verdict["correct"]:
         interactive = _client_exercise(exercise)
         retry_context = {**context, "phase": "exercise", "choices": [], "interactive": interactive}
         return {
             "title": context.get("title") or "Guided practice", "context": retry_context,
             "lesson_id": lesson_id, "interactive": interactive,
-            "content": _copy(lang)["exercise_retry"], "verdict": verdict,
+            "content": f"{feedback}\n\n{_copy(lang)['exercise_retry']}", "verdict": verdict,
         }
 
     remaining = db.get_next_lesson_exercise(conn, lesson_id, user_id, lang)
@@ -338,7 +441,7 @@ def submit_exercise(
         }
         return {
             "title": context.get("title") or "Guided practice", "context": next_context,
-            "lesson_id": lesson_id, "content": f"{_copy(lang)['exercise_correct']}\n\n{_choice_markdown(choices)}",
+            "lesson_id": lesson_id, "content": f"{feedback}\n\n{_choice_markdown(choices)}",
             "verdict": verdict,
         }
 
@@ -348,7 +451,8 @@ def submit_exercise(
         (_copy(lang)["lessons"], "lesson"), (_copy(lang)["courses"], "courses"),
         (_copy(lang)["retry_exercise"], "retry"),
     ])
-    lead = _copy(lang)["exercise_done"].format(xp=xp) if xp else _copy(lang)["exercise_correct"]
+    completion = _copy(lang)["exercise_done"].format(xp=xp) if xp else ""
+    lead = f"{feedback}\n\n{completion}" if completion else feedback
     done_context = {
         **context, "phase": "exercise_feedback", "choices": choices,
         "interactive": None, "last_exercise_id": exercise_id, "lesson_complete": True,
@@ -567,8 +671,7 @@ def handle_guided_message(
         context["quiz_correct"] = int(context.get("quiz_correct", 0)) + int(correct)
         context["quiz_index"] = index + 1
         lead = _copy(lang)["correct"] if correct else _copy(lang)["incorrect"].format(answer=question["correct_answer"])
-        if question.get("explanation"):
-            lead += f" {question['explanation']}"
+        lead += f" {question.get('explanation') or _copy(lang)['quiz_generic_reason']}"
         if context["quiz_index"] >= len(questions):
             result = _finish_quiz(conn, context, lang, user_id)
             result["content"] = f"{lead}\n\n{result['content']}"

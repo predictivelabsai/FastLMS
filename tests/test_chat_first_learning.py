@@ -1,7 +1,6 @@
 """Regressions for the persistent, chat-first student experience."""
 
 from pathlib import Path
-from types import SimpleNamespace
 
 from fasthtml.common import to_xml
 
@@ -46,13 +45,12 @@ def test_navigation_leads_with_new_chat_and_keeps_dashboard_secondary():
     assert markup.index("New Chat") < markup.index("Dashboard")
 
 
-def test_catalogue_course_opens_as_a_new_conversation():
+def test_catalogue_course_defaults_to_chat_mode():
     markup = to_xml(course_card({
         "id": 1, "slug": "mathematics-foundations", "title": "Mathematics Foundations",
         "description": "Learn maths", "difficulty": "beginner", "category": "Mathematics",
     }))
     assert 'href="/app/chat/new?course=mathematics-foundations"' in markup
-    assert 'href="/app/course/' not in markup
 
 
 def test_chat_client_posts_thread_id_and_renders_sse_choices():
@@ -63,20 +61,66 @@ def test_chat_client_posts_thread_id_and_renders_sse_choices():
     assert "lesson_id: lessonId" not in script
 
 
-def test_signed_in_entry_point_and_student_course_routes_open_chat(monkeypatch):
-    import main
+def test_student_lesson_routes_offer_chat_and_classic_modes():
+    source = Path("main.py").read_text(encoding="utf-8")
+    course_route = source.split('def course_detail(req, slug: str):', 1)[1].split(
+        '@app.post("/app/course/{course_id:int}/clone")', 1
+    )[0]
+    lesson_route = source.split('def lesson_page(req, lesson_id: int):', 1)[1].split(
+        '@app.post("/app/lesson/{lesson_id:int}/complete")', 1
+    )[0]
+    quiz_route = source.split('def quiz_page(req, quiz_id: int):', 1)[1].split(
+        '@app.post("/app/quiz/{quiz_id:int}/submit")', 1
+    )[0]
 
-    request = SimpleNamespace(query_params={}, session={}, cookies={}, headers={})
-    monkeypatch.setattr(main, "_require_login", lambda _req: ({"id": 9, "role": "student"}, None))
-    home = main.app_home(request)
-    course = main.course_detail(request, "art-history")
-    lesson = main.lesson_page(request, 17)
-    quiz = main.quiz_page(request, 22)
+    assert "role\") == \"student\"" not in course_route
+    assert "role\") == \"student\"" not in lesson_route
+    assert "role\") == \"student\"" not in quiz_route
+    assert '/app/chat/new?course=' in course_route
+    assert '/app/chat/new?lesson_id=' in lesson_route
+    assert '?mode=classic' in lesson_route
+    assert '/app/chat/new?lesson_id=' in quiz_route
 
-    assert home.headers["location"] == "/app/chat"
-    assert course.headers["location"] == "/app/chat/new?course=art-history"
-    assert lesson.headers["location"] == "/app/chat/new?lesson_id=17"
-    assert quiz.headers["location"] == "/app/chat/new?quiz_id=22"
+
+def test_typed_chemistry_review_answers_use_choice_payload():
+    chemistry = {"engine": "chemistry", "exercise_type": "multiple_choice"}
+    chess = {"engine": "chess", "exercise_type": "multiple_choice"}
+
+    assert learning_chat._typed_exercise_answer("B", chemistry) == {"choice": 1}
+    assert learning_chat._typed_exercise_answer("B", chess) == {"answer": 1}
+
+
+def test_global_chat_feedback_reveals_correction_and_reasoning():
+    exercise = {
+        "concepts": ["particle-model"],
+        "choices": ["Solid", "Liquid", "Gas"],
+        "answer_payload": {
+            "choice": 0,
+            "feedback": {
+                "en": {
+                    "correct_answer": "Solid",
+                    "explanation": "Solid particles are packed most closely.",
+                }
+            },
+        },
+    }
+
+    correct = learning_chat.exercise_feedback(exercise, "en", True)
+    incorrect = learning_chat.exercise_feedback(exercise, "en", False)
+    assert "Correct" in correct and "packed most closely" in correct
+    assert "Not quite" in incorrect and "Solid" in incorrect
+    assert "packed most closely" in incorrect
+
+
+def test_free_form_and_voice_tutors_share_the_global_feedback_rule():
+    main_source = Path("main.py").read_text(encoding="utf-8")
+    voice_source = Path("voice.py").read_text(encoding="utf-8")
+    rule = learning_chat.CHAT_FEEDBACK_RULE.lower()
+
+    assert "explicitly say whether it is correct" in rule
+    assert "state the correct answer" in rule
+    assert main_source.count("learning_chat.CHAT_FEEDBACK_RULE") >= 2
+    assert "CHAT_FEEDBACK_RULE" in voice_source
 
 
 def test_teacher_chat_uses_complete_catalogue_and_management_paths(monkeypatch):

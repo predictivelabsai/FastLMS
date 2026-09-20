@@ -31,9 +31,9 @@ RESOURCES = (
 )
 
 PUBLIC_FIELDS = {
-    "courses": ("id", "title", "slug", "description", "category", "difficulty", "thumbnail_url", "is_published", "is_default", "created_at"),
+    "courses": ("id", "title", "slug", "description", "category", "difficulty", "thumbnail_url", "is_published", "is_default", "country_code", "jurisdiction_code", "curriculum_code", "curriculum_version", "grade_code", "canonical_language", "supported_languages", "created_at"),
     "modules": ("id", "course_id", "title", "description", "order_idx", "created_at"),
-    "lessons": ("id", "module_id", "title", "content_md", "content_type", "video_url", "duration_min", "xp_reward", "order_idx", "lesson_kind", "difficulty_level", "created_at"),
+    "lessons": ("id", "module_id", "title", "content_md", "content_type", "video_url", "duration_min", "xp_reward", "order_idx", "lesson_kind", "difficulty_level", "prerequisite_lesson_id", "created_at"),
 }
 
 api = FastAPI(
@@ -106,13 +106,21 @@ def _not_found(resource: str, item_id: int | str):
     })
 
 
-def _grade_exercise(exercise: dict, answer: dict) -> dict:
+def _grade_exercise(exercise: dict, answer: dict, lang: str | None = None) -> dict:
     """Dispatch to a server-side grader; never delegate correctness to the client."""
     if exercise["engine"] == "chess":
-        return grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], answer)
-    if exercise["engine"] == "chemistry":
-        return grade_chemistry(exercise["exercise_type"], exercise["answer_payload"], answer)
-    raise HTTPException(422, detail={"code": "unsupported_engine", "message": "Unsupported exercise engine.", "details": {}})
+        verdict = grade_chess(exercise["exercise_type"], exercise.get("fen"), exercise["answer_payload"], answer)
+    elif exercise["engine"] == "chemistry":
+        verdict = grade_chemistry(exercise["exercise_type"], exercise["answer_payload"], answer)
+    else:
+        raise HTTPException(422, detail={"code": "unsupported_engine", "message": "Unsupported exercise engine.", "details": {}})
+    feedback_by_language = exercise.get("answer_payload", {}).get("feedback", {})
+    if feedback_by_language:
+        feedback = feedback_by_language.get(lang or "")
+        if feedback is None:
+            feedback = next(iter(feedback_by_language.values()), {})
+        verdict = {**verdict, **feedback}
+    return verdict
 
 
 def _published_clause(table: str) -> tuple[str, str]:
@@ -126,20 +134,28 @@ def _published_clause(table: str) -> tuple[str, str]:
     )
 
 
-def _list_public(table: str, *, limit: int, offset: int, lang: str) -> dict:
+def _list_public(table: str, *, limit: int, offset: int, lang: str,
+                 country_code: str | None = None, grade_code: str | None = None) -> dict:
     fields = PUBLIC_FIELDS[table]
     alias = "c" if table == "courses" else "r"
     joins, where = _published_clause(table)
     selected = ", ".join(f"{alias}.{field}" for field in fields)
     order = "c.id" if table == "courses" else "r.id"
+    params: dict[str, Any] = {"limit": limit, "offset": offset}
+    if table == "courses" and country_code:
+        where += " AND c.country_code=:country"
+        params["country"] = country_code.upper()
+    if table == "courses" and grade_code:
+        where += " AND c.grade_code=:grade"
+        params["grade"] = grade_code
     with db.connect() as connection:
         total = connection.execute(sa.text(
             f"SELECT count(*) FROM {db.S}.{table} {alias} {joins} WHERE {where}"
-        )).scalar_one()
+        ), params).scalar_one()
         rows = connection.execute(sa.text(
             f"SELECT {selected} FROM {db.S}.{table} {alias} {joins} WHERE {where} "
             f"ORDER BY {order} LIMIT :limit OFFSET :offset"
-        ), {"limit": limit, "offset": offset}).mappings().all()
+        ), params).mappings().all()
         data = db._localized(rows, table, lang, connection)
     return {"data": data, "meta": {"total": total, "limit": limit, "offset": offset}}
 
@@ -179,8 +195,11 @@ def register_public_routes(slug: str, table: str, tag: str):
     def list_records(
         limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0),
         lang: str = Query("en", pattern="^(en|et|lt|es)$"),
+        country_code: str | None = Query(None, min_length=2, max_length=2),
+        grade_code: str | None = Query(None, max_length=20),
     ):
-        return _list_public(table, limit=limit, offset=offset, lang=lang)
+        return _list_public(table, limit=limit, offset=offset, lang=lang,
+                            country_code=country_code, grade_code=grade_code)
 
     def get_record(item_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
         return _get_public(table, item_id, lang)
@@ -219,22 +238,38 @@ def list_exercises(
 
 
 @api.get("/v1/courses/{course_id}/curriculum", tags=["Courses"])
-def course_curriculum(course_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
-    course = _get_public("courses", course_id, lang)
+def course_curriculum(course_id: int, lang: str | None = Query(None, pattern="^(en|et|lt|es)$")):
     with db.connect() as connection:
-        modules = db.get_modules(connection, course_id, lang)
+        canonical = connection.execute(sa.text(f"SELECT canonical_language FROM {db.S}.courses WHERE id=:id"), {"id": course_id}).scalar()
+    content_lang = lang or canonical or "en"
+    course = _get_public("courses", course_id, content_lang)
+    with db.connect() as connection:
+        modules = db.get_modules(connection, course_id, content_lang)
         for module in modules:
-            module["lessons"] = db.get_lessons(connection, module["id"], lang)
+            module["lessons"] = db.get_lessons(connection, module["id"], content_lang)
             for lesson in module["lessons"]:
-                lesson["exercise_count"] = len(db.get_lesson_exercises(connection, lesson["id"], lang))
+                lesson["exercise_count"] = len(db.get_lesson_exercises(connection, lesson["id"], content_lang))
                 lesson["visualization_count"] = len(
-                    visualizations.for_lesson_id(connection, lesson["id"], lang, db.S)
+                    visualizations.for_lesson_id(connection, lesson["id"], content_lang, db.S)
                 )
-    return {"course": course, "modules": modules}
+        profile = db.course_curriculum(connection, course_id)
+    return {"course": course, "curriculum_profile": profile, "modules": modules}
+
+
+def _lesson_content_language(lesson_id: int, requested: str | None) -> str:
+    if requested:
+        return requested
+    with db.connect() as connection:
+        return connection.execute(sa.text(f"""
+            SELECT COALESCE(c.canonical_language,'en') FROM {db.S}.lessons l
+            JOIN {db.S}.modules m ON m.id=l.module_id
+            JOIN {db.S}.courses c ON c.id=m.course_id WHERE l.id=:lesson
+        """), {"lesson": lesson_id}).scalar() or "en"
 
 
 @api.get("/v1/lessons/{lesson_id}/exercises", tags=["Exercises"])
-def lesson_exercises(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
+def lesson_exercises(lesson_id: int, lang: str | None = Query(None, pattern="^(en|et|lt|es)$")):
+    lang = _lesson_content_language(lesson_id, lang)
     _get_public("lessons", lesson_id, lang)
     with db.connect() as connection:
         rows = db.get_lesson_exercises(connection, lesson_id, lang)
@@ -242,7 +277,8 @@ def lesson_exercises(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt
 
 
 @api.get("/v1/lessons/{lesson_id}/visualizations", tags=["Lessons"])
-def lesson_visualizations(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
+def lesson_visualizations(lesson_id: int, lang: str | None = Query(None, pattern="^(en|et|lt|es)$")):
+    lang = _lesson_content_language(lesson_id, lang)
     _get_public("lessons", lesson_id, lang)
     with db.connect() as connection:
         rows = visualizations.for_lesson_id(connection, lesson_id, lang, db.S)
@@ -250,13 +286,14 @@ def lesson_visualizations(lesson_id: int, lang: str = Query("en", pattern="^(en|
 
 
 @api.get("/v1/lessons/{lesson_id}/guided-content", tags=["Lessons"])
-def lesson_guided_content(lesson_id: int, lang: str = Query("en", pattern="^(en|et|lt|es)$")):
+def lesson_guided_content(lesson_id: int, lang: str | None = Query(None, pattern="^(en|et|lt|es)$")):
     """One answer-safe request for a native lesson reader.
 
     This is deliberately a read-only bundle: clients receive authored lesson
     content, public exercise scenarios, and the portable visualization schema,
     but never an exercise answer key or a learner record.
     """
+    lang = _lesson_content_language(lesson_id, lang)
     lesson = _get_public("lessons", lesson_id, lang)
     with db.connect() as connection:
         exercises = db.get_lesson_exercises(connection, lesson_id, lang)
@@ -278,12 +315,16 @@ def get_exercise(exercise_id: int, lang: str = Query("en", pattern="^(en|et|lt|e
 
 
 @api.post("/v1/exercises/{exercise_id}/check", tags=["Exercises"], responses={404: {"model": ErrorEnvelope}})
-def check_exercise(exercise_id: int, payload: ExerciseCheck):
+def check_exercise(
+    exercise_id: int,
+    payload: ExerciseCheck,
+    lang: str | None = Query(None, pattern="^(en|et|lt|es)$"),
+):
     with db.connect() as connection:
         exercise = db.get_interactive_exercise(connection, exercise_id, include_answer=True)
     if not exercise:
         _not_found("Exercise", exercise_id)
-    return _grade_exercise(exercise, payload.answer)
+    return _grade_exercise(exercise, payload.answer, lang)
 
 
 @api.get("/v1/learners", dependencies=[Depends(require_write_token)], tags=["Learners"])

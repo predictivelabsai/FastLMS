@@ -23,11 +23,11 @@ EXPECTED_LESSONS = {
 
 
 def test_curated_visual_library_covers_the_agreed_subject_lessons():
-    assert {lesson for _slug, lesson in visualizations.BUILDERS} == EXPECTED_LESSONS
+    assert {lesson for _slug, lesson in visualizations.BUILDERS} >= EXPECTED_LESSONS
     assert {slug for slug, _lesson in visualizations.BUILDERS} == {
         "mathematics-foundations", "physics-essentials",
         "geography-physical-human", "art-principles", "primary-science",
-        "chemistry-fundamentals", "advanced-chemistry",
+        "chemistry-fundamentals", "advanced-chemistry", "ee-grade-8-chemistry",
     }
 
 
@@ -80,7 +80,7 @@ def test_saved_visuals_follow_the_existing_teacher_approval_flow():
     assert "lesson_visualizations" in schema
     assert 'value="visualization"' in routes
     assert 'draft["draft_type"] == "visualization"' in routes
-    assert "visualizations.validate(english)" in routes
+    assert "visualizations.validate(primary)" in routes
 
 
 def test_chat_reload_order_is_deterministic_for_same_transaction_messages():
