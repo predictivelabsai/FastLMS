@@ -14,7 +14,7 @@
   },
   "servers": [
     {
-      "url": "https://fastlearn.fun/api",
+      "url": "https://fastlearn.school/api",
       "description": "FastLearn production"
     },
     {

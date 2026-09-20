@@ -407,7 +407,7 @@ loads the answer key only on the server and returns a verdict, not the key.
 ## Mobile architecture
 
 The Flutter application uses `API_BASE_URL`, defaulting to
-`https://fastlearn.fun/api/v1`.
+`https://fastlearn.school/api/v1`.
 
 Native Classic mode renders:
 

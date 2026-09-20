@@ -30,9 +30,21 @@ def test_supported_languages_and_negotiation():
 
 
 def test_fastlearn_host_dispatch_is_exact():
+    assert is_fastlearn_host(_request(host="fastlearn.school"))
+    assert is_fastlearn_host(_request(host="www.fastlearn.school"))
     assert is_fastlearn_host(_request(host="fastlearn.fun"))
     assert is_fastlearn_host(_request(host="www.fastlearn.fun"))
     assert not is_fastlearn_host(_request(host="lms.fastsme.com"))
+
+
+def test_fastlearn_school_uses_same_origin_google_callback():
+    from components.google_auth import callback_uri
+
+    request = SimpleNamespace(
+        headers={"host": "fastlearn.school"},
+        url=SimpleNamespace(netloc="fastlearn.school", scheme="https"),
+    )
+    assert callback_uri(request) == "https://fastlearn.school/auth/google/callback"
 
 
 def test_return_path_rejects_external_redirects():

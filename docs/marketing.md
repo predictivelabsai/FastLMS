@@ -70,8 +70,8 @@ If you are a parent, fork it and personalise the subjects, examples, language,
 difficulty, and pace for your children. If you are a teacher or builder, help
 make adaptive learning transparent, human-guided, and accessible.
 
-🌐 Live demo: https://fastlearn.fun  
-🎬 Animated walkthrough: https://fastlearn.fun/static/fastlearn-demo.gif  
+🌐 Live demo: https://fastlearn.school
+🎬 Animated walkthrough: https://fastlearn.school/static/fastlearn-demo.gif
 📘 Platform guide (PDF): https://github.com/predictivelabsai/FastLMS/blob/main/docs/fastlearn_platform_guide.pdf  
 ⭐ Source code: https://github.com/predictivelabsai/FastLMS
 
@@ -81,8 +81,8 @@ make adaptive learning transparent, human-guided, and accessible.
 ## Publishing assets
 
 - Animated GIF in this repository: [`static/fastlearn-demo.gif`](../static/fastlearn-demo.gif)
-- Public animated GIF: <https://fastlearn.fun/static/fastlearn-demo.gif>
+- Public animated GIF: <https://fastlearn.school/static/fastlearn-demo.gif>
 - Platform guide source: [`docs/fastlearn_platform_guide.md`](fastlearn_platform_guide.md)
 - Platform guide PDF: [`docs/fastlearn_platform_guide.pdf`](fastlearn_platform_guide.pdf)
-- Live demo: <https://fastlearn.fun>
+- Live demo: <https://fastlearn.school>
 - GitHub repository: <https://github.com/predictivelabsai/FastLMS>

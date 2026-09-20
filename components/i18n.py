@@ -16,7 +16,10 @@ LANG_META = {
     "lt": {"flag": "🇱🇹", "name": "Lietuvių"},
     "es": {"flag": "🇪🇸", "name": "Español"},
 }
-FASTLEARN_HOSTS = {"fastlearn.fun", "www.fastlearn.fun"}
+FASTLEARN_HOSTS = {
+    "fastlearn.school", "www.fastlearn.school",
+    "fastlearn.fun", "www.fastlearn.fun",
+}
 
 
 TEXT = {

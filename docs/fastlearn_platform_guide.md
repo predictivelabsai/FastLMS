@@ -2,7 +2,7 @@
 
 **Published:** 2026-09-07<br>
 **Release:** 1.4.0<br>
-**Platform:** [https://fastlearn.fun](https://fastlearn.fun)  
+**Platform:** [https://fastlearn.school](https://fastlearn.school)
 **Interface and catalogue languages:** English, Estonian, Lithuanian and Spanish<br>
 **Language-learning targets:** English, Spanish, French, German, Italian, Portuguese, Mandarin Chinese, Arabic, Japanese and Hindi
 
@@ -44,13 +44,13 @@ This guide explains how students, teachers and the administrator use FastLearn, 
 
 ### Support
 
-- Product: [https://fastlearn.fun](https://fastlearn.fun)
+- Product: [https://fastlearn.school](https://fastlearn.school)
 - Open-source project: [https://github.com/predictivelabsai/FastLMS](https://github.com/predictivelabsai/FastLMS)
 - FastLMS reference: [https://lms.fastsme.com](https://lms.fastsme.com)
 
 ## 1. Platform overview
 
-FastLearn provides structured courses, focused lessons, quizzes, visible progress and a chat-first learning experience at [fastlearn.fun](https://fastlearn.fun).
+FastLearn provides structured courses, focused lessons, quizzes, visible progress and a chat-first learning experience at [fastlearn.school](https://fastlearn.school).
 
 ![FastLearn landing page](img/fastlearn-platform-guide/01-home.png)
 
@@ -102,7 +102,7 @@ FastLearn provides structured courses, focused lessons, quizzes, visible progres
 
 ## 3. Signing in
 
-Open [fastlearn.fun](https://fastlearn.fun), select **Sign In**, then choose **Create your account**.
+Open [fastlearn.school](https://fastlearn.school), select **Sign In**, then choose **Create your account**.
 
 ![FastLearn account creation with Student and Teacher choices](img/fastlearn-platform-guide/02-sign-in.png)
 
@@ -435,7 +435,7 @@ FastLMS is the open-source implementation and developer reference behind FastLea
 Google sign-in for the public product returns to:
 
 ```text
-https://fastlearn.fun/auth/google/callback
+https://fastlearn.school/auth/google/callback
 ```
 
 The original FastLMS callback remains registered separately. Signup role selection applies to password registration and Google SSO, while returning users retain the role stored for their account. Invitation roles take precedence, and public signup can never create an administrator.
@@ -452,7 +452,7 @@ Guided chess answers are graded server-side; expected answers are not included i
 
 ### A.3 Integration API
 
-Open [FastLearn Developers](https://fastlearn.fun/developers), [Swagger UI](https://fastlearn.fun/api/docs), or [ReDoc](https://fastlearn.fun/api/redoc). The API is versioned under `/api/v1`.
+Open [FastLearn Developers](https://fastlearn.school/developers), [Swagger UI](https://fastlearn.school/api/docs), or [ReDoc](https://fastlearn.school/api/redoc). The API is versioned under `/api/v1`.
 
 Published curriculum is public:
 
@@ -464,8 +464,8 @@ Published curriculum is public:
 Learner information is private. Configure `FASTSME_API_TOKEN` and send `Authorization: Bearer <token>` to access learner lists, assignments, enrolments, progress, recorded attempts, chat sessions or chat messages. Public API records never include password hashes, OAuth credentials or private exercise answers.
 
 ```bash
-curl "https://fastlearn.fun/api/v1/courses?lang=es"
+curl "https://fastlearn.school/api/v1/courses?lang=es"
 
-curl "https://fastlearn.fun/api/v1/learners/42/progress" \
+curl "https://fastlearn.school/api/v1/learners/42/progress" \
   -H "Authorization: Bearer $FASTSME_API_TOKEN"
 ```

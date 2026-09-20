@@ -6,9 +6,9 @@ Open-source learning management system built with [FastHTML](https://github.com/
 
 FastLearn 1.4 adds safe interactive Plotly explanations for mathematics, physics, geography, and art. Visuals stream into chat, persist with the lesson context, include accessible data tables, and use a self-hosted renderer. Chess Foundations I remains available for children aged 3–12 with guided boards and private server-side grading.
 
-[Open the live demo](https://fastlearn.fun) · [Read the platform guide](docs/fastlearn_platform_guide.md) · [Download the landscape PDF](docs/fastlearn_platform_guide.pdf)
+[Open the live demo](https://fastlearn.school) · [Read the platform guide](docs/fastlearn_platform_guide.md) · [Download the landscape PDF](docs/fastlearn_platform_guide.pdf)
 
-[![FastLearn animated product walkthrough](static/fastlearn-demo.gif)](https://fastlearn.fun)
+[![FastLearn animated product walkthrough](static/fastlearn-demo.gif)](https://fastlearn.school)
 
 ## Product tour and documentation
 
@@ -305,7 +305,7 @@ Run `python seed.py` for the core catalogue, then `python seed_subjects.py` for 
 
 ## Integration API
 
-Open Swagger at `https://fastlearn.fun/api/docs`, ReDoc at `/api/redoc`, or the developer overview at `/developers`. Published courses, modules, lessons, and answer-safe exercises are public. Set `FASTSME_API_TOKEN` and send it as a bearer token for learners, assignments, enrolments, progress, recorded exercise attempts, and chat history.
+Open Swagger at `https://fastlearn.school/api/docs`, ReDoc at `/api/redoc`, or the developer overview at `/developers`. Published courses, modules, lessons, and answer-safe exercises are public. Set `FASTSME_API_TOKEN` and send it as a bearer token for learners, assignments, enrolments, progress, recorded exercise attempts, and chat history.
 
 ## Language learning
 

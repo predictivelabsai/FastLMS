@@ -2799,7 +2799,7 @@ async def invite_person(req):
         """), {"email": email, "role": role, "token": token_hash, "by": user["id"]})
         db.audit(conn, actor_id=user["id"], action="invitation.created", target_type="user",
                  target_id=email, details={"role": role})
-    base = os.getenv("FASTLEARN_PUBLIC_URL", "https://fastlearn.fun").rstrip("/")
+    base = os.getenv("FASTLEARN_PUBLIC_URL", "https://fastlearn.school").rstrip("/")
     invite_url = f"{base}/invite/{token}"
     sent = account_auth.send_email(
         email, "You are invited to FastLearn",

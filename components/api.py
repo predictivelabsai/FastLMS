@@ -48,7 +48,7 @@ api = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     servers=[
-        {"url": "https://fastlearn.fun/api", "description": "FastLearn production"},
+        {"url": "https://fastlearn.school/api", "description": "FastLearn production"},
         {"url": "https://lms.fastsme.com/api", "description": "FastLMS reference"},
     ],
     contact={"name": "FastSME", "url": "https://fastsme.com"},
@@ -179,9 +179,9 @@ def _get_public(table: str, item_id: int, lang: str) -> dict:
 def index():
     return {
         "name": "FastLearn API", "version": APP_VERSION,
-        "documentation": "https://fastlearn.fun/developers",
-        "swagger": "https://fastlearn.fun/api/docs",
-        "openapi": "https://fastlearn.fun/api/openapi.json",
+        "documentation": "https://fastlearn.school/developers",
+        "swagger": "https://fastlearn.school/api/docs",
+        "openapi": "https://fastlearn.school/api/openapi.json",
     }
 
 

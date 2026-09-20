@@ -15,6 +15,8 @@ def new_state(): return secrets.token_urlsafe(32)
 def callback_uri(request):
     host = (request.headers.get("x-forwarded-host") or request.headers.get("host") or request.url.netloc)
     host = host.split(",", 1)[0].split(":", 1)[0].lower()
+    if host in {"fastlearn.school", "www.fastlearn.school"}:
+        return "https://fastlearn.school/auth/google/callback"
     if host in {"fastlearn.fun", "www.fastlearn.fun"}:
         return "https://fastlearn.fun/auth/google/callback"
     if REDIRECT_URI: return REDIRECT_URI

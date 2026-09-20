@@ -15,8 +15,8 @@ def test_platform_guide_source_keeps_presentation_copy_only():
     assert "## Contents" in guide
     assert guide.index("## Quick reference") < guide.index("## 1. Platform overview")
     assert "## Appendix: Developers" in guide
-    assert "https://fastlearn.fun/auth/google/callback" in guide.split("## Appendix: Developers", 1)[1]
-    assert "https://fastlearn.fun/auth/google/callback" not in guide.split("## Appendix: Developers", 1)[0]
+    assert "https://fastlearn.school/auth/google/callback" in guide.split("## Appendix: Developers", 1)[1]
+    assert "https://fastlearn.school/auth/google/callback" not in guide.split("## Appendix: Developers", 1)[0]
     assert "Available editions:" not in guide
     assert "Screenshots were reviewed" not in guide
 

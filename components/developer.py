@@ -7,7 +7,7 @@ from .seo import seo_meta
 
 ACCENT = "#7c3aed"
 TINT = "#f5f3ff"
-BASE_URL = "https://fastlearn.fun"
+BASE_URL = "https://fastlearn.school"
 REPOSITORY = "https://github.com/predictivelabsai/FastLMS"
 
 DEVELOPER_CSS = """

@@ -14,7 +14,7 @@ from .i18n import LANG_META, SUPPORTED_LANGS, t
 from .seo import seo_meta
 
 
-FASTLEARN_URL = "https://fastlearn.fun/"
+FASTLEARN_URL = "https://fastlearn.school/"
 REPOSITORY_URL = "https://github.com/predictivelabsai/FastLMS"
 ANDROID_APK_URL = "https://github.com/predictivelabsai/fastlearn-mobile/releases/latest/download/fastlearn-mobile-latest.apk"
 EXAM_PREP_METHODOLOGY_URL = "/methodology"
