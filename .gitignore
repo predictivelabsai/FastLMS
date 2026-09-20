@@ -11,6 +11,8 @@ build/
 .playwright-mcp/
 node_modules/
 artifacts/evals/
+evals/reports/*
+!evals/reports/.gitkeep
 
 # BYOK runtime key store (encrypted; never commit)
 byok/byok.sqlite

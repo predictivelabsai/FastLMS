@@ -129,6 +129,12 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
             ("fees", "Fees", "/app/school/fees"),
         ]
 
+    admin_items = []
+    if user:
+        admin_items = [
+            ("evaluations", t("evaluation_reports", lang), "/app/admin/evaluations"),
+        ]
+
     def nav_links(items):
         links = []
         for key, label, href in items:
@@ -143,6 +149,7 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
 
     learning_links = nav_links(learning_items)
     teaching_links = nav_links(teaching_items)
+    admin_links = nav_links(admin_items)
 
     school_nav = ""
     if school_items:
@@ -168,6 +175,15 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
             t("teaching_nav", lang),
             Nav(*teaching_links, cls="nav-list", aria_label=t("teaching_nav", lang)),
             opened=any(active == key for key, _, _ in teaching_items),
+        )
+
+    admin_nav = ""
+    if admin_items:
+        admin_nav = _nav_group(
+            "admin",
+            t("admin_nav", lang),
+            Nav(*admin_links, cls="nav-list", aria_label=t("admin_nav", lang)),
+            opened=any(active == key for key, _, _ in admin_items),
         )
 
     resources_active = active == "developers"
@@ -268,6 +284,7 @@ def left_pane(user=None, active=None, lang="en", current_path="/app", current_ch
             learning_nav,
             teaching_nav,
             school_nav,
+            admin_nav,
             resources_nav,
             cls="left-pane-scroll",
         ),

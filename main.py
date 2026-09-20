@@ -55,8 +55,10 @@ from components.i18n import (
 )
 from components.seo import register_seo_routes
 from components.developer import developer_page
+from components.evaluation_reports import evaluation_reports_content
 from components import account_auth, google_auth
 from components.api import api
+from evals import reporting as eval_reporting
 
 _DEV_SESSION_FALLBACK = "fastlms-dev-secret-change-me"
 _WEAK_SESSION_SECRETS = frozenset({
@@ -1679,41 +1681,15 @@ async def chat_stream_workspace(req):
         with db.begin() as conn:
             db.update_chat_session(conn, user["id"], chat_id, context=session_context)
 
-    lesson_context = ""
-    if lesson:
-        lesson_context = f"\n\nThe student is studying '{lesson['title']}'. Ground answers in this lesson:\n{lesson.get('content_md', '')[:3000]}"
-    curriculum_prompt = ""
-    if curriculum_context:
-        curriculum_prompt = f"""
-
-Curriculum contract:
-- country/jurisdiction: {curriculum_context.get('country_code')} / {curriculum_context.get('jurisdiction_code')}
-- program/version: {curriculum_context.get('program_code')} / {curriculum_context.get('version')}
-- stage/grade: {curriculum_context.get('stage_code')} / {curriculum_context.get('grade_code')}
-- canonical language: {curriculum_context.get('canonical_language')}
-- assessed outcomes: {', '.join(curriculum_context.get('outcome_codes') or [])}
-- excluded later-grade scope: {', '.join(str(item) for item in (curriculum_context.get('excluded_scope') or []))}
-Assume the learner began with zero knowledge of chemical symbols and calculations. Define every symbol before relying on it. For calculations, identify knowns and the target, state the relationship in words, substitute with units, calculate, and check reasonableness.
-"""
-
     async def generate():
         try:
             provider = os.environ.get("MODEL_PROVIDER", "xai")
             model = os.environ.get("DEFAULT_MODEL", "grok-4-1-fast-reasoning")
             audience = session_context.get("role", "student")
-            role_direction = (
-                "Help this teacher choose curriculum and guide them to FastLearn's course, team, draft-review, and reporting tools."
-                if audience == "teacher" else
-                "Help this administrator manage the catalogue, users, teachers, approvals, and reports."
-                if audience == "admin" else
-                "Help the student understand material and move forward through dialogue."
+            system_prompt = learning_chat.build_agent_system_prompt(
+                role=audience, language=lang, lesson=lesson,
+                curriculum_context=curriculum_context,
             )
-            system_prompt = f"""You are FastLearn, a multilingual conversational assistant.
-{role_direction} Be encouraging, clear, and concise.
-{learning_chat.CHAT_FEEDBACK_RULE if audience == "student" else ""}
-When useful, offer a small set of lettered choices that the learner can answer by typing the letter.
-Format responses in Markdown.
-{prompt_language_directive(lang)}{curriculum_prompt}{lesson_context}"""
             llm_messages = [{"role": "system", "content": system_prompt}] + [
                 {"role": item["role"], "content": item["content"]}
                 for item in history if item["role"] in {"user", "assistant"}
@@ -2970,6 +2946,47 @@ def learning_reports(req):
         cls="page-content",
     )
     return app_shell(content, user=user, active="reports", lang=lang, current_path="/app/reports")
+
+
+# ---------------------------------------------------------------------------
+# Admin — evaluation reports (summary for students, full evidence for staff)
+# ---------------------------------------------------------------------------
+
+@app.get("/app/admin/evaluations")
+def evaluation_reports(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    lang = get_lang(req)
+    run_id = req.query_params.get("run", "").strip()
+    content = evaluation_reports_content(
+        user, lang, run_id,
+        query=req.query_params.get("q", "").strip(),
+        status=req.query_params.get("status", "").strip().upper(),
+        eval_type=req.query_params.get("eval_type", "").strip().lower(),
+    )
+    return app_shell(
+        content, user=user, active="evaluations", title=t("evaluation_reports", lang),
+        lang=lang, current_path="/app/admin/evaluations",
+    )
+
+
+@app.get("/app/admin/evaluations/download")
+def download_evaluation_report(req):
+    user, redir = _require_login(req)
+    if redir:
+        return redir
+    run_id = req.query_params.get("run", "").strip()
+    output_format = req.query_params.get("format", "json").strip().lower()
+    is_staff = user.get("role") in {"teacher", "instructor", "admin"}
+    if output_format == "csv" and not is_staff:
+        return Response("Detailed evaluation evidence is available to staff only.", status_code=403)
+    filename = "results.csv" if output_format == "csv" else "summary.json"
+    path = eval_reporting.report_file(run_id, filename)
+    if path is None:
+        return Response("Evaluation report not found.", status_code=404)
+    from starlette.responses import FileResponse
+    return FileResponse(path, filename=f"fastlearn-{run_id}-{filename}")
 
 
 @app.get("/app/course/{course_id:int}/strategy")

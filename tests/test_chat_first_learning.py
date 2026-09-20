@@ -119,7 +119,10 @@ def test_free_form_and_voice_tutors_share_the_global_feedback_rule():
 
     assert "explicitly say whether it is correct" in rule
     assert "state the correct answer" in rule
-    assert main_source.count("learning_chat.CHAT_FEEDBACK_RULE") >= 2
+    assert "learning_chat.build_agent_system_prompt" in main_source
+    assert learning_chat.CHAT_FEEDBACK_RULE in learning_chat.build_agent_system_prompt(
+        role="student", language="en"
+    )
     assert "CHAT_FEEDBACK_RULE" in voice_source
 
 
@@ -151,7 +154,8 @@ def test_admin_and_student_openings_remain_role_specific(monkeypatch):
     assert student["content"].startswith("What would you like to learn?")
 
 
-def test_default_chat_does_not_reopen_student_thread_for_teacher():
+def test_default_chat_does_not_reopen_student_thread_for_teacher(monkeypatch, tmp_path):
+    monkeypatch.setenv("FASTSME_AUTH_DB", str(tmp_path / "accounts.sqlite"))
     from main import _latest_session_for_role
 
     sessions = [

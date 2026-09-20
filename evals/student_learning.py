@@ -243,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--base-url", default=os.getenv("STUDENT_EVAL_API_BASE_URL", DEFAULT_API_BASE_URL))
     parser.add_argument("--skip-live", action="store_true")
     parser.add_argument("--skip-judge", action="store_true")
-    parser.add_argument("--output-dir", default=os.getenv("EVAL_OUTPUT_DIR", "artifacts/evals"))
+    parser.add_argument("--output-dir", default=os.getenv("EVAL_OUTPUT_DIR", "evals/reports/student-learning"))
     args = parser.parse_args(argv)
     report = build_report(args.base_url, include_live=not args.skip_live, include_judge=not args.skip_judge)
     output_dir = Path(args.output_dir)

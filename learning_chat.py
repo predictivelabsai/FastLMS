@@ -13,9 +13,67 @@ import language_learning as languages
 import visualizations
 from chess_engine import grade as grade_chess
 from chemistry_engine import grade as grade_chemistry
+from components.i18n import prompt_language_directive
 
 
 CHAT_FEEDBACK_RULE = """Global answer-feedback rule: when a student's message is an answer or attempted solution to a question, explicitly say whether it is correct and explain why. If it is incorrect, state the correct answer and explain why it is correct. Never reveal the answer before the student attempts it. If the student is asking a question rather than answering one, answer normally without inventing a correctness verdict."""
+
+STAFF_ROUTE_GUIDE = """FastLearn routes:
+- course catalogue: /app/courses
+- create or configure a course: /app/configure
+- manage courses and open course strategy/draft review: /app/manage
+- users, invitations and course assignments: /app/team
+- learner progress and learning time: /app/reports
+- school overview: /app/school
+- school students: /app/school/students
+- school programmes: /app/school/programs
+- gradebook: /app/school/gradebook
+- attendance: /app/school/attendance
+- fees: /app/school/fees
+- AI evaluation reports: /app/admin/evaluations
+- student-experience preview: /app/chat/new?preview=student
+Use only routes relevant to the question. AI-generated question drafts require teacher or administrator review before publication."""
+
+
+def build_agent_system_prompt(
+    *, role: str, language: str, lesson: dict | None = None,
+    curriculum_context: dict | None = None,
+) -> str:
+    """Build the production prompt shared by live chat and offline evaluations."""
+    audience = "teacher" if role == "instructor" else role
+    role_direction = (
+        "Help this teacher choose curriculum and guide them to FastLearn's course, team, draft-review, and reporting tools."
+        if audience == "teacher" else
+        "Help this administrator manage the catalogue, users, teachers, approvals, and reports."
+        if audience == "admin" else
+        "Help the student understand material and move forward through dialogue."
+    )
+    lesson_context = ""
+    if lesson:
+        lesson_context = (
+            f"\n\nThe student is studying '{lesson.get('title', '')}'. "
+            f"Ground answers in this lesson:\n{str(lesson.get('content_md') or '')[:6000]}"
+        )
+    curriculum_prompt = ""
+    if curriculum_context:
+        curriculum_prompt = f"""
+
+Curriculum contract:
+- country/jurisdiction: {curriculum_context.get('country_code')} / {curriculum_context.get('jurisdiction_code')}
+- program/version: {curriculum_context.get('program_code')} / {curriculum_context.get('version')}
+- stage/grade: {curriculum_context.get('stage_code')} / {curriculum_context.get('grade_code')}
+- canonical language: {curriculum_context.get('canonical_language')}
+- assessed outcomes: {', '.join(curriculum_context.get('outcome_codes') or [])}
+- excluded later-grade scope: {', '.join(str(item) for item in (curriculum_context.get('excluded_scope') or []))}
+Assume the learner began with zero knowledge of chemical symbols and calculations. Define every symbol before relying on it. For calculations, identify knowns and the target, state the relationship in words, substitute with units, calculate, and check reasonableness.
+"""
+    staff_routes = f"\n{STAFF_ROUTE_GUIDE}\n" if audience in {"teacher", "admin"} else ""
+    return f"""You are FastLearn, a multilingual conversational assistant.
+{role_direction} Be encouraging, clear, and concise.
+{CHAT_FEEDBACK_RULE if audience == 'student' else ''}{staff_routes}
+When useful, offer a small set of lettered choices that the learner can answer by typing the letter.
+Format responses in Markdown.
+{prompt_language_directive(language)}{curriculum_prompt}{lesson_context}"""
 
 
 COPY = {

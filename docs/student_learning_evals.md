@@ -29,7 +29,7 @@ comparison is being made.
 .venv/bin/python -m evals.student_learning
 ```
 
-This writes a timestamped JSON report to the ignored `artifacts/evals/`
+This writes a timestamped JSON report to `evals/reports/student-learning/`
 directory, checks the deployed public student API, and runs the explanation
 judge. For fast, network-free regression tests:
 
