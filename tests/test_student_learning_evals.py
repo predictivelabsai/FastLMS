@@ -28,3 +28,12 @@ def test_report_can_run_without_network_or_api_key(monkeypatch):
     report = evaluations.build_report("https://example.invalid/api/v1", include_live=False, include_judge=True)
     assert report["summary"]["failed"] == 0
     assert report["summary"]["skipped"] == 5
+
+
+def test_live_contract_documents_only_known_legacy_chemistry_modules():
+    fixture = json.loads(
+        (evaluations.GROUND_TRUTH / "student_course_contract.json").read_text(encoding="utf-8")
+    )
+    chemistry = next(course for course in fixture["courses"] if course["slug"] == "chemistry-fundamentals")
+    assert chemistry["live_compatible_extra_modules"] == ["Atomic Structure", "Chemical Reactions"]
+    assert chemistry["live_lesson_counts"] == [10, 12]

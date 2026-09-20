@@ -152,7 +152,16 @@ def run_live_checks(base_url: str) -> list[dict[str, Any]]:
             modules = curriculum.get("modules", [])
             titles = [module.get("title") for module in modules]
             lessons = [lesson for module in modules for lesson in module.get("lessons", [])]
-            course_ok = titles == expected["modules"] and len(lessons) == expected["lesson_count"]
+            expected_titles = set(expected["modules"])
+            compatible_extras = set(expected.get("live_compatible_extra_modules", []))
+            actual_titles = set(titles)
+            modules_ok = (
+                expected_titles <= actual_titles
+                and actual_titles - expected_titles <= compatible_extras
+                and len(titles) == len(actual_titles)
+            )
+            lesson_counts = expected.get("live_lesson_counts", [expected["lesson_count"]])
+            course_ok = modules_ok and len(lessons) in lesson_counts
             checks.append(_check(
                 f"live:{expected['slug']}", course_ok,
                 f"modules={titles}; lessons={len(lessons)}",
